@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using Tanks3DFPP.Terrain;
+using Tanks3DFPP.Utilities;
 
 
 namespace Tanks3DFPP.Terrain
@@ -19,101 +20,135 @@ namespace Tanks3DFPP.Terrain
     public class Terrain
     {
         private IHeightMap heightMap;
-        
+
         private IHeightToColorTranslationMethod coloringMethod;
-        private VertexPositionColor[] vertices;
-        private VertexBuffer vertexBuffer;
+        private VertexPositionColorNormal[] vertices;
         private int[] indices;
 
+        /// <summary>
+        /// Gets the width (X) of the terrain.
+        /// </summary>
+        /// <value>
+        /// The width.
+        /// </value>
         public int Width
         {
             get;
             private set;
         }
 
+        /// <summary>
+        /// Gets the height (Z) of the terrain.
+        /// </summary>
+        /// <value>
+        /// The height.
+        /// </value>
         public int Height
         {
             get;
             private set;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Terrain" /> class.
+        /// </summary>
+        /// <param name="heightMap">The height map.</param>
+        /// <param name="coloringMethod">The coloring method.</param>
         public Terrain(IHeightMap heightMap, IHeightToColorTranslationMethod coloringMethod)
         {
             this.Width = heightMap.Width;
             this.Height = heightMap.Height;
             this.heightMap = heightMap;
             this.coloringMethod = coloringMethod;
-            this.setUpVertices();
+            this.SetUpVertices();
             this.SetUpIndices();
+            this.CalculateNormals();
         }
 
-        private void setUpVertices()
+        /// <summary>
+        /// Calculates the value by which the terrain's height has to be offset.
+        /// </summary>
+        /// <returns>The minimal height present on the map.</returns>
+        private float CalculateHeightOffset()
         {
-            float min = this.heightMap.Data[0,0];
+            float result = this.heightMap.Data[0, 0];
             for (int x = 0; x < this.Width; ++x)
             {
                 for (int y = 0; y < this.Height; ++y)
                 {
-                    if (this.heightMap.Data[x, y] < min)
+                    if (this.heightMap.Data[x, y] < result)
                     {
-                        min = this.heightMap.Data[0, 0];
+                        result = this.heightMap.Data[0, 0];
                     }
                 }
             }
 
-            this.vertices = new VertexPositionColor[this.Width * this.Height];
-            for (int x = 0; x < this.Width; ++x)
+            return result;
+        }
+
+
+        /// <summary>
+        /// Sets up vertices.
+        /// </summary>
+        private void SetUpVertices()
+        {
+            float heightOffset = CalculateHeightOffset();
+            this.vertices = new VertexPositionColorNormal[this.Width * this.Height];
+            for (int y = 0; y < this.Width; ++y)
             {
-                for (int y = 0; y < this.Height; ++y)
+                for (int x = 0; x < this.Height; ++x)
                 {
-                    this.vertices[x + y * this.Width].Position = new Vector3(x, this.heightMap.Data[x,y] - min, this.Height / 2 -y);
+                    this.vertices[x + y * this.Width].Position = new Vector3(x, this.heightMap.Data[x, y] - heightOffset, this.Height / 2 - y);
                     this.vertices[x + y * this.Width].Color = this.coloringMethod.Calculate((int)this.heightMap.Data[x, y]);
+                    this.vertices[x + y * this.Width].Normal = new Vector3(0, 0, 0);
                 }
             }
         }
 
+        /// <summary>
+        /// Calculates the normals for all vertices.
+        /// </summary>
+        private void CalculateNormals()
+        {
+            for (int i = 0; i < this.indices.Length / 3; ++i)
+            {
+                // the three vertices of a triangle
+                int index1 = this.indices[3 * i],
+                    index2 = this.indices[3 * i + 1],
+                    index3 = this.indices[3 * i + 2];
+                // The sides of the triangle that the light will shine on
+                Vector3 side1 = this.vertices[index1].Position - this.vertices[index3].Position,
+                        side2 = this.vertices[index1].Position - this.vertices[index2].Position;
+
+                Vector3 normal = Vector3.Cross(side1, side2);
+                this.vertices[index1].Normal += normal;
+                this.vertices[index2].Normal += normal;
+                this.vertices[index3].Normal += normal;
+            }
+
+            for (int i = 0; i < this.vertices.Length; ++i)
+            {
+                this.vertices[i].Normal.Normalize();
+            }
+        }
+
+        /// <summary>
+        /// Sets up vertex indices.
+        /// </summary>
         private void SetUpIndices()
         {
-            #region Xylem
-            //int height = (this.Height - 1),
-            //    width = (this.Width - 1),
-            //    index = 0,
-            //    startingVertexNdx = 0;
-            //this.indices = new int[height * width * 12];
-            //for (int y = 0; y < height; ++y)
-            //{
-            //    for (int x = 0; x < width; ++x)
-            //    {
-            //        this.indices[index] = startingVertexNdx;
-            //        this.indices[index + 1] = startingVertexNdx + 1;
-            //        this.indices[index + 2] = startingVertexNdx + height;
-
-            //        index += 3;
-
-            //        this.indices[index] = startingVertexNdx + 1;
-            //        this.indices[index + 1] = startingVertexNdx + height + 1;
-            //        this.indices[index + 2] = startingVertexNdx + height;
-
-            //        index += 3;
-            //        ++startingVertexNdx;
-            //    }
-
-            //    ++startingVertexNdx;
-            //} 
-            #endregion
-
             int height = (this.Height - 1),         // number of triangles in a row
                 width = (this.Width - 1),           // number of rows of triangles within a height map
                 index = 0;
-            /* 
-             * to draw only half of a rectangle in one place:
-             * triangles/row * rows * 3 vertices for a spot, making only a triangular half filled.
-             * this.indices = new int[height * width * 3];
-             * 
-             * To draw a full rectangle in one place:
-             * triangles/row * rows * 6 vertices for a spot, placing two triangles in one spto, thus filling it completely
-             * this.indices = new int[height * width * 6];
-            */
+            ///* 
+            // * to draw only half of a rectangle in one place:
+            // * triangles/row * rows * 3 vertices for a spot, making only a triangular half filled.
+            // * this.indices = new int[height * width * 3];
+            // * 
+            // * To draw a full rectangle in one place:
+            // * triangles/row * rows * 6 vertices for a spot, placing two triangles in one spto, thus filling it completely
+            // * this.indices = new int[height * width * 6];
+            //*/
             this.indices = new int[height * width * 6];
             for (int y = 0; y < height; ++y)
             {
@@ -133,15 +168,46 @@ namespace Tanks3DFPP.Terrain
                     this.indices[index++] = topRight;
                     this.indices[index++] = bottomRight;
                 }
-
-            } 
+            }
         }
 
+        /// <summary>
+        /// Renders the terrain to specified device.
+        /// </summary>
+        /// <param name="device">The device.</param>
         public void Render(GraphicsDevice device)
         {
-            device.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, this.vertices, 0, this.vertices.Length, this.indices, 0, this.indices.Length / 3, VertexPositionColor.VertexDeclaration);
+            int drawLimit = 100000;
+            int primitives = this.indices.Length / 3;
+            int segments = primitives / drawLimit;
+            int rest = primitives % drawLimit;
+
+            for (int offset = 0; offset < segments; ++offset)
+            {
+                device.DrawUserIndexedPrimitives(
+                    PrimitiveType.TriangleList,
+                    this.vertices, 0,
+                    this.vertices.Length,
+                    this.indices,
+                    offset*drawLimit*3,
+                    drawLimit,
+                    VertexPositionColorNormal.VertexDeclaration);
+            }
+
+            if (rest > 0)
+            {
+                device.DrawUserIndexedPrimitives(
+                    PrimitiveType.TriangleList,
+                    this.vertices, 0,
+                    this.vertices.Length,
+                    this.indices,
+                    segments * 3,
+                    rest,
+                    VertexPositionColorNormal.VertexDeclaration);
+            }
         }
 
         //TODO: setUpIndices
     }
 }
+
