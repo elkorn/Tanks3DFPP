@@ -20,8 +20,8 @@ namespace Tanks3DFPP
     {
 
         int mapSize = 9,
-            roughness = 1000,
-            maxHeight = 100;
+            roughness = 200,
+            maxHeight = 255;
 
         /*
          * TODO: Is one effect enough to draw everything? 
@@ -43,8 +43,8 @@ namespace Tanks3DFPP
         private float cameraSpeed = 140.0f;
         private bool leftMousePreviouslyDown;
         private Point mouseStartPoint;
-        int currentColoringMethod = 0;
-        bool wireFrame, fillModeGuard, lightingTypeGuard, terrainGenerationGuard, coloringMethodGuard;
+        int currentColoringMethod = 1;
+        bool wireFrame;
         IHeightToColorTranslationMethod[] coloringMethods;
 
         private static Dictionary<Action, bool> actionSafeGuards = new Dictionary<Action, bool>();
@@ -190,11 +190,11 @@ namespace Tanks3DFPP
                 {
                     if (wireFrame)
                     {
-                        this.GraphicsDevice.RasterizerState = new RasterizerState { FillMode = FillMode.Solid };
+                        this.GraphicsDevice.RasterizerState = new RasterizerState { CullMode = CullMode.None, FillMode = FillMode.Solid };
                     }
                     else
                     {
-                        this.GraphicsDevice.RasterizerState = new RasterizerState { FillMode = FillMode.WireFrame };
+                        this.GraphicsDevice.RasterizerState = new RasterizerState { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
                     }
 
                     wireFrame = !wireFrame;

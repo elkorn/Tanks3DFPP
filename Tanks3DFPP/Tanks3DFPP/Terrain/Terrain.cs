@@ -94,13 +94,13 @@ namespace Tanks3DFPP.Terrain
         {
             float heightOffset = CalculateHeightOffset();
             this.vertices = new VertexPositionColorNormal[this.Width * this.Height];
-            for (int x = 0; x < this.Width; ++x)
+            for (int y = 0; y < this.Width; ++y)
             {
-                for (int y = 0; y < this.Height; ++y)
+                for (int x = 0; x < this.Height; ++x)
                 {
                     this.vertices[x + y * this.Width].Position = new Vector3(x, this.heightMap.Data[x, y] - heightOffset, this.Height / 2 - y);
                     this.vertices[x + y * this.Width].Color = this.coloringMethod.Calculate((int)this.heightMap.Data[x, y]);
-                    this.vertices[x + y * this.Width].Normal = new Vector3(0,0,0);
+                    this.vertices[x + y * this.Width].Normal = new Vector3(0, 0, 0);
                 }
             }
         }
@@ -141,15 +141,15 @@ namespace Tanks3DFPP.Terrain
             int height = (this.Height - 1),         // number of triangles in a row
                 width = (this.Width - 1),           // number of rows of triangles within a height map
                 index = 0;
-            /* 
-             * to draw only half of a rectangle in one place:
-             * triangles/row * rows * 3 vertices for a spot, making only a triangular half filled.
-             * this.indices = new int[height * width * 3];
-             * 
-             * To draw a full rectangle in one place:
-             * triangles/row * rows * 6 vertices for a spot, placing two triangles in one spto, thus filling it completely
-             * this.indices = new int[height * width * 6];
-            */
+            ///* 
+            // * to draw only half of a rectangle in one place:
+            // * triangles/row * rows * 3 vertices for a spot, making only a triangular half filled.
+            // * this.indices = new int[height * width * 3];
+            // * 
+            // * To draw a full rectangle in one place:
+            // * triangles/row * rows * 6 vertices for a spot, placing two triangles in one spto, thus filling it completely
+            // * this.indices = new int[height * width * 6];
+            //*/
             this.indices = new int[height * width * 6];
             for (int y = 0; y < height; ++y)
             {
@@ -169,8 +169,32 @@ namespace Tanks3DFPP.Terrain
                     this.indices[index++] = topRight;
                     this.indices[index++] = bottomRight;
                 }
-
             }
+
+            //int index = 0,
+            //    arraySize = this.Height;
+            //int startVertex = 0;
+            //this.indices = new int[(arraySize - 1) * (arraySize - 1) * 12];
+            //for (int cellY = 0; cellY < arraySize - 1; cellY++)
+            //{
+            //    for (int cellX = 0; cellX < arraySize - 1; cellX++)
+            //    {
+            //        this.indices[index] = startVertex + 0;
+            //        this.indices[index + 1] = startVertex + 1;
+            //        this.indices[index + 2] = startVertex + arraySize;
+
+            //        index += 3;
+
+            //        this.indices[index] = startVertex + 1;
+            //        this.indices[index + 1] = startVertex + arraySize + 1;
+            //        this.indices[index + 2] = startVertex + arraySize;
+
+            //        index += 3;
+
+            //        startVertex++;
+            //    }
+            //    startVertex++;
+            //}
         }
 
         /// <summary>
@@ -179,14 +203,34 @@ namespace Tanks3DFPP.Terrain
         /// <param name="device">The device.</param>
         public void Render(GraphicsDevice device)
         {
-            device.DrawUserIndexedPrimitives(
-                PrimitiveType.TriangleList,
-                this.vertices, 0,
-                this.vertices.Length,
-                this.indices,
-                0,
-                this.indices.Length / 3,
-                VertexPositionColorNormal.VertexDeclaration);
+            int drawLimit = 100000;
+            int primitives = this.indices.Length / 3;
+            int segments = primitives / drawLimit;
+            int rest = primitives % drawLimit;
+
+            for (int offset = 0; offset < segments; ++offset)
+            {
+                device.DrawUserIndexedPrimitives(
+                    PrimitiveType.TriangleList,
+                    this.vertices, 0,
+                    this.vertices.Length,
+                    this.indices,
+                    offset*drawLimit*3,
+                    drawLimit,
+                    VertexPositionColorNormal.VertexDeclaration);
+            }
+
+            if (rest > 0)
+            {
+                device.DrawUserIndexedPrimitives(
+                    PrimitiveType.TriangleList,
+                    this.vertices, 0,
+                    this.vertices.Length,
+                    this.indices,
+                    segments * 3,
+                    rest,
+                    VertexPositionColorNormal.VertexDeclaration);
+            }
         }
 
         //TODO: setUpIndices
