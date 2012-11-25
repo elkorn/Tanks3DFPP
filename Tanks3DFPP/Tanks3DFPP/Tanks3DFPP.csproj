@@ -109,8 +109,8 @@
   <ItemGroup>
     <Compile Include="Terrain\FractalMap.cs" />
     <Compile Include="Terrain\GreenYellowRed.cs" />
-    <Compile Include="Terrain\IHeightMap.cs" />
-    <Compile Include="Terrain\IHeightToColorTranslationMethod.cs" />
+    <Compile Include="Terrain\Interfaces\IHeightMap.cs" />
+    <Compile Include="Terrain\Interfaces\IHeightToColorTranslationMethod.cs" />
     <Compile Include="Terrain\Terrain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />

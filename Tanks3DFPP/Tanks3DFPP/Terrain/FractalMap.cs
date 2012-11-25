@@ -133,7 +133,7 @@ namespace Tanks3DFPP.Terrain
             this.heightMap[0, 0] = (float)(this.maxHeight * rand.NextDouble());
             this.heightMap[0, this.mapDimension] = (float)(this.maxHeight * rand.NextDouble());
             this.heightMap[this.mapDimension, 0] = (float)(this.maxHeight * rand.NextDouble());
-            this.heightMap[this.mapDimension, this.mapDimension] = (float)(this.maxHeight * rand.NextDouble()); 
+            this.heightMap[this.mapDimension, this.mapDimension] = (float)(this.maxHeight * rand.NextDouble());
             #endregion
         }
 
@@ -155,59 +155,26 @@ namespace Tanks3DFPP.Terrain
                     right = new Point(area.Right, area.Top + area.Height / 2),
                 center = area.Center;
 
-            if(this.heightMap[top.X, top.Y] == -1) 
-            {
-                this.heightMap[top.X, top.Y] = MathHelper.Clamp((this.heightMap[area.Left, area.Top] + this.heightMap[area.Right, area.Top] + this.heightMap[center.X, center.Y]) / 3 + this.randomizedDisplacement, 0, this.maxHeight);
-            }
-
-            if(this.heightMap[bottom.X, bottom.Y] == -1) 
-            {
-                this.heightMap[bottom.X, bottom.Y] = MathHelper.Clamp((this.heightMap[area.Left, area.Bottom] + this.heightMap[area.Right, area.Bottom] + this.heightMap[center.X, center.Y]) / 3 + this.randomizedDisplacement, 0, this.maxHeight);
-            }
-
-            if(this.heightMap[left.X, left.Y] == -1) 
-            {
-                this.heightMap[left.X, left.Y] = MathHelper.Clamp((this.heightMap[area.Left, area.Top] + this.heightMap[area.Left, area.Bottom] + this.heightMap[center.X, center.Y]) / 3 + this.randomizedDisplacement, 0, this.maxHeight);
-            }
-
-            if (this.heightMap[right.X, right.Y] == -1)
-            {
-                this.heightMap[right.X, right.Y] = MathHelper.Clamp((this.heightMap[area.Right, area.Top] + this.heightMap[area.Right, area.Bottom] + this.heightMap[center.X, center.Y]) / 3 + this.randomizedDisplacement, 0, this.maxHeight);
-            }
-
-
-            /*
-            this.CreateVerticalDiamondElement(area.Left, area.Top, area.Bottom, center, roughness);            // F
-            this.CreateHorizontalDiamondElement(area.Left, area.Right, area.Top, center, roughness);           // G
-            this.CreateVerticalDiamondElement(area.Right, area.Top, area.Bottom, center, roughness);            // H
-            this.CreateHorizontalDiamondElement(area.Left, area.Right, area.Bottom, center, roughness);        // I
-             */
+            CreateHorizontalDiamondPart(top, area.Left, area.Right, area.Top, center);
+            CreateHorizontalDiamondPart(bottom, area.Left, area.Right, area.Bottom, center);
+            CreateVerticalDiamondPart(left, area.Top, area.Bottom, area.Left, center);
+            CreateVerticalDiamondPart(right, area.Top, area.Bottom, area.Right, center);
         }
 
-        private void CreateVerticalDiamondElement(int x, int top, int bottom, Point center, int roughness)
+        private void CreateHorizontalDiamondPart(Point target, int left, int right, int y, Point center)
         {
-            if (this.heightMap[center.Y, x] == -1)
+            if (this.heightMap[target.X, target.Y] == -1)
             {
-                //this.heightMap[center.Y, x] = MathHelper.Clamp((int)((this.heightMap[top, x] + this.heightMap[bottom, x] + this.heightMap[center.Y, center.X]) / 3 + this.randomizedDisplacement), 0, this.maxHeight);
-                this.heightMap[center.Y, x] = MathHelper.Clamp((int)((this.heightMap[top, x] + this.heightMap[bottom, x] + this.heightMap[center.Y, center.X]) / 3) + (float)((rand.NextDouble() - 0.5) * roughness), 0, this.maxHeight);
+                this.heightMap[target.X, target.Y] = MathHelper.Clamp((this.heightMap[left, y] + this.heightMap[right, y] + this.heightMap[center.X, center.Y]) / 3 + this.randomizedDisplacement, 0, this.maxHeight);
             }
-            //if (this.heightMap[x, center.Y] == -1)
-            //{
-            //    this.heightMap[x, center.Y] = MathHelper.Clamp((int)((this.heightMap[x, top] + this.heightMap[x, bottom]/* + this.heightMap[center.X, center.Y]*/) / /*3*/2 + this.randomizedDisplacement), -this.maxHeight, this.maxHeight);
-            //}
         }
 
-        private void CreateHorizontalDiamondElement(int left, int right, int y, Point center, int roughness)
+        private void CreateVerticalDiamondPart(Point target, int top, int bottom, int x, Point center)
         {
-            if (this.heightMap[y, center.X] == -1)
+            if (this.heightMap[target.X, target.Y] == -1)
             {
-                //this.heightMap[y, center.X] = MathHelper.Clamp((int)((this.heightMap[y, left] + this.heightMap[y, right] + this.heightMap[center.Y, center.X]) / 3 + this.randomizedDisplacement), 0, this.maxHeight); // Vit: added clamp
-                this.heightMap[y, center.X] = MathHelper.Clamp((int)((this.heightMap[y, left] + this.heightMap[y, right] + this.heightMap[center.Y, center.X]) / 3 + (float)((rand.NextDouble() - 0.5) * roughness)), 0, this.maxHeight); // Vit: added clamp
+                this.heightMap[target.X, target.Y] = MathHelper.Clamp((this.heightMap[x, top] + this.heightMap[x, bottom] + this.heightMap[center.X, center.Y]) / 3 + this.randomizedDisplacement, 0, this.maxHeight);
             }
-            //if (this.heightMap[center.X, y] == -1)
-            //{
-            //    this.heightMap[center.X, y] = MathHelper.Clamp((int)((this.heightMap[left, y] + this.heightMap[right, y]/* + this.heightMap[center.X, center.Y]*/) / /*3*/ +this.randomizedDisplacement), -this.maxHeight, this.maxHeight); // Vit: added clamp
-            //}
         }
 
         public override string ToString()
