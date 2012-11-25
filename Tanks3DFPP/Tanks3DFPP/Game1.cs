@@ -20,9 +20,19 @@ namespace Tanks3DFPP
     {
 
         int mapSize = 9,
-            roughness = 1000,
-            maxHeight = 100;
-        
+            roughness = 500,
+            maxHeight = 255;
+
+        /*
+         * TODO: Is one effect enough to draw everything? 
+         * Is using separate effects for objects beneficial for any aspect? 
+         * If so, how should they be divided?
+         * 
+         * Or maybe effects should be assigned by
+         * how should different elements be rendered?
+         */
+        BasicEffect effect;
+        Vector3 lightDirection;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         private Vector3 cameraPosition, cameraLookAt;
@@ -33,25 +43,49 @@ namespace Tanks3DFPP
         private float cameraSpeed = 140.0f;
         private bool leftMousePreviouslyDown;
         private Point mouseStartPoint;
-        int currentColoringMethod = 0;
-        bool wireFrame, fillModeSwitch;
+        int currentColoringMethod = 1;
+        bool wireFrame;
         IHeightToColorTranslationMethod[] coloringMethods;
-        //TODO: fix terrain generation
-        //TODO: vertex indexing
-        //TODO: FPP camera
-        /*
-         * TODO: Is one effect enough to draw everything? 
-         * Is using separate effects for objects beneficial for any aspect? 
-         * If so, how should they be divided?
-         * 
-         * Or maybe effects should be assigned by
-         * how should different elements be rendered?
-         */
-        BasicEffect effect; 
+
+        private static Dictionary<Action, bool> actionSafeGuards = new Dictionary<Action, bool>();
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+        }
+
+        void KeyAction(Keys key, Action action)
+        {
+            var ks = Keyboard.GetState();
+            if (ks.IsKeyDown(key))
+            {
+                if (!actionSafeGuards.ContainsKey(action))
+                {
+                    actionSafeGuards.Add(action, false);
+                }
+                else
+                {
+                    if (!actionSafeGuards[action])
+                    {
+                        actionSafeGuards[action] = true;
+                    }
+                }
+            }
+
+            if (ks.IsKeyUp(key) && actionSafeGuards.ContainsKey(action) && actionSafeGuards[action])
+            {
+                action.Invoke();
+                actionSafeGuards[action] = false;
+            }
+        }
+
+        void TurboKeyAction(Keys key, Action action)
+        {
+            if (Keyboard.GetState().IsKeyDown(key))
+            {
+                action.Invoke();
+            }
         }
 
         /// <summary>
@@ -70,14 +104,20 @@ namespace Tanks3DFPP
             projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(90), this.GraphicsDevice.Viewport.AspectRatio, 1, 2000f); // MathHelper.PiOver4
 
             base.Initialize();
-            
+
             effect = new BasicEffect(this.GraphicsDevice);
             this.effect.World = world;
             this.effect.View = view;
             this.effect.Projection = projection;
             this.effect.VertexColorEnabled = true;
-            
-            //GraphicsDevice.RasterizerState = new RasterizerState { CullMode = Microsoft.Xna.Framework.Graphics.CullMode.None/*, FillMode = Microsoft.Xna.Framework.Graphics.FillMode.WireFrame*/ };
+
+            lightDirection = new Vector3(1, -1, -1);
+            lightDirection.Normalize();
+            this.effect.LightingEnabled = true;
+            this.effect.PreferPerPixelLighting = true;
+            this.effect.DirectionalLight0.Direction = lightDirection;
+
+            this.IsMouseVisible = true;
             coloringMethods = new IHeightToColorTranslationMethod[] 
             {
                 new GreenYellowRed(maxHeight),
@@ -86,17 +126,13 @@ namespace Tanks3DFPP
 
             this.terrain = new Terrain.Terrain(new FractalMap(mapSize, roughness, maxHeight, true), coloringMethods[currentColoringMethod]);
         }
-        
+
         /// <summary>
         /// LoadContent will be called once per game and is the place to load
         /// all of your content.
         /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-            
-            // TODO: use this.Content to load your game content here
         }
 
         /// <summary>
@@ -105,7 +141,6 @@ namespace Tanks3DFPP
         /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
         }
 
         /// <summary>
@@ -115,62 +150,57 @@ namespace Tanks3DFPP
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            var ks = Keyboard.GetState();
-            // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed
                 || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 this.Exit();
 
-
             Vector3 distance = this.cameraPosition - this.cameraLookAt;
-
             Vector3 viewDirection = distance;
             viewDirection.Normalize();
 
-            if (ks.IsKeyDown(Keys.W))
-            {
-                Vector3 shift = (float)gameTime.ElapsedGameTime.TotalSeconds * viewDirection * cameraSpeed;
-                this.cameraPosition -= shift;
-                this.cameraLookAt -= shift;
-            }
+            TurboKeyAction(Keys.W, () =>
+                {
+                    Vector3 shift = (float)gameTime.ElapsedGameTime.TotalSeconds * viewDirection * cameraSpeed;
+                    this.cameraPosition -= shift;
+                    this.cameraLookAt -= shift;
+                });
 
-            if (ks.IsKeyDown(Keys.S))
+            TurboKeyAction(Keys.S, () =>
             {
                 Vector3 shift = (float)gameTime.ElapsedGameTime.TotalSeconds * viewDirection * cameraSpeed;
                 this.cameraPosition += shift;
                 this.cameraLookAt += shift;
-            }
+            });
 
-            // TODO: Add your update logic here
-            if (ks.IsKeyDown(Keys.G))
-            {
-                this.terrain = new Terrain.Terrain(new FractalMap(mapSize, roughness, maxHeight, false), new GreenYellowRed(maxHeight));
-            }
-
-            if (ks.IsKeyDown(Keys.F))
-            {
-                if (!fillModeSwitch)
+            KeyAction(Keys.C, () =>
                 {
-                    fillModeSwitch = true;
-                }
-            }
+                    currentColoringMethod += 1;
+                    currentColoringMethod %= this.coloringMethods.Length;
+                });
 
-            if (ks.IsKeyUp(Keys.F) && fillModeSwitch)
-            {
-                if (wireFrame)
+            KeyAction(Keys.G, () =>
                 {
-                    this.GraphicsDevice.RasterizerState = new RasterizerState { FillMode = FillMode.Solid };
-                }
-                else
+                    this.terrain = new Terrain.Terrain(new FractalMap(mapSize, roughness, maxHeight, false), coloringMethods[currentColoringMethod]);
+                });
+
+            KeyAction(Keys.F, () =>
                 {
-                    this.GraphicsDevice.RasterizerState = new RasterizerState { FillMode = FillMode.WireFrame };
-                }
+                    if (wireFrame)
+                    {
+                        this.GraphicsDevice.RasterizerState = new RasterizerState { CullMode = CullMode.None, FillMode = FillMode.Solid };
+                    }
+                    else
+                    {
+                        this.GraphicsDevice.RasterizerState = new RasterizerState { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
+                    }
 
-                wireFrame = !wireFrame;
-                fillModeSwitch = false;
-            }
+                    wireFrame = !wireFrame;
+                });
 
-
+            KeyAction(Keys.L, () =>
+                {
+                    this.effect.LightingEnabled = !this.effect.LightingEnabled;
+                });
 
             MouseState mouseState = Mouse.GetState();
             if (mouseState.LeftButton == ButtonState.Pressed)
@@ -219,9 +249,9 @@ namespace Tanks3DFPP
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
             this.effect.CurrentTechnique.Passes[0].Apply();
-            
+
             // TODO: Add your drawing code here
             this.terrain.Render(this.GraphicsDevice);
             base.Draw(gameTime);
