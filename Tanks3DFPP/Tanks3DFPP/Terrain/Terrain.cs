@@ -74,34 +74,6 @@ namespace Tanks3DFPP.Terrain
 
         private void SetUpIndices()
         {
-            #region Xylem
-            //int height = (this.Height - 1),
-            //    width = (this.Width - 1),
-            //    index = 0,
-            //    startingVertexNdx = 0;
-            //this.indices = new int[height * width * 12];
-            //for (int y = 0; y < height; ++y)
-            //{
-            //    for (int x = 0; x < width; ++x)
-            //    {
-            //        this.indices[index] = startingVertexNdx;
-            //        this.indices[index + 1] = startingVertexNdx + 1;
-            //        this.indices[index + 2] = startingVertexNdx + height;
-
-            //        index += 3;
-
-            //        this.indices[index] = startingVertexNdx + 1;
-            //        this.indices[index + 1] = startingVertexNdx + height + 1;
-            //        this.indices[index + 2] = startingVertexNdx + height;
-
-            //        index += 3;
-            //        ++startingVertexNdx;
-            //    }
-
-            //    ++startingVertexNdx;
-            //} 
-            #endregion
-
             int height = (this.Height - 1),         // number of triangles in a row
                 width = (this.Width - 1),           // number of rows of triangles within a height map
                 index = 0;
