@@ -53,7 +53,6 @@ namespace Tanks3DFPP.Terrain
         }
 
         private readonly string numericFormat;
-        // A canvas-like effect occurs due to too extreme decrementation of the displacement
         private float randomizedDisplacement
         {
             get
@@ -84,7 +83,7 @@ namespace Tanks3DFPP.Terrain
             numericFormat = string.Format("D{0}", maxHeight.ToString().Length);
             this.displacement = roughness;
             this.GenerateHeightData();
-            this.SmoothTerrain(1);
+            //this.SmoothTerrain(50);
         }
 
         private void GenerateHeightData()
@@ -102,6 +101,7 @@ namespace Tanks3DFPP.Terrain
             }
         }
 
+        // TODO: Investigate the impact of changing roughness.
         private void IterateMPD(Rectangle area, float roughness)
         {
             if (area.Width < 2 || area.Height < 2)
@@ -140,6 +140,7 @@ namespace Tanks3DFPP.Terrain
             #endregion
         }
 
+        // A canvas-like effect occurs due to too extreme decrementation of the displacement
         private void ReduceDisplacement()
         {
             this.displacement *= Math.Pow(2, -1);

@@ -121,16 +121,15 @@ namespace Tanks3DFPP.Terrain
                         side2 = this.vertices[index1].Position - this.vertices[index2].Position;
 
                 Vector3 normal = Vector3.Cross(side1, side2);
-                normal.Normalize();
                 this.vertices[index1].Normal += normal;
                 this.vertices[index2].Normal += normal;
                 this.vertices[index3].Normal += normal;
             }
 
-            //for (int i = 0; i < this.vertices.Length; ++i)
-            //{
-            //    this.vertices[i].Normal.Normalize();
-            //}
+            for (int i = 0; i < this.vertices.Length; ++i)
+            {
+                this.vertices[i].Normal.Normalize();
+            }
         }
 
         /// <summary>
@@ -170,31 +169,6 @@ namespace Tanks3DFPP.Terrain
                     this.indices[index++] = bottomRight;
                 }
             }
-
-            //int index = 0,
-            //    arraySize = this.Height;
-            //int startVertex = 0;
-            //this.indices = new int[(arraySize - 1) * (arraySize - 1) * 12];
-            //for (int cellY = 0; cellY < arraySize - 1; cellY++)
-            //{
-            //    for (int cellX = 0; cellX < arraySize - 1; cellX++)
-            //    {
-            //        this.indices[index] = startVertex + 0;
-            //        this.indices[index + 1] = startVertex + 1;
-            //        this.indices[index + 2] = startVertex + arraySize;
-
-            //        index += 3;
-
-            //        this.indices[index] = startVertex + 1;
-            //        this.indices[index + 1] = startVertex + arraySize + 1;
-            //        this.indices[index + 2] = startVertex + arraySize;
-
-            //        index += 3;
-
-            //        startVertex++;
-            //    }
-            //    startVertex++;
-            //}
         }
 
         /// <summary>

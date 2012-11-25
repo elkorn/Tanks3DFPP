@@ -20,7 +20,7 @@ namespace Tanks3DFPP
     {
 
         int mapSize = 9,
-            roughness = 200,
+            roughness = 500,
             maxHeight = 255;
 
         /*
@@ -133,10 +133,6 @@ namespace Tanks3DFPP
         /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // TODO: use this.Content to load your game content here
         }
 
         /// <summary>
@@ -145,7 +141,6 @@ namespace Tanks3DFPP
         /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
         }
 
         /// <summary>
@@ -155,15 +150,11 @@ namespace Tanks3DFPP
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            var ks = Keyboard.GetState();
-            // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed
                 || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 this.Exit();
 
-
             Vector3 distance = this.cameraPosition - this.cameraLookAt;
-
             Vector3 viewDirection = distance;
             viewDirection.Normalize();
 
@@ -180,6 +171,12 @@ namespace Tanks3DFPP
                 this.cameraPosition += shift;
                 this.cameraLookAt += shift;
             });
+
+            KeyAction(Keys.C, () =>
+                {
+                    currentColoringMethod += 1;
+                    currentColoringMethod %= this.coloringMethods.Length;
+                });
 
             KeyAction(Keys.G, () =>
                 {
