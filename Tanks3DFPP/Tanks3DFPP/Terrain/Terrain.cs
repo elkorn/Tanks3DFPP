@@ -24,6 +24,7 @@ namespace Tanks3DFPP.Terrain
         private IHeightToColorTranslationMethod coloringMethod;
         private VertexPositionColorNormal[] vertices;
         private int[] indices;
+        private BasicEffect effect;
 
         /// <summary>
         /// Gets the width (X) of the terrain.
@@ -54,15 +55,29 @@ namespace Tanks3DFPP.Terrain
         /// </summary>
         /// <param name="heightMap">The height map.</param>
         /// <param name="coloringMethod">The coloring method.</param>
-        public Terrain(IHeightMap heightMap, IHeightToColorTranslationMethod coloringMethod)
+        public Terrain(GraphicsDevice device, IHeightMap heightMap, IHeightToColorTranslationMethod coloringMethod)
         {
+            this.effect = new BasicEffect(device);
+            this.effect.VertexColorEnabled = true;
+            Vector3 lightDir = new Vector3(1, -1, -1);
+            lightDir.Normalize();
+            this.effect.LightingEnabled = true;
+            this.effect.PreferPerPixelLighting = true;
+            this.effect.DirectionalLight0.Direction = lightDir;
+
             this.Width = heightMap.Width;
             this.Height = heightMap.Height;
             this.heightMap = heightMap;
             this.coloringMethod = coloringMethod;
+
             this.SetUpVertices();
             this.SetUpIndices();
             this.CalculateNormals();
+        }
+
+        public void SwitchLighting()
+        {
+            this.effect.LightingEnabled = !this.effect.LightingEnabled;
         }
 
         /// <summary>
@@ -85,7 +100,6 @@ namespace Tanks3DFPP.Terrain
 
             return result;
         }
-
 
         /// <summary>
         /// Sets up vertices.
@@ -175,39 +189,46 @@ namespace Tanks3DFPP.Terrain
         /// Renders the terrain to specified device.
         /// </summary>
         /// <param name="device">The device.</param>
-        public void Render(GraphicsDevice device)
+        public void Render(Matrix world, Matrix view, Matrix projection)
         {
+            this.effect.World = world;
+            this.effect.View = view;
+            this.effect.Projection = projection;
+
             int drawLimit = 100000;
             int primitives = this.indices.Length / 3;
             int segments = primitives / drawLimit;
             int rest = primitives % drawLimit;
 
-            for (int offset = 0; offset < segments; ++offset)
-            {
-                device.DrawUserIndexedPrimitives(
-                    PrimitiveType.TriangleList,
-                    this.vertices, 0,
-                    this.vertices.Length,
-                    this.indices,
-                    offset*drawLimit*3,
-                    drawLimit,
-                    VertexPositionColorNormal.VertexDeclaration);
-            }
 
-            if (rest > 0)
+            foreach (EffectPass pass in this.effect.CurrentTechnique.Passes)
             {
-                device.DrawUserIndexedPrimitives(
-                    PrimitiveType.TriangleList,
-                    this.vertices, 0,
-                    this.vertices.Length,
-                    this.indices,
-                    segments * 3,
-                    rest,
-                    VertexPositionColorNormal.VertexDeclaration);
+                pass.Apply();
+                for (int offset = 0; offset < segments; ++offset)
+                {
+                    effect.GraphicsDevice.DrawUserIndexedPrimitives(
+                        PrimitiveType.TriangleList,
+                        this.vertices, 0,
+                        this.vertices.Length,
+                        this.indices,
+                        offset * drawLimit * 3,
+                        drawLimit,
+                        VertexPositionColorNormal.VertexDeclaration);
+                }
+
+                if (rest > 0)
+                {
+                    effect.GraphicsDevice.DrawUserIndexedPrimitives(
+                        PrimitiveType.TriangleList,
+                        this.vertices, 0,
+                        this.vertices.Length,
+                        this.indices,
+                        segments * 3,
+                        rest,
+                        VertexPositionColorNormal.VertexDeclaration);
+                }
             }
         }
-
-        //TODO: setUpIndices
     }
 }
 
