@@ -109,6 +109,7 @@
   <ItemGroup>
     <Compile Include="Camera\Interfaces\ICamera.cs" />
     <Compile Include="Camera\OrbitingCamera.cs" />
+    <Compile Include="Terrain\ColoredTerrain.cs" />
     <Compile Include="Terrain\FractalMap.cs" />
     <Compile Include="Terrain\GreenYellowRed.cs" />
     <Compile Include="Terrain\Interfaces\IHeightMap.cs" />
