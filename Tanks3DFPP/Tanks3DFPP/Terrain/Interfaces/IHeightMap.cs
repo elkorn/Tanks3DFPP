@@ -10,5 +10,7 @@ namespace Tanks3DFPP.Terrain
         float[,] Data { get; }
         int Width { get; }
         int Height { get; }
+        int HeightOffset { get; }
+        int HighestPeak { get; }
     }
 }
