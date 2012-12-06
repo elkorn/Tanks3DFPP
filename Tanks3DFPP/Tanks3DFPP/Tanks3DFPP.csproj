@@ -111,6 +111,7 @@
     <Compile Include="Camera\Interfaces\ICamera.cs" />
     <Compile Include="Camera\Interfaces\ICameraTarget.cs" />
     <Compile Include="Camera\OrbitingCamera.cs" />
+    <Compile Include="Entities\CollidingEntity.cs" />
     <Compile Include="Terrain\ColoredTerrain.cs" />
     <Compile Include="Terrain\FractalMap.cs" />
     <Compile Include="Terrain\GreenYellowRed.cs" />
@@ -122,6 +123,7 @@
     <Compile Include="Game1.cs" />
     <Compile Include="Terrain\HeightToGrayscale.cs" />
     <Compile Include="Terrain\TexturedTerrain.cs" />
+    <Compile Include="Utilities\CollisionSphere.cs" />
     <Compile Include="Utilities\KeyboardHandler.cs" />
     <Compile Include="Utilities\MouseHandler.cs" />
     <Compile Include="Utilities\Vertex\VertexMultitextured.cs" />
