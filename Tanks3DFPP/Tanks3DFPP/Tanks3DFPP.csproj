@@ -122,6 +122,7 @@
     <Compile Include="Terrain\HeightToGrayscale.cs" />
     <Compile Include="Terrain\TexturedTerrain.cs" />
     <Compile Include="Utilities\KeyboardHandler.cs" />
+    <Compile Include="Utilities\Vertex\VertexMultitextured.cs" />
     <Compile Include="Utilities\Vertex\VertexPositionColorNormal.cs" />
   </ItemGroup>
   <ItemGroup>
