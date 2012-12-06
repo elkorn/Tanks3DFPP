@@ -52,6 +52,10 @@ namespace Tanks3DFPP.Terrain
             }
         }
 
+        public int HeightOffset { get; private set; }
+
+        public int HighestPeak { get; private set; }
+
         private readonly string numericFormat;
         private float randomizedDisplacement
         {
@@ -66,7 +70,7 @@ namespace Tanks3DFPP.Terrain
             return (float)(roughness * (rand.NextDouble() - 0.5));
         }
 
-        public FractalMap(int size, int roughness, float maxHeight, bool scribeMode)
+        public FractalMap(int size, int roughness, float maxHeight, int afterSmoothingLevel = 0, bool scribeMode = false)
         {
             if (this.scribeMode = scribeMode)
             {
@@ -76,6 +80,7 @@ namespace Tanks3DFPP.Terrain
                 }
             }
 
+            this.HeightOffset = (int)maxHeight;
             rand = new Random();
             this.mapDimension = (1 << size);
             this.maxHeight = maxHeight;
@@ -83,7 +88,10 @@ namespace Tanks3DFPP.Terrain
             numericFormat = string.Format("D{0}", maxHeight.ToString().Length);
             this.displacement = roughness;
             this.GenerateHeightData();
-            //this.SmoothTerrain(50);
+            if (afterSmoothingLevel > 0)
+            {
+                this.SmoothTerrain(afterSmoothingLevel);
+            }
         }
 
         private void GenerateHeightData()
@@ -140,6 +148,19 @@ namespace Tanks3DFPP.Terrain
             #endregion
         }
 
+        private void TryAcquireOffsetAndPeak(float candidate)
+        {
+            if (candidate < this.HeightOffset)
+            {
+                this.HeightOffset = (int)candidate;
+            }
+
+            if (candidate > this.HighestPeak)
+            {
+                this.HighestPeak = (int)candidate;
+            }
+        }
+
         // A canvas-like effect occurs due to too extreme decrementation of the displacement
         private void ReduceDisplacement()
         {
@@ -149,6 +170,7 @@ namespace Tanks3DFPP.Terrain
         private void PerformSquareStep(Rectangle area, float roughness)
         {
             this.heightMap[area.Center.X, area.Center.Y] = MathHelper.Clamp((this.heightMap[area.Left, area.Top] + this.heightMap[area.Right, area.Top] + this.heightMap[area.Left, area.Bottom] + this.heightMap[area.Right, area.Bottom]) / 4 + this.getRoughness(roughness), 0, this.maxHeight);
+            TryAcquireOffsetAndPeak(this.heightMap[area.Center.X, area.Center.Y]);
         }
 
         private void PerformDiamondStep(Rectangle area, float roughness)
@@ -170,8 +192,8 @@ namespace Tanks3DFPP.Terrain
             if (this.heightMap[target.X, target.Y] == -1)
             {
                 float value = (this.heightMap[left, y] + this.heightMap[right, y] + this.heightMap[center.X, center.Y]) / 3 + this.getRoughness(roughness);
-                this.heightMap[target.X, target.Y] = MathHelper.Clamp(value, 0, this.maxHeight);
-                //this.heightMap[target.X, target.Y] = MathHelper.Clamp((this.heightMap[left, y] + this.heightMap[right, y]) / 2 + this.randomizedDisplacement, 0, this.maxHeight);
+                this.heightMap[target.X, target.Y] = MathHelper.Clamp(value, 0, value);
+                TryAcquireOffsetAndPeak(this.heightMap[target.X, target.Y]);
             }
         }
 
@@ -180,8 +202,8 @@ namespace Tanks3DFPP.Terrain
             if (this.heightMap[target.X, target.Y] == -1)
             {
                 float value = (this.heightMap[x, top] + this.heightMap[x, bottom] + this.heightMap[center.X, center.Y]) / 3 + this.getRoughness(roughness);
-                this.heightMap[target.X, target.Y] = MathHelper.Clamp(value, 0, this.maxHeight);
-                //this.heightMap[target.X, target.Y] = MathHelper.Clamp((this.heightMap[x, top] + this.heightMap[x, bottom]) / 2 + this.randomizedDisplacement, 0, this.maxHeight);
+                this.heightMap[target.X, target.Y] = MathHelper.Clamp(value, 0, value);
+                TryAcquireOffsetAndPeak(this.heightMap[target.X, target.Y]);
             }
         }
 

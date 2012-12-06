@@ -22,30 +22,23 @@ namespace Tanks3DFPP
     public class Game1 : Microsoft.Xna.Framework.Game
     {
 
-        int mapSize = 9,
+        int mapSize = 10,
             roughness = 500,
-            maxHeight = 255;
+            maxHeight = 300;
 
-        /*
-         * TODO: Is one effect enough to draw everything? 
-         * Is using separate effects for objects beneficial for any aspect? 
-         * If so, how should they be divided?
-         * 
-         * Or maybe effects should be assigned by
-         * how should different elements be rendered?
-         */
-        Vector3 lightDirection;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Matrix world, projection;
-        Terrain.Terrain terrain;
+        Terrain.TexturedTerrain terrain;
+        SpriteFont font;
         ICamera camera;
         int currentColoringMethod = 1;
         bool wireFrame;
         public static KeyboardState CurrentKeyboardState { get; private set; }
         public static MouseState CurrentMouseState { get; private set; }
         IHeightToColorTranslationMethod[] coloringMethods;
-
+        IHeightMap heightMap;
+        CollisionSphere sphere;
 
         public Game1()
         {
@@ -63,18 +56,20 @@ namespace Tanks3DFPP
         {
             // TODO: Add your initialization logic here
             world = Matrix.Identity;
-            this.camera = new OrbitingCamera() { Position = new Vector3(100, 100, 100), LookAt = Vector3.Zero };
-            projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(90), this.GraphicsDevice.Viewport.AspectRatio, 1, 2000f);
-            base.Initialize();
+            this.camera = new FPPCamera(this.GraphicsDevice, new Vector3(100, 255, 100), 0.3f, 2.0f);
 
-            this.IsMouseVisible = true;
+            projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), this.GraphicsDevice.Viewport.AspectRatio, 1, 2000f);
+
+            heightMap = new FractalMap(mapSize, roughness, maxHeight);
             coloringMethods = new IHeightToColorTranslationMethod[] 
             {
                 new GreenYellowRed(maxHeight),
                 new HeightToGrayscale(maxHeight)
             };
 
-            this.terrain = new Terrain.Terrain(this.GraphicsDevice, new FractalMap(mapSize, roughness, maxHeight, true), coloringMethods[currentColoringMethod]);
+            spriteBatch = new SpriteBatch(this.GraphicsDevice);
+
+            base.Initialize();
         }
 
         /// <summary>
@@ -83,6 +78,9 @@ namespace Tanks3DFPP
         /// </summary>
         protected override void LoadContent()
         {
+            this.terrain = new Terrain.TexturedTerrain(this.GraphicsDevice, this.Content, heightMap);
+            font = this.Content.Load<SpriteFont>("SpriteFont1");
+            sphere = new CollisionSphere(this, heightMap, new Vector3((heightMap.Width - 50) / 2, 100, (heightMap.Height - 50) / 2));
         }
 
         /// <summary>
@@ -107,32 +105,41 @@ namespace Tanks3DFPP
                 this.Exit();
 
             KeyboardHandler.KeyAction(Keys.C, () =>
-                {
-                    currentColoringMethod += 1;
-                    currentColoringMethod %= this.coloringMethods.Length;
-                });
+            {
+                currentColoringMethod += 1;
+                currentColoringMethod %= this.coloringMethods.Length;
+            });
 
             KeyboardHandler.KeyAction(Keys.G, () =>
-                {
-                    this.terrain = new Terrain.Terrain(this.GraphicsDevice, new FractalMap(mapSize, roughness, maxHeight, false), coloringMethods[currentColoringMethod]);
-                });
+            {
+                this.terrain.Dispose();
+                this.terrain = new Terrain.TexturedTerrain(this.GraphicsDevice, this.Content, new FractalMap(mapSize, roughness, maxHeight));
+            });
 
             KeyboardHandler.KeyAction(Keys.F, () =>
+            {
+                if (wireFrame)
                 {
-                    if (wireFrame)
-                    {
-                        this.GraphicsDevice.RasterizerState = new RasterizerState { CullMode = CullMode.None, FillMode = FillMode.Solid };
-                    }
-                    else
-                    {
-                        this.GraphicsDevice.RasterizerState = new RasterizerState { CullMode = CullMode.None, FillMode = FillMode.WireFrame };
-                    }
+                    this.GraphicsDevice.RasterizerState = new RasterizerState { FillMode = FillMode.Solid };
+                }
+                else
+                {
+                    this.GraphicsDevice.RasterizerState = new RasterizerState { FillMode = FillMode.WireFrame };
+                }
 
-                    wireFrame = !wireFrame;
-                });
+                wireFrame = !wireFrame;
+            });
 
             KeyboardHandler.KeyAction(Keys.L, this.terrain.SwitchLighting);
-
+            KeyboardHandler.KeyAction(Keys.B, () =>
+            {
+                this.terrain.SwitchBlending(true);
+            });
+            KeyboardHandler.KeyAction(Keys.N, () =>
+            {
+                this.terrain.SwitchBlending(false);
+            });
+            sphere.Update(gameTime);
             this.camera.Update(gameTime);
             base.Update(gameTime);
         }
@@ -144,7 +151,7 @@ namespace Tanks3DFPP
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-
+            sphere.Draw(world, this.camera.View, projection);
             this.terrain.Render(world, this.camera.View, this.projection);
             base.Draw(gameTime);
         }
