@@ -107,6 +107,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Camera\FPPCamera.cs" />
     <Compile Include="Camera\Interfaces\ICamera.cs" />
     <Compile Include="Camera\OrbitingCamera.cs" />
     <Compile Include="Terrain\ColoredTerrain.cs" />
