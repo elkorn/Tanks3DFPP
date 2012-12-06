@@ -119,6 +119,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Terrain\HeightToGrayscale.cs" />
+    <Compile Include="Terrain\TexturedTerrain.cs" />
     <Compile Include="Utilities\KeyboardHandler.cs" />
     <Compile Include="Utilities\VertexPositionColorNormal.cs" />
   </ItemGroup>
