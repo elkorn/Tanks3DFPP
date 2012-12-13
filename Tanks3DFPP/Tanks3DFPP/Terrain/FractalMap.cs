@@ -192,7 +192,7 @@ namespace Tanks3DFPP.Terrain
             if (this.heightMap[target.X, target.Y] == -1)
             {
                 float value = (this.heightMap[left, y] + this.heightMap[right, y] + this.heightMap[center.X, center.Y]) / 3 + this.getRoughness(roughness);
-                this.heightMap[target.X, target.Y] = MathHelper.Clamp(value, 0, value);
+                this.heightMap[target.X, target.Y] = MathHelper.Clamp(value, 0, this.maxHeight);
                 TryAcquireOffsetAndPeak(this.heightMap[target.X, target.Y]);
             }
         }
@@ -202,7 +202,7 @@ namespace Tanks3DFPP.Terrain
             if (this.heightMap[target.X, target.Y] == -1)
             {
                 float value = (this.heightMap[x, top] + this.heightMap[x, bottom] + this.heightMap[center.X, center.Y]) / 3 + this.getRoughness(roughness);
-                this.heightMap[target.X, target.Y] = MathHelper.Clamp(value, 0, value);
+                this.heightMap[target.X, target.Y] = MathHelper.Clamp(value, 0, this.maxHeight);
                 TryAcquireOffsetAndPeak(this.heightMap[target.X, target.Y]);
             }
         }

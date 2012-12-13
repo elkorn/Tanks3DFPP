@@ -112,6 +112,7 @@
     <Compile Include="Camera\Interfaces\ICameraTarget.cs" />
     <Compile Include="Camera\OrbitingCamera.cs" />
     <Compile Include="Entities\CollidingEntity.cs" />
+    <Compile Include="Terrain\ClippedTerrain.cs" />
     <Compile Include="Terrain\ColoredTerrain.cs" />
     <Compile Include="Terrain\FractalMap.cs" />
     <Compile Include="Terrain\GreenYellowRed.cs" />

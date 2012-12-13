@@ -73,7 +73,7 @@ MTPixelToFrame MultiTexturedPS(MTVertexToPixel PSIn)
 		farColor += tex2D(TextureSampler3, PSIn.TextureCoords) * PSIn.TextureWeights.w;
 
 		float4 nearColor;
-		float2 nearTextureCoords = PSIn.TextureCoords * 5; // This makes the texture 3 times smaller == 3 times more detailed.
+		float2 nearTextureCoords = PSIn.TextureCoords * 3; // This makes the texture 3 times smaller == 3 times more detailed.
 		nearColor = tex2D(TextureSampler0, nearTextureCoords) * PSIn.TextureWeights.x;
 		nearColor += tex2D(TextureSampler1, nearTextureCoords) * PSIn.TextureWeights.y;
 		nearColor += tex2D(TextureSampler2, nearTextureCoords) * PSIn.TextureWeights.z;

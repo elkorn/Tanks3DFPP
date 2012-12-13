@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Tanks3DFPP.Utilities
 {
-    public struct VertexMultitextured
+    public struct VertexMultitextured: IVertexType
     {
         public Vector3 Position;
         public Vector3 Normal;
@@ -26,5 +26,13 @@ namespace Tanks3DFPP.Utilities
         };
 
         public static readonly VertexDeclaration VertexDeclaration = new VertexDeclaration(VertexElements);
+
+        VertexDeclaration IVertexType.VertexDeclaration
+        {
+            get
+            {
+                return VertexDeclaration;
+            }
+        }
     }
 }
