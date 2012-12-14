@@ -13,9 +13,9 @@ namespace Tanks3DFPP.Camera
     class FPPCamera : ICamera
     {
 
-        private readonly float rotationSpeed, moveSpeed;
+        private readonly float rotationSpeed;
 
-        private float yawAngle, pitchAngle, maxPitch;
+        private float yawAngle, pitchAngle, maxPitch, moveSpeed;
 
         private Vector3 up;
 
@@ -96,6 +96,17 @@ namespace Tanks3DFPP.Camera
             {
                 velocity += Vector3.UnitX;
             });
+
+            KeyboardHandler.TurboKeyAction(Keys.OemPlus, () =>
+            {
+                this.moveSpeed += .2f;
+            });
+
+            KeyboardHandler.TurboKeyAction(Keys.OemMinus, () =>
+            {
+                this.moveSpeed -= .2f;
+            });
+
             this.Move(velocity);
             this.Rotate((float)(gameTime.ElapsedGameTime.TotalMilliseconds / 1000));
         }

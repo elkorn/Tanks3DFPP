@@ -25,7 +25,7 @@ namespace Tanks3DFPP
         int mapSize = 10,
             roughness = 500,
             maxHeight = 300,
-            scale = 3;
+            scale = 5;
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;

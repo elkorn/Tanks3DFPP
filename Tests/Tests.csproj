@@ -54,8 +54,15 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FlattenTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MathTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Tanks3DFPP\Tanks3DFPP\Tanks3DFPP.csproj">
+      <Project>{7ECF6EC4-7E82-4510-A3BC-25CF349D52DC}</Project>
+      <Name>Tanks3DFPP</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

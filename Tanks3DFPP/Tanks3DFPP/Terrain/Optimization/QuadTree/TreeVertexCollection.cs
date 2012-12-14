@@ -5,18 +5,16 @@ using System.Text;
 using Tanks3DFPP.Utilities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-
+using Microsoft.Xna.Framework.Content;
+using Tanks3DFPP.Camera.Interfaces;
 namespace Tanks3DFPP.Terrain.Optimization.QuadTree
 {
-    public class TreeVertexCollection : GameComponent
+    public class TreeVertexCollection
     {
-
         public VertexMultitextured[] Vertices;
 
         private Vector3 position;
 
-        private Effect effect;
-        private Texture sand, grass, rock, snow;
         private int topSize,
                     halfSize,
                     vertexCount,
@@ -42,42 +40,147 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
         /// <param name="heightMap">The height map.</param>
         /// <param name="scale">The scale.</param>
         public TreeVertexCollection(
-            Game game,
+            ContentManager content,
             Vector3 position,
             IHeightMap heightMap,
             int scale)
-            :base(game)
         {
-            this.effect = game.Content.Load<Effect>("Multitexture");
-            this.sand = game.Content.Load<Texture>("sand");
-            this.grass = game.Content.Load<Texture>("grass");
-            this.rock = game.Content.Load<Texture>("rock");
-            this.snow = game.Content.Load<Texture>("snow");
 
-            this.InitializeEffect();
-
-            position = Vector3.Zero;
+            this.position = position;
             this.scale = scale;
             this.topSize = heightMap.Width - 1;
             this.halfSize = this.topSize / 2;
             this.vertexCount = heightMap.Width * heightMap.Height;
-            this.Vertices = new VertexMultitextured[this.vertexCount];
+
+            this.BuildVertices(heightMap);
         }
 
-        private void InitializeEffect()
+        private void BuildVertices(IHeightMap heightMap)
         {
-            Vector3 lightDir = new Vector3(1, -1, -1);
-            lightDir.Normalize();
-            effect.CurrentTechnique = effect.Techniques["MultiTextured"];
-            effect.Parameters["xTexture0"].SetValue(sand);
-            effect.Parameters["xTexture1"].SetValue(grass);
-            effect.Parameters["xTexture2"].SetValue(rock);
-            effect.Parameters["xTexture3"].SetValue(snow);
-            effect.Parameters["xEnableLighting"].SetValue(true);
-            effect.Parameters["xAmbient"].SetValue(0.1f);
-            effect.Parameters["xLightDirection"].SetValue(lightDir);
+            this.Vertices = new VertexMultitextured[this.vertexCount];
+            float[] heightData = Utilities.Utilities.Flatten(heightMap.Data);
+            float x = this.position.X,
+                  y = this.position.Y,
+                  z = this.position.Z,
+                  limX = x + this.topSize;
+
+            float minSandHeight = 0,
+                  minGrassHeight = 0.4f * heightMap.HighestPeak,
+                  minRockHeight = (2 / 3f) * heightMap.HighestPeak,
+                  minSnowHeight = heightMap.HighestPeak,
+                  sandBracket = (2 / 3f) * heightMap.HighestPeak,
+                  grassBracket = 0.2f * heightMap.HighestPeak,
+                  rockBracket = 0.2f * heightMap.HighestPeak,
+                  snowBracket = 0.2f * heightMap.HighestPeak;
+
+            for (int ndx = 0; ndx < this.vertexCount; ++ndx)
+            {
+                float height = heightData[ndx];
+                VertexMultitextured vrt = this.Vertices[ndx];
+                if (x > limX)
+                {
+                    x = this.position.X;
+                    ++z;
+                }
+
+                vrt.Position = new Vector3(x * this.scale, (height) * this.scale - heightMap.HeightOffset, z * this.scale);
+                vrt.Normal = new Vector3(0, 0, 0);
+                vrt.TextureCoordinate.X = (float)x / 30f;
+                vrt.TextureCoordinate.Y = (float)y / 30f;
+
+                #region Texture weight calculation
+                vrt.TextureWeights.X = MathHelper.Clamp(1f - Math.Abs(height - minSandHeight) / sandBracket, 0, 1);
+                vrt.TextureWeights.Y = MathHelper.Clamp(1f - Math.Abs(height - minGrassHeight) / grassBracket, 0, 1);
+                vrt.TextureWeights.Z = MathHelper.Clamp(1f - Math.Abs(height - minRockHeight) / rockBracket, 0, 1);
+                vrt.TextureWeights.W = MathHelper.Clamp(1f - Math.Abs(height - minSnowHeight) / snowBracket, 0, 1);
+
+                float totalWeight = vrt.TextureWeights.X
+                    + vrt.TextureWeights.Y
+                    + vrt.TextureWeights.Z
+                    + vrt.TextureWeights.W;
+                vrt.TextureWeights.X /= totalWeight;
+                vrt.TextureWeights.Y /= totalWeight;
+                vrt.TextureWeights.Z /= totalWeight;
+                vrt.TextureWeights.W /= totalWeight;
+                #endregion
+
+                ++x;
+            }
         }
 
+        private void CalculateAllNormals()
+        {
+            #region It goes like this
+            /*
+             * +++--
+             * +*+--
+             * +++--
+             * -----
+             * -----
+             * 
+             * to
+             * +++++
+             * +++*+
+             * +++++
+             * -----
+             * -----
+             * 
+             * to
+             * +++++
+             * +++++
+             * +++++
+             * +*+++
+             * +++--
+             * 
+             * to
+             * +++++
+             * +++++
+             * +++++
+             * +++*+
+             * +++++
+             */
+            #endregion
 
+            if (this.vertexCount < 9)   // not enough verts
+                return;
+
+            int i = this.topSize + 2, j = 0, k = i + this.topSize;
+
+            for (int n = 0; i <= (this.vertexCount - this.topSize) - 2; i += 2, n++, j += 2, k += 2)
+            {
+
+                if (n == this.halfSize)
+                {
+                    n = 0;
+                    i += this.topSize + 2;
+                    j += this.topSize + 2;
+                    k += this.topSize + 2;
+                }
+
+                //Calculate normals for each of the 8 triangles
+                SetNormals(i, j, j + 1);
+                SetNormals(i, j + 1, j + 2);
+                SetNormals(i, j + 2, i + 1);
+                SetNormals(i, i + 1, k + 2);
+                SetNormals(i, k + 2, k + 1);
+                SetNormals(i, k + 1, k);
+                SetNormals(i, k, i - 1);
+                SetNormals(i, i - 1, j);
+            }
+        }
+
+        private void SetNormals(int idx1, int idx2, int idx3)
+        {
+            if (idx3 >= this.Vertices.Length)
+            {
+                idx3 = this.Vertices.Length - 1;
+            }
+
+            var normal = Vector3.Cross(Vertices[idx2].Position - Vertices[idx1].Position, Vertices[idx1].Position - Vertices[idx3].Position);
+            normal.Normalize();
+            Vertices[idx1].Normal += normal;
+            Vertices[idx2].Normal += normal;
+            Vertices[idx3].Normal += normal;
+        }
     }
 }

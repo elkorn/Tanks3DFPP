@@ -139,7 +139,7 @@ namespace Tanks3DFPP.Utilities
         {
             return
                 position.X + this.radius < this.floor.Width * this.mapScale
-                && position.X - this.radius > 0 
+                && position.X - this.radius > 0
                 && position.Z + this.radius < 1
                 && position.Z - this.radius > -this.floor.Height * this.mapScale;
         }
@@ -151,7 +151,7 @@ namespace Tanks3DFPP.Utilities
             // and how the height map is laid out onto terrain.
             return new Vector3(
                     position.X,
-                    this.floor.Data[(int)(this.Position.X / this.mapScale), (int)(-position.Z / this.mapScale)]* this.mapScale - this.floor.HeightOffset + this.radius,
+                    this.floor.Data[(int)(this.Position.X / this.mapScale), (int)(-position.Z / this.mapScale)] * this.mapScale - this.floor.HeightOffset + this.radius,
                     position.Z);
         }
     }
