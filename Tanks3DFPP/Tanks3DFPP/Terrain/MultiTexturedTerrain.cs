@@ -17,7 +17,7 @@ namespace Tanks3DFPP.Terrain
     /// <summary>
     /// This is a game component that implements IUpdateable.
     /// </summary>
-    public class TexturedTerrain : IDisposable
+    public class MultiTexturedTerrain : IDisposable
     {
         private IHeightMap heightMap;
 
@@ -25,6 +25,8 @@ namespace Tanks3DFPP.Terrain
         private VertexMultitextured[] vertices;
         private int[] indices;
         private Effect effect;
+
+        private int scale;
 
         private VertexBuffer vertexBuffer;
         private IndexBuffer indexBuffer;
@@ -58,7 +60,7 @@ namespace Tanks3DFPP.Terrain
         /// </summary>
         /// <param name="heightMap">The height map.</param>
         /// <param name="coloringMethod">The coloring method.</param>
-        public TexturedTerrain(GraphicsDevice device, ContentManager content, IHeightMap heightMap)
+        public MultiTexturedTerrain(GraphicsDevice device, ContentManager content, IHeightMap heightMap, int scale = 1)
         {
             this.effect = content.Load<Effect>("Multitexture");
             this.sand = content.Load<Texture>("sand");
@@ -71,6 +73,8 @@ namespace Tanks3DFPP.Terrain
             this.Width = heightMap.Width;
             this.Height = heightMap.Height;
             this.heightMap = heightMap;
+
+            this.scale = scale;
 
             this.SetUpVertices();
 
@@ -132,7 +136,7 @@ namespace Tanks3DFPP.Terrain
                 for (int x = 0; x < this.Height; ++x)
                 {
                     int ndx = x + y * this.Width;
-                    this.vertices[ndx].Position = new Vector3(x, this.heightMap.Data[x, y] - this.heightMap.HeightOffset, -y);
+                    this.vertices[ndx].Position = new Vector3(x * this.scale, (this.heightMap.Data[x, y]) * this.scale - this.heightMap.HeightOffset, -y * this.scale);
                     this.vertices[ndx].Normal = new Vector3(0, 0, 0);
                     this.vertices[ndx].TextureCoordinate.X = (float)x / 30f;
                     this.vertices[ndx].TextureCoordinate.Y = (float)y / 30f;

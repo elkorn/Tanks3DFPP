@@ -32,12 +32,16 @@ namespace Tanks3DFPP.Utilities
         Matrix[] boneTransforms;
 
         Vector3 movementQuant = Vector3.Zero;
-        public CollisionSphere(Game game, IHeightMap floor, Vector3 startingPosition)
+
+        private int mapScale;
+
+        public CollisionSphere(Game game, IHeightMap floor, Vector3 startingPosition, int mapScale)
             : base(game, floor)
         {
             this.Position = startingPosition;
             this.model = this.Game.Content.Load<Model>("sphere");
             this.boneTransforms = new Matrix[this.model.Bones.Count];
+            this.mapScale = mapScale;
             this.Position = this.OffsetToFloorHeight(startingPosition);
         }
 
@@ -134,10 +138,10 @@ namespace Tanks3DFPP.Utilities
         protected override bool IsInFloorBounds(Vector3 position)
         {
             return
-                position.X + this.radius < this.floor.Width
-                && position.X - this.radius > 0
-                && position.Z + this.radius < this.floor.Height / 2
-                && position.Z - this.radius > -this.floor.Height / 2;
+                position.X + this.radius < this.floor.Width * this.mapScale
+                && position.X - this.radius > 0 
+                && position.Z + this.radius < 1
+                && position.Z - this.radius > -this.floor.Height * this.mapScale;
         }
 
         protected override Vector3 OffsetToFloorHeight(Vector3 position)
@@ -147,7 +151,7 @@ namespace Tanks3DFPP.Utilities
             // and how the height map is laid out onto terrain.
             return new Vector3(
                     position.X,
-                    this.floor.Data[(int)(this.Position.X), (int)(this.floor.Height / 2 - position.Z)] - this.floor.HeightOffset + this.radius,
+                    this.floor.Data[(int)(this.Position.X / this.mapScale), (int)(-position.Z / this.mapScale)]* this.mapScale - this.floor.HeightOffset + this.radius,
                     position.Z);
         }
     }

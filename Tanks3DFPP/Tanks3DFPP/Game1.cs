@@ -24,12 +24,13 @@ namespace Tanks3DFPP
 
         int mapSize = 10,
             roughness = 500,
-            maxHeight = 300;
+            maxHeight = 300,
+            scale = 3;
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Matrix world, projection;
-        Terrain.TexturedTerrain terrain;
+        Terrain.MultiTexturedTerrain terrain;
         SpriteFont font;
         ICamera camera;
         int currentColoringMethod = 1;
@@ -78,9 +79,9 @@ namespace Tanks3DFPP
         /// </summary>
         protected override void LoadContent()
         {
-            this.terrain = new Terrain.TexturedTerrain(this.GraphicsDevice, this.Content, heightMap);
+            this.terrain = new Terrain.MultiTexturedTerrain(this.GraphicsDevice, this.Content, heightMap, scale);
             font = this.Content.Load<SpriteFont>("SpriteFont1");
-            sphere = new CollisionSphere(this, heightMap, new Vector3((heightMap.Width - 50) / 2, 100, (heightMap.Height - 50) / 2));
+            sphere = new CollisionSphere(this, heightMap, new Vector3(50, 0, -50), scale);
         }
 
         /// <summary>
@@ -113,7 +114,7 @@ namespace Tanks3DFPP
             KeyboardHandler.KeyAction(Keys.G, () =>
             {
                 this.terrain.Dispose();
-                this.terrain = new Terrain.TexturedTerrain(this.GraphicsDevice, this.Content, new FractalMap(mapSize, roughness, maxHeight));
+                this.terrain = new Terrain.MultiTexturedTerrain(this.GraphicsDevice, this.Content, new FractalMap(mapSize, roughness, maxHeight));
             });
 
             KeyboardHandler.KeyAction(Keys.F, () =>
