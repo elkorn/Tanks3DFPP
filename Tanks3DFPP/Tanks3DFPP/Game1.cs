@@ -56,9 +56,9 @@ namespace Tanks3DFPP
         {
             // TODO: Add your initialization logic here
             world = Matrix.Identity;
-            this.camera = new FPPCamera(this.GraphicsDevice, new Vector3(100, 255, 100), 0.3f, 2.0f);
 
             projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), this.GraphicsDevice.Viewport.AspectRatio, 1, 2000f);
+            this.camera = new FPPCamera(this.GraphicsDevice, new Vector3(100, 255, 100), 0.3f, 2.0f, this.projection);
 
             heightMap = new FractalMap(mapSize, roughness, maxHeight);
             coloringMethods = new IHeightToColorTranslationMethod[] 
@@ -150,9 +150,17 @@ namespace Tanks3DFPP
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
+
+            GraphicsDevice.BlendState = BlendState.Opaque;
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
             GraphicsDevice.Clear(Color.Black);
             sphere.Draw(world, this.camera.View, projection);
             this.terrain.Render(world, this.camera.View, this.projection);
+            BoundingFrustumRenderer.Render(this.camera.Frustum, this.GraphicsDevice, this.camera.View, this.projection, Color.Red);
+            spriteBatch.Begin();
+            spriteBatch.DrawString(font, string.Format("Near: {0}, Far: {1}", camera.Frustum.Near.D, camera.Frustum.Far.D), Vector2.Zero, Color.Wheat);
+            spriteBatch.End();
             base.Draw(gameTime);
         }
     }

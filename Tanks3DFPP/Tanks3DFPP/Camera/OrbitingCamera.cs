@@ -22,6 +22,14 @@ namespace Tanks3DFPP.Camera
 
         public Microsoft.Xna.Framework.Vector3 LookAt { get; set; }
 
+        public BoundingFrustum Frustum
+        {
+            get
+            {
+                return new BoundingFrustum(this.View);
+            }
+        }
+
         public Matrix View
         {
             get 

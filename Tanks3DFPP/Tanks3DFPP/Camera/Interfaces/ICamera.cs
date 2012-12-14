@@ -11,6 +11,7 @@ namespace Tanks3DFPP.Camera.Interfaces
         Vector3 Position { get; set; }
         Vector3 LookAt { get; set; }
         Matrix View { get; }
+        BoundingFrustum Frustum { get; }
         void Update(GameTime gameTime);
     }
 }

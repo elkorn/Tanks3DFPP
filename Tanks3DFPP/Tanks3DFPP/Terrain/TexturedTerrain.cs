@@ -132,7 +132,7 @@ namespace Tanks3DFPP.Terrain
                 for (int x = 0; x < this.Height; ++x)
                 {
                     int ndx = x + y * this.Width;
-                    this.vertices[ndx].Position = new Vector3(x, this.heightMap.Data[x, y] - this.heightMap.HeightOffset, this.Height / 2 - y);
+                    this.vertices[ndx].Position = new Vector3(x, this.heightMap.Data[x, y] - this.heightMap.HeightOffset, -y);
                     this.vertices[ndx].Normal = new Vector3(0, 0, 0);
                     this.vertices[ndx].TextureCoordinate.X = (float)x / 30f;
                     this.vertices[ndx].TextureCoordinate.Y = (float)y / 30f;
@@ -153,8 +153,6 @@ namespace Tanks3DFPP.Terrain
                     this.vertices[ndx].TextureWeights.W /= totalWeight;
 
                     #endregion
-
-
                 }
             }
         }

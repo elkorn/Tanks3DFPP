@@ -15,9 +15,19 @@ namespace Tanks3DFPP.Camera
 
         private readonly float rotationSpeed, moveSpeed;
 
-        private float yawAngle, pitchAngle;
+        private float yawAngle, pitchAngle, maxPitch;
 
         private Vector3 up;
+
+        private Matrix projection;
+
+        public BoundingFrustum Frustum
+        {
+            get
+            {
+                return new BoundingFrustum(this.View * this.projection);
+            }
+        }
 
         public Microsoft.Xna.Framework.Vector3 Position
         {
@@ -56,13 +66,15 @@ namespace Tanks3DFPP.Camera
             }
         }
 
-        public FPPCamera(GraphicsDevice device, Vector3 startingPosition, float rotationSpeed, float moveSpeed)
+        public FPPCamera(GraphicsDevice device, Vector3 startingPosition, float rotationSpeed, float moveSpeed, Matrix projection)
         {
             Mouse.SetPosition(device.Viewport.Width / 2, device.Viewport.Height / 2);
             this.originalMouseState = this.referenceMouseState = Mouse.GetState();
             this.rotationSpeed = rotationSpeed;
             this.moveSpeed = moveSpeed;
             this.Position = startingPosition;
+            this.projection = projection;
+            this.maxPitch = MathHelper.ToRadians(90);
         }
 
         public void Update(Microsoft.Xna.Framework.GameTime gameTime)
@@ -99,6 +111,7 @@ namespace Tanks3DFPP.Camera
             Vector2 dRotation = this.GetMousePositionDifference();
             this.yawAngle -= this.rotationSpeed * dRotation.X * increment;
             this.pitchAngle -= this.rotationSpeed * dRotation.Y * increment;
+            this.pitchAngle = MathHelper.Clamp(this.pitchAngle, -maxPitch, maxPitch);
             Mouse.SetPosition(this.referenceMouseState.X, this.referenceMouseState.Y);
             UpdateView();
         }
