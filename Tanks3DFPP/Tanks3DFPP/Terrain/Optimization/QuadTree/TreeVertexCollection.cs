@@ -53,6 +53,7 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
             this.vertexCount = heightMap.Width * heightMap.Height;
 
             this.BuildVertices(heightMap);
+            this.CalculateAllNormals();
         }
 
         private void BuildVertices(IHeightMap heightMap)
@@ -76,32 +77,31 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
             for (int ndx = 0; ndx < this.vertexCount; ++ndx)
             {
                 float height = heightData[ndx];
-                VertexMultitextured vrt = this.Vertices[ndx];
                 if (x > limX)
                 {
                     x = this.position.X;
                     ++z;
                 }
 
-                vrt.Position = new Vector3(x * this.scale, (height) * this.scale - heightMap.HeightOffset, z * this.scale);
-                vrt.Normal = new Vector3(0, 0, 0);
-                vrt.TextureCoordinate.X = (float)x / 30f;
-                vrt.TextureCoordinate.Y = (float)y / 30f;
+                this.Vertices[ndx].Position = new Vector3(x * this.scale, (height) * this.scale - heightMap.HeightOffset, z * this.scale);
+                this.Vertices[ndx].Normal = new Vector3(0, 0, 0);
+                this.Vertices[ndx].TextureCoordinate.X = (float)x / 30f;
+                this.Vertices[ndx].TextureCoordinate.Y = (float)y / 30f;
 
                 #region Texture weight calculation
-                vrt.TextureWeights.X = MathHelper.Clamp(1f - Math.Abs(height - minSandHeight) / sandBracket, 0, 1);
-                vrt.TextureWeights.Y = MathHelper.Clamp(1f - Math.Abs(height - minGrassHeight) / grassBracket, 0, 1);
-                vrt.TextureWeights.Z = MathHelper.Clamp(1f - Math.Abs(height - minRockHeight) / rockBracket, 0, 1);
-                vrt.TextureWeights.W = MathHelper.Clamp(1f - Math.Abs(height - minSnowHeight) / snowBracket, 0, 1);
+                this.Vertices[ndx].TextureWeights.X = MathHelper.Clamp(1f - Math.Abs(height - minSandHeight) / sandBracket, 0, 1);
+                this.Vertices[ndx].TextureWeights.Y = MathHelper.Clamp(1f - Math.Abs(height - minGrassHeight) / grassBracket, 0, 1);
+                this.Vertices[ndx].TextureWeights.Z = MathHelper.Clamp(1f - Math.Abs(height - minRockHeight) / rockBracket, 0, 1);
+                this.Vertices[ndx].TextureWeights.W = MathHelper.Clamp(1f - Math.Abs(height - minSnowHeight) / snowBracket, 0, 1);
 
-                float totalWeight = vrt.TextureWeights.X
-                    + vrt.TextureWeights.Y
-                    + vrt.TextureWeights.Z
-                    + vrt.TextureWeights.W;
-                vrt.TextureWeights.X /= totalWeight;
-                vrt.TextureWeights.Y /= totalWeight;
-                vrt.TextureWeights.Z /= totalWeight;
-                vrt.TextureWeights.W /= totalWeight;
+                float totalWeight = this.Vertices[ndx].TextureWeights.X
+                    + this.Vertices[ndx].TextureWeights.Y
+                    + this.Vertices[ndx].TextureWeights.Z
+                    + this.Vertices[ndx].TextureWeights.W;
+                this.Vertices[ndx].TextureWeights.X /= totalWeight;
+                this.Vertices[ndx].TextureWeights.Y /= totalWeight;
+                this.Vertices[ndx].TextureWeights.Z /= totalWeight;
+                this.Vertices[ndx].TextureWeights.W /= totalWeight;
                 #endregion
 
                 ++x;

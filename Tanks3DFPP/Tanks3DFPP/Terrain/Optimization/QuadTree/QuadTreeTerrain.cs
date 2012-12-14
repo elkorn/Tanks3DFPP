@@ -5,10 +5,11 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Tanks3DFPP.Camera.Interfaces;
+using Tanks3DFPP.Terrain.Optimization.QuadTree;
 
-namespace Tanks3DFPP.Terrain.Optimization.QuadTree
+namespace Tanks3DFPP.Terrain
 {
-    public class QuadTree : GameComponent
+    public class QuadTreeTerrain : GameComponent
     {
         private QuadNode root;
 
@@ -80,7 +81,7 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
 
         internal BoundingFrustum ViewFrustum { get; set; }
 
-        public QuadTree(Game game, Vector3 position, IHeightMap heightMap, Matrix view, Matrix projection, int scale)
+        public QuadTreeTerrain(Game game, Vector3 position, IHeightMap heightMap, Matrix view, Matrix projection, int scale)
             :base(game)
         {
             this.position = position;
@@ -106,17 +107,17 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
             this.Indices = new int[(heightMap.Width + 1) * (heightMap.Height + 1) * 3];
         }
 
-        public void Update(Matrix view, Matrix projection, ICamera camera)
+        public void Update(ICamera camera, Matrix projection)
         {
             if (camera.Position != this.lastCameraPosition)
             {
-                this.effect.Parameters["xView"].SetValue(view);
+                this.effect.Parameters["xView"].SetValue(camera.View);
                 this.effect.Parameters["xProjection"].SetValue(projection);
 
                 this.lastCameraPosition = camera.Position;
                 this.indexCount = 0;
 
-                //this.root.SetActiveVertices();
+                this.root.ActivateVertices();
                 this.buffers.UpdateIndexBuffer(this.Indices, this.indexCount);
                 this.buffers.SwapBuffer();
             }
@@ -135,6 +136,10 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
             }
         }
 
+        internal void UpdateBuffer(int vertexIndex)
+        {
+            this.Indices[this.indexCount++] = vertexIndex;
+        }
 
         private void InitializeEffect()
         {
@@ -151,6 +156,11 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
             effect.Parameters["xWorld"].SetValue(Matrix.Identity);
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            this.buffers.Dispose();
+            base.Dispose(disposing);
+        }
 
     }
 }

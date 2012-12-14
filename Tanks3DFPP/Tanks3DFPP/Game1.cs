@@ -25,12 +25,12 @@ namespace Tanks3DFPP
         int mapSize = 10,
             roughness = 500,
             maxHeight = 300,
-            scale = 5;
+            scale = 10;
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Matrix world, projection;
-        Terrain.MultiTexturedTerrain terrain;
+        Terrain.QuadTreeTerrain terrain;
         SpriteFont font;
         ICamera camera;
         int currentColoringMethod = 1;
@@ -58,8 +58,8 @@ namespace Tanks3DFPP
             // TODO: Add your initialization logic here
             world = Matrix.Identity;
 
-            projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), this.GraphicsDevice.Viewport.AspectRatio, 1, 2000f);
-            this.camera = new FPPCamera(this.GraphicsDevice, new Vector3(100, 255, 100), 0.3f, 2.0f, this.projection);
+            projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), this.GraphicsDevice.Viewport.AspectRatio, 1, 20000f);
+            this.camera = new FPPCamera(this.GraphicsDevice, new Vector3(100, maxHeight * scale, 100), 0.3f, 2.0f, this.projection);
 
             heightMap = new FractalMap(mapSize, roughness, maxHeight);
             coloringMethods = new IHeightToColorTranslationMethod[] 
@@ -79,7 +79,7 @@ namespace Tanks3DFPP
         /// </summary>
         protected override void LoadContent()
         {
-            this.terrain = new Terrain.MultiTexturedTerrain(this.GraphicsDevice, this.Content, heightMap, scale);
+            this.terrain = new Terrain.QuadTreeTerrain(this, Vector3.Zero, heightMap, this.camera.View, this.projection, scale);
             font = this.Content.Load<SpriteFont>("SpriteFont1");
             sphere = new CollisionSphere(this, heightMap, new Vector3(50, 0, -50), scale);
         }
@@ -114,7 +114,8 @@ namespace Tanks3DFPP
             KeyboardHandler.KeyAction(Keys.G, () =>
             {
                 this.terrain.Dispose();
-                this.terrain = new Terrain.MultiTexturedTerrain(this.GraphicsDevice, this.Content, new FractalMap(mapSize, roughness, maxHeight));
+                this.terrain = new QuadTreeTerrain(this, Vector3.Zero, new FractalMap(mapSize, roughness, maxHeight, 1), this.camera.View, this.projection, this.scale);
+                    //new Terrain.MultiTexturedTerrain(this.GraphicsDevice, this.Content, new FractalMap(mapSize, roughness, maxHeight, 1), scale);
             });
 
             KeyboardHandler.KeyAction(Keys.F, () =>
@@ -131,15 +132,16 @@ namespace Tanks3DFPP
                 wireFrame = !wireFrame;
             });
 
-            KeyboardHandler.KeyAction(Keys.L, this.terrain.SwitchLighting);
-            KeyboardHandler.KeyAction(Keys.B, () =>
-            {
-                this.terrain.SwitchBlending(true);
-            });
-            KeyboardHandler.KeyAction(Keys.N, () =>
-            {
-                this.terrain.SwitchBlending(false);
-            });
+            //KeyboardHandler.KeyAction(Keys.L, this.terrain.SwitchLighting);
+            //KeyboardHandler.KeyAction(Keys.B, () =>
+            //{
+            //    this.terrain.SwitchBlending(true);
+            //});
+            //KeyboardHandler.KeyAction(Keys.N, () =>
+            //{
+            //    this.terrain.SwitchBlending(false);
+            //});
+            this.terrain.Update(this.camera, this.projection);
             sphere.Update(gameTime);
             this.camera.Update(gameTime);
             base.Update(gameTime);
@@ -157,7 +159,8 @@ namespace Tanks3DFPP
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
             GraphicsDevice.Clear(Color.Black);
             sphere.Draw(world, this.camera.View, projection);
-            this.terrain.Render(world, this.camera.View, this.projection);
+            this.terrain.Draw(gameTime);
+            //this.terrain.Render(world, this.camera.View, this.projection);
             BoundingFrustumRenderer.Render(this.camera.Frustum, this.GraphicsDevice, this.camera.View, this.projection, Color.Red);
             spriteBatch.Begin();
             spriteBatch.DrawString(font, string.Format("Near: {0}, Far: {1}", camera.Frustum.Near.D, camera.Frustum.Far.D), Vector2.Zero, Color.Wheat);

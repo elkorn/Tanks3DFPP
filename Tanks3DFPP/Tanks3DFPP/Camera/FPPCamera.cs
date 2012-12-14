@@ -99,12 +99,12 @@ namespace Tanks3DFPP.Camera
 
             KeyboardHandler.TurboKeyAction(Keys.OemPlus, () =>
             {
-                this.moveSpeed += .2f;
+                this.moveSpeed++;
             });
 
             KeyboardHandler.TurboKeyAction(Keys.OemMinus, () =>
             {
-                this.moveSpeed -= .2f;
+                this.moveSpeed--;
             });
 
             this.Move(velocity);
@@ -121,7 +121,7 @@ namespace Tanks3DFPP.Camera
         {
             Vector2 dRotation = this.GetMousePositionDifference();
             this.yawAngle -= this.rotationSpeed * dRotation.X * increment;
-            this.pitchAngle -= this.rotationSpeed * dRotation.Y * increment;
+            this.pitchAngle += this.rotationSpeed * dRotation.Y * increment;
             this.pitchAngle = MathHelper.Clamp(this.pitchAngle, -maxPitch, maxPitch);
             Mouse.SetPosition(this.referenceMouseState.X, this.referenceMouseState.Y);
             UpdateView();

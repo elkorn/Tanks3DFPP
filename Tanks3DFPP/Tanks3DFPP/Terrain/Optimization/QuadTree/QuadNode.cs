@@ -16,7 +16,7 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
         /// <summary>
         /// The parent tree - lower LOD.
         /// </summary>
-        private QuadTree parentTree;
+        private QuadTreeTerrain parentTree;
 
         private int depth,
                     size;
@@ -112,7 +112,7 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
             int size,
             int depth,
             QuadNode parent,
-            QuadTree parentTree,
+            QuadTreeTerrain parentTree,
             int positionIndex)
         {
             this.Type = type;
@@ -163,6 +163,68 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
             }
         }
 
+        internal void ActivateVertices()
+        {
+            #region The top triangle (triangles)
+            this.parentTree.UpdateBuffer(this.VertexCenter.Index);
+            this.parentTree.UpdateBuffer(this.VertexTopLeft.Index);
+
+            if (this.VertexTop.ShouldBeRendered)
+            {
+                // split and render an additional triangle
+                this.parentTree.UpdateBuffer(this.VertexTop.Index);
+                this.parentTree.UpdateBuffer(this.VertexCenter.Index);
+                this.parentTree.UpdateBuffer(this.VertexTop.Index);
+            }
+
+            this.parentTree.UpdateBuffer(this.VertexTopRight.Index);
+            #endregion
+
+            #region The right triangle (triangles)
+            this.parentTree.UpdateBuffer(this.VertexCenter.Index);
+            this.parentTree.UpdateBuffer(this.VertexTopRight.Index);
+
+            if (this.VertexRight.ShouldBeRendered)
+            {
+                // split and render an additional triangle
+                this.parentTree.UpdateBuffer(this.VertexRight.Index);
+                this.parentTree.UpdateBuffer(this.VertexCenter.Index);
+                this.parentTree.UpdateBuffer(this.VertexRight.Index);
+            }
+
+            this.parentTree.UpdateBuffer(this.VertexBottomRight.Index);
+            #endregion
+
+            #region The bottom triangle (triangles)
+            this.parentTree.UpdateBuffer(this.VertexCenter.Index);
+            this.parentTree.UpdateBuffer(this.VertexBottomRight.Index);
+
+            if (this.VertexBottom.ShouldBeRendered)
+            {
+                // split and render an additional triangle
+                this.parentTree.UpdateBuffer(this.VertexBottom.Index);
+                this.parentTree.UpdateBuffer(this.VertexCenter.Index);
+                this.parentTree.UpdateBuffer(this.VertexBottom.Index);
+            }
+
+            this.parentTree.UpdateBuffer(this.VertexBottomLeft.Index);
+            #endregion
+
+            #region The left triangle (triangles)
+            this.parentTree.UpdateBuffer(this.VertexCenter.Index);
+            this.parentTree.UpdateBuffer(this.VertexBottomLeft.Index);
+
+            if (this.VertexLeft.ShouldBeRendered)
+            {
+                // split and render an additional triangle
+                this.parentTree.UpdateBuffer(this.VertexLeft.Index);
+                this.parentTree.UpdateBuffer(this.VertexCenter.Index);
+                this.parentTree.UpdateBuffer(this.VertexLeft.Index);
+            }
+
+            this.parentTree.UpdateBuffer(this.VertexTopLeft.Index);
+            #endregion
+        }
 
         /// <summary>
         /// Adds the relevant vertices to the quad node.

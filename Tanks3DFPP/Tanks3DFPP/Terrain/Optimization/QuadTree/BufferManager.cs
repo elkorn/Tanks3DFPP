@@ -10,7 +10,7 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
     /// <summary>
     /// Responsible for managing the active vertex and index buffers.
     /// </summary>
-    internal class BufferManager
+    internal class BufferManager: IDisposable
     {
         internal VertexBuffer VertexBuffer;
 
@@ -33,7 +33,6 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
 
         private GraphicsDevice graphicsDevice;
 
-
         internal BufferManager(VertexMultitextured[] vertices, GraphicsDevice graphicsDevice)
         {
             this.graphicsDevice = graphicsDevice;
@@ -55,6 +54,15 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
         {
             ++activeIndexBuffer;
             activeIndexBuffer %= 2;
+        }
+
+        public void Dispose()
+        {
+            this.VertexBuffer.Dispose();
+            foreach(IndexBuffer buffer in this.indexBuffers)
+            {
+                buffer.Dispose();
+            }
         }
     }
 }

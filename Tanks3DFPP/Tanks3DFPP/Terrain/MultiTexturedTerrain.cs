@@ -127,7 +127,7 @@ namespace Tanks3DFPP.Terrain
                   minGrassHeight = 0.4f * this.heightMap.HighestPeak,
                   minRockHeight = (2 / 3f) * this.heightMap.HighestPeak,
                   minSnowHeight = this.heightMap.HighestPeak,
-                  sandBracket = (2 / 3f) * this.heightMap.HighestPeak,
+                  sandBracket = 0.25f * this.heightMap.HighestPeak,
                   grassBracket = 0.2f * this.heightMap.HighestPeak,
                   rockBracket = 0.2f * this.heightMap.HighestPeak,
                   snowBracket = 0.2f * this.heightMap.HighestPeak;
@@ -136,7 +136,7 @@ namespace Tanks3DFPP.Terrain
                 for (int x = 0; x < this.Height; ++x)
                 {
                     int ndx = x + y * this.Width;
-                    this.vertices[ndx].Position = new Vector3(x * this.scale, (this.heightMap.Data[x, y]) * this.scale - this.heightMap.HeightOffset, -y * this.scale);
+                    this.vertices[ndx].Position = new Vector3(x * this.scale, (this.heightMap.Data[x, y]) * this.scale - this.heightMap.HeightOffset * this.scale, -y * this.scale);
                     this.vertices[ndx].Normal = new Vector3(0, 0, 0);
                     this.vertices[ndx].TextureCoordinate.X = (float)x / 30f;
                     this.vertices[ndx].TextureCoordinate.Y = (float)y / 30f;
