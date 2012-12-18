@@ -113,6 +113,9 @@
     <Compile Include="Camera\OrbitingCamera.cs" />
     <Compile Include="Entities\CollidingEntity.cs" />
     <Compile Include="Terrain\ColoredTerrain.cs" />
+    <Compile Include="Tanks\Tank.cs" />
+    <Compile Include="Tanks\TankMissle.cs" />
+    <Compile Include="Tanks\TanksController.cs" />
     <Compile Include="Terrain\FractalMap.cs" />
     <Compile Include="Terrain\GreenYellowRed.cs" />
     <Compile Include="Terrain\Interfaces\IHeightMap.cs" />
@@ -177,6 +180,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
   <!--
