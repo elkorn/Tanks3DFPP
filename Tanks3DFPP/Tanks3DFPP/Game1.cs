@@ -13,6 +13,7 @@ using System.IO;
 using Tanks3DFPP.Utilities;
 using Tanks3DFPP.Camera.Interfaces;
 using Tanks3DFPP.Camera;
+using Tanks3DFPP.Tanks;
 
 namespace Tanks3DFPP
 {
@@ -43,6 +44,7 @@ namespace Tanks3DFPP
         IHeightToColorTranslationMethod[] coloringMethods;
         IHeightMap heightMap;
         CollisionSphere sphere;
+        TankController tankController;
 
         public Game1()
         {
@@ -72,7 +74,8 @@ namespace Tanks3DFPP
             };
 
             spriteBatch = new SpriteBatch(this.GraphicsDevice);
-
+            tankController = new TankController(this, 2);
+            
             base.Initialize();
         }
 
@@ -147,6 +150,7 @@ namespace Tanks3DFPP
             this.terrain.Update(this.camera, this.projection);
             sphere.Update(gameTime);
             this.camera.Update(gameTime);
+            tankController.Update(gameTime);
             base.Update(gameTime);
         }
 
@@ -168,6 +172,7 @@ namespace Tanks3DFPP
             spriteBatch.Begin();
             spriteBatch.DrawString(font, string.Format("Near: {0}, Far: {1}", camera.Frustum.Near.D, camera.Frustum.Far.D), Vector2.Zero, Color.Wheat);
             spriteBatch.End();
+            tankController.Draw(this.camera.View, this.projection);
             base.Draw(gameTime);
         }
     }
