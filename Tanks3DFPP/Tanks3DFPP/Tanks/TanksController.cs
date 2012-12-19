@@ -83,7 +83,7 @@ namespace Tanks3DFPP.Tanks
             missleInGame = new TankMissle();
             MissleInGame.LoadContent(game.Content);
 
-            InfoFont = game.Content.Load<SpriteFont>("DebugInfoFont");
+            InfoFont = game.Content.Load<SpriteFont>("SpriteFont1");
 
             this.Initialize();
         }
