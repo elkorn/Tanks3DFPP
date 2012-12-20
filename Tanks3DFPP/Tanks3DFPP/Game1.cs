@@ -17,9 +17,6 @@ using Tanks3DFPP.Tanks;
 
 namespace Tanks3DFPP
 {
-    /*
-     * WITO STAMP OF APPROVAL
-     */
     /// <summary>
     /// This is the main type for your game
     /// </summary>
@@ -28,13 +25,13 @@ namespace Tanks3DFPP
 
         int mapSize = 10,
             roughness = 500,
-            maxHeight = 300,
-            scale = 10;
+            maxHeight = 300;
+
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Matrix world, projection;
-        Terrain.QuadTreeTerrain terrain;
+        Terrain.MultiTexturedTerrain terrain;
         SpriteFont font;
         ICamera camera;
         int currentColoringMethod = 1;
@@ -42,9 +39,12 @@ namespace Tanks3DFPP
         public static KeyboardState CurrentKeyboardState { get; private set; }
         public static MouseState CurrentMouseState { get; private set; }
         IHeightToColorTranslationMethod[] coloringMethods;
-        IHeightMap heightMap;
+        
         CollisionSphere sphere;
         TankController tankController;
+
+        public static IHeightMap heightMap;
+        public static int Scale = 2;
 
         public Game1()
         {
@@ -64,7 +64,7 @@ namespace Tanks3DFPP
             world = Matrix.Identity;
 
             projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), this.GraphicsDevice.Viewport.AspectRatio, 1, 20000f);
-            this.camera = new FPPCamera(this.GraphicsDevice, new Vector3(100, maxHeight * scale, 100), 0.3f, 2.0f, this.projection);
+            this.camera = new FPPCamera(this.GraphicsDevice, new Vector3(100, maxHeight * Scale, 100), 0.3f, 2.0f, this.projection);
 
             heightMap = new FractalMap(mapSize, roughness, maxHeight);
             coloringMethods = new IHeightToColorTranslationMethod[] 
@@ -74,9 +74,8 @@ namespace Tanks3DFPP
             };
 
             spriteBatch = new SpriteBatch(this.GraphicsDevice);
-            tankController = new TankController(this, 2);
-            
             base.Initialize();
+            this.GenerateEverything();
         }
 
         /// <summary>
@@ -85,9 +84,9 @@ namespace Tanks3DFPP
         /// </summary>
         protected override void LoadContent()
         {
-            this.terrain = new Terrain.QuadTreeTerrain(this, Vector3.Zero, heightMap, this.camera.View, this.projection, scale);
+            //this.terrain = new Terrain.QuadTreeTerrain(this, Vector3.Zero, heightMap, this.camera.View, this.projection, Scale);
+            this.terrain = new Terrain.MultiTexturedTerrain(this.GraphicsDevice, this.Content, heightMap = new FractalMap(mapSize, roughness, maxHeight, 1), Scale);
             font = this.Content.Load<SpriteFont>("SpriteFont1");
-            sphere = new CollisionSphere(this, heightMap, new Vector3(50, 0, -50), scale);
         }
 
         /// <summary>
@@ -96,6 +95,18 @@ namespace Tanks3DFPP
         /// </summary>
         protected override void UnloadContent()
         {
+        }
+
+        private void GenerateEverything()
+        {
+            if (this.terrain != null)
+            {
+                this.terrain.Dispose();
+            }
+
+            this.terrain = new Terrain.MultiTexturedTerrain(this.GraphicsDevice, this.Content, heightMap = new FractalMap(mapSize, roughness, maxHeight, 1), Scale);
+            sphere = new CollisionSphere(this, heightMap, new Vector3(50, 0, -50), Scale);
+            tankController = new TankController(this, 2);
         }
 
         /// <summary>
@@ -119,9 +130,9 @@ namespace Tanks3DFPP
 
             KeyboardHandler.KeyAction(Keys.G, () =>
             {
-                this.terrain.Dispose();
-                this.terrain = new QuadTreeTerrain(this, Vector3.Zero, new FractalMap(mapSize, roughness, maxHeight, 1), this.camera.View, this.projection, this.scale);
-                    //new Terrain.MultiTexturedTerrain(this.GraphicsDevice, this.Content, new FractalMap(mapSize, roughness, maxHeight, 1), scale);
+                this.GenerateEverything();
+                //this.terrain = new QuadTreeTerrain(this, Vector3.Zero, heightMap = new FractalMap(mapSize, roughness, maxHeight, 1), this.camera.View, this.projection, Scale);
+                
             });
 
             KeyboardHandler.KeyAction(Keys.F, () =>
@@ -138,16 +149,16 @@ namespace Tanks3DFPP
                 wireFrame = !wireFrame;
             });
 
-            //KeyboardHandler.KeyAction(Keys.L, this.terrain.SwitchLighting);
-            //KeyboardHandler.KeyAction(Keys.B, () =>
-            //{
-            //    this.terrain.SwitchBlending(true);
-            //});
-            //KeyboardHandler.KeyAction(Keys.N, () =>
-            //{
-            //    this.terrain.SwitchBlending(false);
-            //});
-            this.terrain.Update(this.camera, this.projection);
+            KeyboardHandler.KeyAction(Keys.L, this.terrain.SwitchLighting);
+            KeyboardHandler.KeyAction(Keys.B, () =>
+            {
+                this.terrain.SwitchBlending(true);
+            });
+            KeyboardHandler.KeyAction(Keys.N, () =>
+            {
+                this.terrain.SwitchBlending(false);
+            });
+            //this.terrain.Update(this.camera, this.projection);
             sphere.Update(gameTime);
             this.camera.Update(gameTime);
             tankController.Update(gameTime);
@@ -161,18 +172,19 @@ namespace Tanks3DFPP
         protected override void Draw(GameTime gameTime)
         {
 
-            GraphicsDevice.BlendState = BlendState.Opaque;
-            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
+            //GraphicsDevice.BlendState = BlendState.Opaque;
+            //GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            //GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
             GraphicsDevice.Clear(Color.Black);
             sphere.Draw(world, this.camera.View, projection);
-            this.terrain.Draw(gameTime);
+            this.terrain.Draw(this.world, this.camera.View, this.projection);
+            tankController.Draw(this.camera.View, this.projection);
             //this.terrain.Render(world, this.camera.View, this.projection);
             BoundingFrustumRenderer.Render(this.camera.Frustum, this.GraphicsDevice, this.camera.View, this.projection, Color.Red);
-            spriteBatch.Begin();
-            spriteBatch.DrawString(font, string.Format("Near: {0}, Far: {1}", camera.Frustum.Near.D, camera.Frustum.Far.D), Vector2.Zero, Color.Wheat);
-            spriteBatch.End();
-            tankController.Draw(this.camera.View, this.projection);
+            //spriteBatch.Begin();
+            //spriteBatch.DrawString(font, string.Format("Near: {0}, Far: {1}", camera.Frustum.Near.D, camera.Frustum.Far.D), Vector2.Zero, Color.Wheat);
+            //spriteBatch.End();
+            
             base.Draw(gameTime);
         }
     }
