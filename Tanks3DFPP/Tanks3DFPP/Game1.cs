@@ -99,6 +99,7 @@ namespace Tanks3DFPP
 
         private void GenerateEverything()
         {
+            Content.Unload();
             if (this.terrain != null)
             {
                 this.terrain.Dispose();

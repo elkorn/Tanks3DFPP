@@ -117,7 +117,15 @@ namespace Tanks3DFPP.Tanks
             Health = 100;
             initialVelocityPower = 1.5f;
 
+            tankOrientation = Matrix.Identity;
+            turretOrientation = Matrix.Identity;
+            cannonOrientation = Matrix.Identity;
+
+            turretBone.Transform = turretOrientation * turretTransform;
+            cannonBone.Transform = cannonOrientation * cannonTransform;
+
             model.CopyAbsoluteBoneTransformsTo(boneTransforms);
+
             worldMatrix = tankOrientation * Matrix.CreateTranslation(Position);
 
             for (int i = 0; i < model.Meshes.Count; ++i)
@@ -160,11 +168,11 @@ namespace Tanks3DFPP.Tanks
                 cannonTurnAmount += 1;
             }
 
-            if (KS.IsKeyDown(Keys.OemPlus))
+            if (KS.IsKeyDown(Keys.OemCloseBrackets))
             {
                 initialVelocityPower += 0.02f;
             }
-            if (KS.IsKeyDown(Keys.OemMinus))
+            if (KS.IsKeyDown(Keys.OemOpenBrackets))
             {
                 initialVelocityPower -= 0.02f;
             }
