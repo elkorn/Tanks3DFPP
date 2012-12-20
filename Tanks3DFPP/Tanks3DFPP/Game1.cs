@@ -23,8 +23,8 @@ namespace Tanks3DFPP
     public class Game1 : Microsoft.Xna.Framework.Game
     {
 
-        int mapSize = 10,
-            roughness = 500,
+        int mapSize = 9,
+            roughness = 100,
             maxHeight = 300;
 
 
@@ -105,7 +105,7 @@ namespace Tanks3DFPP
                 this.terrain.Dispose();
             }
 
-            this.terrain = new Terrain.MultiTexturedTerrain(this.GraphicsDevice, this.Content, heightMap = new FractalMap(mapSize, roughness, maxHeight, 1), Scale);
+            this.terrain = new Terrain.MultiTexturedTerrain(this.GraphicsDevice, this.Content, heightMap = new FractalMap(mapSize, roughness, maxHeight, 20), Scale);
             sphere = new CollisionSphere(this, heightMap, new Vector3(50, 0, -50), Scale);
             tankController = new TankController(this, 2);
         }
@@ -181,7 +181,7 @@ namespace Tanks3DFPP
             this.terrain.Draw(this.world, this.camera.View, this.projection);
             tankController.Draw(this.camera.View, this.projection);
             //this.terrain.Render(world, this.camera.View, this.projection);
-            BoundingFrustumRenderer.Render(this.camera.Frustum, this.GraphicsDevice, this.camera.View, this.projection, Color.Red);
+            //BoundingFrustumRenderer.Render(this.camera.Frustum, this.GraphicsDevice, this.camera.View, this.projection, Color.Red);
             //spriteBatch.Begin();
             //spriteBatch.DrawString(font, string.Format("Near: {0}, Far: {1}", camera.Frustum.Near.D, camera.Frustum.Far.D), Vector2.Zero, Color.Wheat);
             //spriteBatch.End();

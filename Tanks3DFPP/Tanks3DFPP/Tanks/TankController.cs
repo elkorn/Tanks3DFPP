@@ -50,6 +50,7 @@ namespace Tanks3DFPP.Tanks
         String ShotInfoString;
         Random rand;
 
+        //ExplosionSystem Explosion;
 
         public TankController(Game game, int numOfPlayers)
             : base(game)
@@ -84,6 +85,9 @@ namespace Tanks3DFPP.Tanks
             MissleInGame.LoadContent(game.Content);
 
             InfoFont = game.Content.Load<SpriteFont>("SpriteFont1");
+
+            //Explosion = new ExplosionSystem();
+            //Explosion.LoadContent(game.Content, GD);
 
             this.Initialize();
         }
@@ -139,6 +143,7 @@ namespace Tanks3DFPP.Tanks
             {
                 if (MissleInGame.UpdatePositionAfterShot(TanksInGame, TurnToken, out SphereHit, out HitIndex)) //0, 
                 {
+                    //Explosion.AddExplosion(new Vector2(GD.Viewport.X / 2, GD.Viewport.Y / 2), 4, 30.0f, 1000.0f, gameTime);
                     if (HitIndex != -1)
                     {
                         // fire the particle system explosion anim at missle pos and hide the missle
@@ -233,6 +238,7 @@ namespace Tanks3DFPP.Tanks
                 }
                 //spriteBatch.DrawString(InfoFont, string.Format("Missle position: {0}", missleInGame.boundingSphere.Center), (Vector2.UnitX * GD.Viewport.Width * 0.35f) + (Vector2.UnitY * 5 * 25), Color.White);
             }
+            //Explosion.DrawExplosion();
             spriteBatch.End();
 
             GD.BlendState = BlendState.Opaque;
