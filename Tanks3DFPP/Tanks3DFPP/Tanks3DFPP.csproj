@@ -115,7 +115,7 @@
     <Compile Include="Terrain\ColoredTerrain.cs" />
     <Compile Include="Tanks\Tank.cs" />
     <Compile Include="Tanks\TankMissle.cs" />
-    <Compile Include="Tanks\TanksController.cs" />
+    <Compile Include="Tanks\TankController.cs" />
     <Compile Include="Terrain\FractalMap.cs" />
     <Compile Include="Terrain\GreenYellowRed.cs" />
     <Compile Include="Terrain\Interfaces\IHeightMap.cs" />

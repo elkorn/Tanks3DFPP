@@ -137,7 +137,7 @@ namespace Tanks3DFPP.Tanks
 
             if (bShotFired)
             {
-                if (MissleInGame.UpdatePositionAfterShot(0, TanksInGame, TurnToken, out SphereHit, out HitIndex))
+                if (MissleInGame.UpdatePositionAfterShot(TanksInGame, TurnToken, out SphereHit, out HitIndex)) //0, 
                 {
                     if (HitIndex != -1)
                     {
@@ -230,6 +230,7 @@ namespace Tanks3DFPP.Tanks
                     //    spriteBatch.DrawString(InfoFont, string.Format("Tank {0} bs center: {1}", i, tanksInGame[i].BoundingSpheres[5].Center), (Vector2.UnitX * GD.Viewport.Width * 0.35f) + (Vector2.UnitY * (i+1) * 25), Color.White);
                     //    spriteBatch.DrawString(InfoFont, string.Format("Tank {0} position: {1}", i, tanksInGame[i].Position), (Vector2.UnitX * GD.Viewport.Width * 0.35f) + (Vector2.UnitY * (i+2)*2 * 25), Color.White);
                 }
+                spriteBatch.DrawString(InfoFont, String.Format("Press G to start a new battle!\nPress Enter to chicken out."), (Vector2.UnitX * GD.Viewport.Width * 0.3f) + (Vector2.UnitY * GD.Viewport.Width * 0.7f), Color.DarkMagenta);
                 //spriteBatch.DrawString(InfoFont, string.Format("Missle position: {0}", missleInGame.boundingSphere.Center), (Vector2.UnitX * GD.Viewport.Width * 0.35f) + (Vector2.UnitY * 5 * 25), Color.White);
             }
             spriteBatch.End();

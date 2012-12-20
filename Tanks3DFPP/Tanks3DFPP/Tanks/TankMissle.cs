@@ -6,10 +6,11 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Input;
+using Tanks3DFPP.Entities;
 
 namespace Tanks3DFPP.Tanks
 {
-    public class TankMissle
+    public class TankMissle : CollidingEntity
     {
         const float ScaleFactor = 10.0f;
 
@@ -94,7 +95,7 @@ namespace Tanks3DFPP.Tanks
         }
 
         // CollisionPoint to change
-        public bool UpdatePositionAfterShot(float CollisionPoint, List<Tank> tanks, int except, out BoundingSphere SphereHit, out int HitIndex)
+        public bool UpdatePositionAfterShot(List<Tank> tanks, int except, out BoundingSphere SphereHit, out int HitIndex) //float CollisionPoint, 
         {
             // check for collision
             for (int i = 0; i < tanks.Count; ++i)
@@ -117,30 +118,32 @@ namespace Tanks3DFPP.Tanks
             bInAir = true;
             SphereHit = new BoundingSphere(Vector3.Zero, 0f);
             HitIndex = -1;
-
-            if (position.Y > CollisionPoint)
+            if (IsInFloorBounds(Game1.heightMap, position))
             {
-                previousPosition = position;
-                position += velocity + gravityForce;
-                gravityForce *= gravityFactor;
-
-                if (position.Y < previousPosition.Y)
+                if (position.Y > this.OffsetToFloorHeight(Game1.heightMap, position).Y) //position.Y > CollisionPoint && 
                 {
-                    except = -1;
+                    previousPosition = position;
+                    position += velocity + gravityForce;
+                    gravityForce *= gravityFactor;
+
+                    if (position.Y < previousPosition.Y)
+                    {
+                        except = -1;
+                    }
+
+                    FacingDirectionNorm = position - previousPosition;
+                    FacingDirectionNorm.Normalize();
+
+                    NextFacingDirectionNorm = velocity;
+                    NextFacingDirectionNorm.Normalize();
+
+                    angleDiff = (float)Math.Acos(Vector3.Dot(FacingDirectionNorm, NextFacingDirectionNorm));
+
+                    orientation = Matrix.CreateRotationY(MathHelper.ToRadians(180)) *
+                        Matrix.CreateFromYawPitchRoll(yawAngle, pitchAngle + angleDiff, 0) *
+                        Matrix.CreateScale(ScaleFactor);
+                    return false;
                 }
-
-                FacingDirectionNorm = position - previousPosition;
-                FacingDirectionNorm.Normalize();
-
-                NextFacingDirectionNorm = velocity;
-                NextFacingDirectionNorm.Normalize();
-
-                angleDiff = (float)Math.Acos(Vector3.Dot(FacingDirectionNorm, NextFacingDirectionNorm));
-
-                orientation = Matrix.CreateRotationY(MathHelper.ToRadians(180)) *
-                    Matrix.CreateFromYawPitchRoll(yawAngle, pitchAngle + angleDiff, 0) *
-                    Matrix.CreateScale(ScaleFactor);
-                return false;
             }
 
             bInAir = false;
@@ -167,6 +170,50 @@ namespace Tanks3DFPP.Tanks
                 }
             }
             boundingSphere = new BoundingSphere(this.position, radius);
+        }
+
+        protected override bool IsInFloorBounds(Terrain.IHeightMap floor)
+        {
+            return this.IsInFloorBounds(floor, this.Position);
+        }
+
+        protected override bool IsInFloorBounds(Terrain.IHeightMap floor, Vector3 position)
+        {
+            foreach (ModelMesh mesh in this.model.Meshes)
+            {
+                BoundingSphere sphere = mesh.BoundingSphere.Transform(
+                    mesh.ParentBone.Transform
+                    * this.orientation
+                    * Matrix.CreateTranslation(position));   // probably needs fixing.
+                if (sphere.Center.X + sphere.Radius > floor.Width * Game1.Scale
+                    || sphere.Center.X - sphere.Radius < 0
+                    || sphere.Center.Z + sphere.Radius > 0
+                    || sphere.Center.Z - sphere.Radius < -floor.Height * Game1.Scale)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        protected override Vector3 OffsetToFloorHeight(Terrain.IHeightMap floor)
+        {
+            return this.OffsetToFloorHeight(floor, this.Position);
+        }
+
+        protected override Vector3 OffsetToFloorHeight(Terrain.IHeightMap floor, Vector3 position)
+        {
+            //BoundingSphere mergedSphere = new BoundingSphere();
+            //foreach (ModelMesh mesh in this.model.Meshes)
+            //{
+            //    mergedSphere = BoundingSphere.CreateMerged(mergedSphere, mesh.BoundingSphere.Transform(mesh.ParentBone.Transform));
+            //}
+            return new Vector3(
+                    position.X,
+                    floor.Data[(int)(position.X / Game1.Scale), (int)(-position.Z / Game1.Scale)]
+                    * Game1.Scale - floor.HeightOffset,
+                    position.Z);
         }
     }
 }

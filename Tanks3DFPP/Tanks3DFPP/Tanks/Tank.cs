@@ -10,14 +10,14 @@ using Tanks3DFPP.Entities;
 
 namespace Tanks3DFPP.Tanks
 {
-    public class Tank: CollidingEntity
+    public class Tank : CollidingEntity
     {
         const float TurretTurnSpeed = 0.015f;
         const float CannonDegMax = -90;
         const float CannonDegMin = 0;
         const float ScaleFactor = 0.05f;
-        const float MaxPower = 10.0f;
-        const float MinPower = 0.1f;
+        const float MaxPower = 7.0f;
+        const float MinPower = 1.1f;
         readonly Matrix ScaleMatrix = Matrix.CreateScale(ScaleFactor);
 
         public String PlayerName { get; set; }
@@ -115,7 +115,7 @@ namespace Tanks3DFPP.Tanks
         {
             base.Position = this.OffsetToFloorHeight(Game1.heightMap, location);
             Health = 100;
-            initialVelocityPower = 1.0f;
+            initialVelocityPower = 1.5f;
 
             model.CopyAbsoluteBoneTransformsTo(boneTransforms);
             worldMatrix = tankOrientation * Matrix.CreateTranslation(Position);
