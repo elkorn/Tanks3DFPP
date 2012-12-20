@@ -85,7 +85,7 @@ namespace Tanks3DFPP.Tanks
         {
             yawAngle = turretDirectionAngle;
             pitchAngle = cannonDirectionAngle;
-            initialOrientation = orientation = Matrix.CreateRotationY(MathHelper.ToRadians(180)) *
+            initialOrientation = orientation = Matrix.CreateRotationY(MathHelper.ToRadians(180)) * Matrix.CreateTranslation(-Vector3.UnitZ) *
                         Matrix.CreateFromYawPitchRoll(yawAngle, pitchAngle, 0) * Matrix.CreateScale(ScaleFactor);
             position = tankPosition;
 

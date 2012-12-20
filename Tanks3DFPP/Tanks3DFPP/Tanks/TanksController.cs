@@ -126,7 +126,7 @@ namespace Tanks3DFPP.Tanks
                 TanksInGame[TurnToken].HandleInput(KS);
             }
 
-            if (KeyPressed(Keys.Space) && !bShotFired)
+            if (KeyPressed(Keys.Space) && !bShotFired) //(KS.IsKeyDown(Keys.Space))
             {
                 MissleInGame.SetPreShotValues(TanksInGame[TurnToken].TurretDirectionAngle,
                     TanksInGame[TurnToken].CannonDirectionAngle,

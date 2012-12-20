@@ -207,7 +207,7 @@ namespace Tanks3DFPP.Tanks
             worldMatrix = tankOrientation * Matrix.CreateTranslation(Position);
 
             cannonPosition = (cannonBone.Transform * ScaleMatrix * worldMatrix).Translation;
-            cannonPosition.Y += 2 * cannonPosition.Y;
+            cannonPosition.Y += 2 * (cannonPosition.Y - Position.Y);
 
             for (int i = 0; i < model.Meshes.Count; ++i)
             {
@@ -263,11 +263,11 @@ namespace Tanks3DFPP.Tanks
 
         protected override Vector3 OffsetToFloorHeight(Terrain.IHeightMap floor, Vector3 position)
         {
-            BoundingSphere mergedSphere = new BoundingSphere();
-            foreach (ModelMesh mesh in this.model.Meshes)
-            {
-                mergedSphere = BoundingSphere.CreateMerged(mergedSphere, mesh.BoundingSphere.Transform(mesh.ParentBone.Transform));
-            }
+            //BoundingSphere mergedSphere = new BoundingSphere();
+            //foreach (ModelMesh mesh in this.model.Meshes)
+            //{
+            //    mergedSphere = BoundingSphere.CreateMerged(mergedSphere, mesh.BoundingSphere.Transform(mesh.ParentBone.Transform));
+            //}
 
             return new Vector3(
                     position.X,

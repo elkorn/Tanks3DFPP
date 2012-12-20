@@ -44,7 +44,7 @@ namespace Tanks3DFPP
         TankController tankController;
 
         public static IHeightMap heightMap;
-        public static int Scale = 2;
+        public static int Scale = 1;
 
         public Game1()
         {
