@@ -33,6 +33,14 @@ namespace Tanks3DFPP.Utilities
 
         Vector3 movementQuant = Vector3.Zero;
 
+        public BoundingSphere BoundingSphere
+        {
+            get
+            {
+                return new BoundingSphere(Vector3.Transform(this.model.Meshes[0].BoundingSphere.Center, Matrix.CreateTranslation(this.Position)) / this.mapScale, this.model.Meshes[0].BoundingSphere.Radius);
+            }
+        }
+
         private int mapScale;
 
         public CollisionSphere(Game game, IHeightMap floor, Vector3 startingPosition, int mapScale)

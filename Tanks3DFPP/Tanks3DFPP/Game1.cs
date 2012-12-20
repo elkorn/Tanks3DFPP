@@ -39,7 +39,7 @@ namespace Tanks3DFPP
         public static KeyboardState CurrentKeyboardState { get; private set; }
         public static MouseState CurrentMouseState { get; private set; }
         IHeightToColorTranslationMethod[] coloringMethods;
-        
+
         CollisionSphere sphere;
         TankController tankController;
 
@@ -132,7 +132,7 @@ namespace Tanks3DFPP
             {
                 this.GenerateEverything();
                 //this.terrain = new QuadTreeTerrain(this, Vector3.Zero, heightMap = new FractalMap(mapSize, roughness, maxHeight, 1), this.camera.View, this.projection, Scale);
-                
+
             });
 
             KeyboardHandler.KeyAction(Keys.F, () =>
@@ -179,12 +179,24 @@ namespace Tanks3DFPP
             sphere.Draw(world, this.camera.View, projection);
             this.terrain.Draw(this.world, this.camera.View, this.projection);
             tankController.Draw(this.camera.View, this.projection);
+            foreach (Tank tank in tankController.TanksInGame)
+            {
+                foreach (BoundingSphere boundingSphere in tank.BoundingSpheres)
+                {
+                    BoundingSphereRenderer.Render(boundingSphere, this.GraphicsDevice, this.camera.View, this.projection, Color.Red);
+                }
+            }
+
+            BoundingSphereRenderer.Render(tankController.MissleInGame.BoundingSphere, this.GraphicsDevice, this.camera.View, this.projection, Color.Red);
+
+            BoundingSphereRenderer.Render(sphere.BoundingSphere, this.GraphicsDevice, this.camera.View, this.projection, Color.Red);
+
             //this.terrain.Render(world, this.camera.View, this.projection);
             BoundingFrustumRenderer.Render(this.camera.Frustum, this.GraphicsDevice, this.camera.View, this.projection, Color.Red);
             //spriteBatch.Begin();
             //spriteBatch.DrawString(font, string.Format("Near: {0}, Far: {1}", camera.Frustum.Near.D, camera.Frustum.Far.D), Vector2.Zero, Color.Wheat);
             //spriteBatch.End();
-            
+
             base.Draw(gameTime);
         }
     }

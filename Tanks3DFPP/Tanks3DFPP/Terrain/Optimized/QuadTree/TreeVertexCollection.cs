@@ -129,7 +129,7 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
              * +++++
              * +++++
              * +++++
-             * +*+++
+             * +*+--
              * +++--
              * 
              * to

@@ -71,7 +71,7 @@ namespace Tanks3DFPP.Tanks
 
         #region Fields
 
-        Model model;
+        public Model Model { get; private set; }
 
         Matrix tankOrientation = Matrix.Identity;
         Matrix turretOrientation = Matrix.Identity;
@@ -94,18 +94,18 @@ namespace Tanks3DFPP.Tanks
         /// <param name="content">The content.</param>
         public void LoadContent(ContentManager content)
         {
-            model = content.Load<Model>("Tank");
-            boneTransforms = new Matrix[model.Bones.Count];
+            Model = content.Load<Model>("Tank");
+            boneTransforms = new Matrix[Model.Bones.Count];
 
 
             boundingSpheres = new List<BoundingSphere>();
-            foreach (ModelMesh mesh in model.Meshes)
+            foreach (ModelMesh mesh in Model.Meshes)
             {
                 boundingSpheres.Add(new BoundingSphere(mesh.BoundingSphere.Center, mesh.BoundingSphere.Radius * ScaleFactor));
             }
 
-            turretBone = model.Bones["turret_geo"];
-            cannonBone = model.Bones["canon_geo"];
+            turretBone = Model.Bones["turret_geo"];
+            cannonBone = Model.Bones["canon_geo"];
 
             turretTransform = turretBone.Transform;
             cannonTransform = cannonBone.Transform;
@@ -117,12 +117,12 @@ namespace Tanks3DFPP.Tanks
             Health = 100;
             initialVelocityPower = 1.0f;
 
-            model.CopyAbsoluteBoneTransformsTo(boneTransforms);
+            Model.CopyAbsoluteBoneTransformsTo(boneTransforms);
             worldMatrix = tankOrientation * Matrix.CreateTranslation(Position);
 
-            for (int i = 0; i < model.Meshes.Count; ++i)
+            for (int i = 0; i < Model.Meshes.Count; ++i)
             {
-                ModelMesh mesh = model.Meshes[i];
+                ModelMesh mesh = Model.Meshes[i];
                 boundingSpheres[i] = new BoundingSphere(mesh.BoundingSphere.Transform(boneTransforms[mesh.ParentBone.Index] * ScaleMatrix * worldMatrix).Center,
                     mesh.BoundingSphere.Radius * ScaleFactor);
                 mesh.Draw();
@@ -202,16 +202,16 @@ namespace Tanks3DFPP.Tanks
             turretBone.Transform = turretOrientation * turretTransform;
             cannonBone.Transform = cannonOrientation * cannonTransform;
 
-            model.CopyAbsoluteBoneTransformsTo(boneTransforms);
+            Model.CopyAbsoluteBoneTransformsTo(boneTransforms);
 
             worldMatrix = tankOrientation * Matrix.CreateTranslation(Position);
 
             cannonPosition = (cannonBone.Transform * ScaleMatrix * worldMatrix).Translation;
             cannonPosition.Y += 2 * cannonPosition.Y;
 
-            for (int i = 0; i < model.Meshes.Count; ++i)
+            for (int i = 0; i < Model.Meshes.Count; ++i)
             {
-                ModelMesh mesh = model.Meshes[i];
+                ModelMesh mesh = Model.Meshes[i];
                 foreach (BasicEffect effect in mesh.Effects)
                 {
                     effect.World = boneTransforms[mesh.ParentBone.Index] * ScaleMatrix * worldMatrix;
@@ -238,7 +238,7 @@ namespace Tanks3DFPP.Tanks
 
         protected override bool IsInFloorBounds(Terrain.IHeightMap floor, Vector3 position)
         {
-            foreach (ModelMesh mesh in this.model.Meshes)
+            foreach (ModelMesh mesh in this.Model.Meshes)
             {
                 BoundingSphere sphere = mesh.BoundingSphere.Transform(
                     mesh.ParentBone.Transform 
@@ -264,7 +264,7 @@ namespace Tanks3DFPP.Tanks
         protected override Vector3 OffsetToFloorHeight(Terrain.IHeightMap floor, Vector3 position)
         {
             BoundingSphere mergedSphere = new BoundingSphere();
-            foreach (ModelMesh mesh in this.model.Meshes)
+            foreach (ModelMesh mesh in this.Model.Meshes)
             {
                 mergedSphere = BoundingSphere.CreateMerged(mergedSphere, mesh.BoundingSphere.Transform(mesh.ParentBone.Transform));
             }
