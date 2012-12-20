@@ -7,19 +7,16 @@ using Tanks3DFPP.Terrain;
 
 namespace Tanks3DFPP.Entities
 {
-    public abstract class CollidingEntity : Microsoft.Xna.Framework.GameComponent
+    public abstract class CollidingEntity
     {
         public Vector3 Position { get; protected set; }
-        protected readonly IHeightMap floor;
 
-        protected CollidingEntity(Game game, IHeightMap floor)
-            : base(game)
-        {
-            this.floor = floor;
-        }
+        protected abstract bool IsInFloorBounds(IHeightMap floor);
 
-        protected abstract bool IsInFloorBounds(Vector3 position);
+        protected abstract bool IsInFloorBounds(IHeightMap floor, Vector3 position);
 
-        protected abstract Vector3 OffsetToFloorHeight(Vector3 position);
+        protected abstract Vector3 OffsetToFloorHeight(IHeightMap floor);
+
+        protected abstract Vector3 OffsetToFloorHeight(IHeightMap floor, Vector3 position);
     }
 }

@@ -251,7 +251,7 @@ namespace Tanks3DFPP.Terrain
         /// Renders the terrain to specified device.
         /// </summary>
         /// <param name="device">The device.</param>
-        public void Render(Matrix world, Matrix view, Matrix projection)
+        public void Draw(Matrix world, Matrix view, Matrix projection)
         {
             effect.Parameters["xWorld"].SetValue(world);
             effect.Parameters["xView"].SetValue(view);

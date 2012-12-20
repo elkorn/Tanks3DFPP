@@ -36,29 +36,19 @@ namespace Tanks3DFPP.Utilities
         private int mapScale;
 
         public CollisionSphere(Game game, IHeightMap floor, Vector3 startingPosition, int mapScale)
-            : base(game, floor)
         {
             this.Position = startingPosition;
-            this.model = this.Game.Content.Load<Model>("sphere");
+            this.model = game.Content.Load<Model>("sphere");
             this.boneTransforms = new Matrix[this.model.Bones.Count];
             this.mapScale = mapScale;
-            this.Position = this.OffsetToFloorHeight(startingPosition);
-        }
-
-        /// <summary>
-        /// Allows the game component to perform any initialization it needs to before starting
-        /// to run.  This is where it can query for any required services and load content.
-        /// </summary>
-        public override void Initialize()
-        {
-            base.Initialize();
+            this.Position = this.OffsetToFloorHeight(Game1.heightMap);
         }
 
         /// <summary>
         /// Allows the game component to update itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        public override void Update(GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
             float turnAmount = 0;
             KeyboardHandler.TurboKeyAction(Keys.Left, () =>
@@ -92,9 +82,9 @@ namespace Tanks3DFPP.Utilities
             // The distance that the ball is to move.
             float distanceMoved = Vector3.Distance(this.Position, this.Position + velocity);
 
-            if (this.IsInFloorBounds(this.Position + velocity))
+            if (this.IsInFloorBounds(Game1.heightMap, this.Position + velocity))
             {
-                this.Position = this.OffsetToFloorHeight(this.Position + velocity);
+                this.Position = this.OffsetToFloorHeight(Game1.heightMap, this.Position + velocity);
                 #region Ball rolling around its own axis
                 // The angular movement of the ball itself.
                 float rotation = distanceMoved / this.radius;
@@ -106,7 +96,6 @@ namespace Tanks3DFPP.Utilities
             }
 
             this.movementQuant *= .9f;
-            base.Update(gameTime);
         }
 
         public void Draw(Matrix world, Matrix view, Matrix projection)
@@ -135,24 +124,35 @@ namespace Tanks3DFPP.Utilities
             }
         }
 
-        protected override bool IsInFloorBounds(Vector3 position)
+        protected override bool IsInFloorBounds(IHeightMap floor)
         {
-            return
-                position.X + this.radius < this.floor.Width * this.mapScale
-                && position.X - this.radius > 0
-                && position.Z + this.radius < 1
-                && position.Z - this.radius > -this.floor.Height * this.mapScale;
+            return this.IsInFloorBounds(floor, this.Position);
         }
 
-        protected override Vector3 OffsetToFloorHeight(Vector3 position)
+        protected override bool IsInFloorBounds(IHeightMap floor, Vector3 position)
+        {
+            return
+                position.X + this.radius < floor.Width * this.mapScale
+                && position.X - this.radius > 0
+                && position.Z + this.radius < 1
+                && position.Z - this.radius > -floor.Height * this.mapScale;
+        }
+
+        protected override Vector3 OffsetToFloorHeight(IHeightMap floor)
+        {
+            return this.OffsetToFloorHeight(floor, this.Position);
+        }
+
+        protected override Vector3 OffsetToFloorHeight(IHeightMap floor, Vector3 position)
         {
             // Calculating the height of the ball's position,
             // taking into account the ball's radius, the floor's height offset
             // and how the height map is laid out onto terrain.
             return new Vector3(
-                    position.X,
-                    this.floor.Data[(int)(this.Position.X / this.mapScale), (int)(-position.Z / this.mapScale)] * this.mapScale - this.floor.HeightOffset + this.radius,
-                    position.Z);
+                position.X,
+                floor.Data[(int)(position.X / this.mapScale), (int)(-position.Z / this.mapScale)]
+                * this.mapScale - floor.HeightOffset + this.radius,
+                position.Z);
         }
     }
 }
