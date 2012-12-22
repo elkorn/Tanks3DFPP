@@ -212,27 +212,27 @@ namespace Tanks3DFPP.Tanks
             }
             MissleInGame.Draw(viewMatrix, projectionMatrix);
 
-            spriteBatch.Begin();
-            if (bDisplayScores)
-            {
-                for (int i = playersOrderedByScore.Count - 1; i >= 0; --i)
-                {
-                    spriteBatch.DrawString(InfoFont, String.Format("{0}. {1}", playersOrderedByScore.Count - i, playersOrderedByScore[i]), (Vector2.UnitX * GD.Viewport.Width * 0.5f) + (Vector2.UnitY * ((playersOrderedByScore.Count - i) + 1) * 25), Color.DarkMagenta);
-                }
-            }
-            else
-            {
-                spriteBatch.DrawString(InfoFont, PlayerInfoString, Vector2.UnitX * GD.Viewport.Width * 0.3f, Color.DarkKhaki);
-                spriteBatch.DrawString(InfoFont, ShotInfoString, Vector2.Zero, Color.DarkGreen);
-                for (int i = 0; i < tanksInGame.Count; ++i)
-                {
-                    spriteBatch.DrawString(InfoFont, String.Format("{0} Health: {1}%", tanksInGame[i].PlayerName, tanksInGame[i].Health), (Vector2.UnitX * GD.Viewport.Width * 0.7f) + (Vector2.UnitY * (i + 1) * 25), Color.DarkMagenta);
-                    //    spriteBatch.DrawString(InfoFont, string.Format("Tank {0} bs center: {1}", i, tanksInGame[i].BoundingSpheres[5].Center), (Vector2.UnitX * GD.Viewport.Width * 0.35f) + (Vector2.UnitY * (i+1) * 25), Color.White);
-                    //    spriteBatch.DrawString(InfoFont, string.Format("Tank {0} position: {1}", i, tanksInGame[i].Position), (Vector2.UnitX * GD.Viewport.Width * 0.35f) + (Vector2.UnitY * (i+2)*2 * 25), Color.White);
-                }
-                //spriteBatch.DrawString(InfoFont, string.Format("Missle position: {0}", missleInGame.boundingSphere.Center), (Vector2.UnitX * GD.Viewport.Width * 0.35f) + (Vector2.UnitY * 5 * 25), Color.White);
-            }
-            spriteBatch.End();
+            //spriteBatch.Begin();
+            //if (bDisplayScores)
+            //{
+            //    for (int i = playersOrderedByScore.Count - 1; i >= 0; --i)
+            //    {
+            //        spriteBatch.DrawString(InfoFont, String.Format("{0}. {1}", playersOrderedByScore.Count - i, playersOrderedByScore[i]), (Vector2.UnitX * GD.Viewport.Width * 0.5f) + (Vector2.UnitY * ((playersOrderedByScore.Count - i) + 1) * 25), Color.DarkMagenta);
+            //    }
+            //}
+            //else
+            //{
+            //    spriteBatch.DrawString(InfoFont, PlayerInfoString, Vector2.UnitX * GD.Viewport.Width * 0.3f, Color.DarkKhaki);
+            //    spriteBatch.DrawString(InfoFont, ShotInfoString, Vector2.Zero, Color.DarkGreen);
+            //    for (int i = 0; i < tanksInGame.Count; ++i)
+            //    {
+            //        spriteBatch.DrawString(InfoFont, String.Format("{0} Health: {1}%", tanksInGame[i].PlayerName, tanksInGame[i].Health), (Vector2.UnitX * GD.Viewport.Width * 0.7f) + (Vector2.UnitY * (i + 1) * 25), Color.DarkMagenta);
+            //        //    spriteBatch.DrawString(InfoFont, string.Format("Tank {0} bs center: {1}", i, tanksInGame[i].BoundingSpheres[5].Center), (Vector2.UnitX * GD.Viewport.Width * 0.35f) + (Vector2.UnitY * (i+1) * 25), Color.White);
+            //        //    spriteBatch.DrawString(InfoFont, string.Format("Tank {0} position: {1}", i, tanksInGame[i].Position), (Vector2.UnitX * GD.Viewport.Width * 0.35f) + (Vector2.UnitY * (i+2)*2 * 25), Color.White);
+            //    }
+            //    //spriteBatch.DrawString(InfoFont, string.Format("Missle position: {0}", missleInGame.boundingSphere.Center), (Vector2.UnitX * GD.Viewport.Width * 0.35f) + (Vector2.UnitY * 5 * 25), Color.White);
+            //}
+            //spriteBatch.End();
 
             GD.BlendState = BlendState.Opaque;
             GD.DepthStencilState = DepthStencilState.Default;

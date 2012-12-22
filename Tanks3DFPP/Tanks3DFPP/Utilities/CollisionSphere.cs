@@ -142,8 +142,8 @@ namespace Tanks3DFPP.Utilities
             return
                 position.X + this.radius < floor.Width * this.mapScale
                 && position.X - this.radius > 0
-                && position.Z + this.radius < 1
-                && position.Z - this.radius > -floor.Height * this.mapScale;
+                && position.Z - this.radius >= 0
+                && position.Z + this.radius < floor.Height * this.mapScale;
         }
 
         protected override Vector3 OffsetToFloorHeight(IHeightMap floor)
@@ -158,7 +158,7 @@ namespace Tanks3DFPP.Utilities
             // and how the height map is laid out onto terrain.
             return new Vector3(
                 position.X,
-                floor.Data[(int)(position.X / this.mapScale), (int)(-position.Z / this.mapScale)]
+                floor.Data[(int)(position.X / this.mapScale), (int)(position.Z / this.mapScale)]
                 * this.mapScale - floor.HeightOffset + this.radius,
                 position.Z);
         }
