@@ -85,8 +85,8 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
 
                 this.Vertices[ndx].Position = new Vector3(x * this.scale, (height) * this.scale - heightMap.HeightOffset, z * this.scale);
                 this.Vertices[ndx].Normal = new Vector3(0, 0, 0);
-                this.Vertices[ndx].TextureCoordinate.X = (float)x / 30f;
-                this.Vertices[ndx].TextureCoordinate.Y = (float)y / 30f;
+                this.Vertices[ndx].TextureCoordinate.X = (this.Vertices[ndx].Position.X - this.position.X) / this.topSize;
+                this.Vertices[ndx].TextureCoordinate.Y = (this.Vertices[ndx].Position.Z - this.position.Z) / this.topSize;
 
                 #region Texture weight calculation
                 this.Vertices[ndx].TextureWeights.X = MathHelper.Clamp(1f - Math.Abs(height - minSandHeight) / sandBracket, 0, 1);

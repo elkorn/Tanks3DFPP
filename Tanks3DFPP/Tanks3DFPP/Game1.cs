@@ -31,7 +31,7 @@ namespace Tanks3DFPP
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Matrix world, projection;
-        Terrain.MultiTexturedTerrain terrain;
+        Terrain.QuadTreeTerrain terrain;
         SpriteFont font;
         ICamera camera;
         int currentColoringMethod = 1;
@@ -85,7 +85,7 @@ namespace Tanks3DFPP
         protected override void LoadContent()
         {
             //this.terrain = new Terrain.QuadTreeTerrain(this, Vector3.Zero, heightMap, this.camera.View, this.projection, Scale);
-            this.terrain = new Terrain.MultiTexturedTerrain(this.GraphicsDevice, this.Content, heightMap = new FractalMap(mapSize, roughness, maxHeight, 1), Scale);
+            //this.terrain = new Terrain.MultiTexturedTerrain(this.GraphicsDevice, this.Content, heightMap = new FractalMap(mapSize, roughness, maxHeight, 1), Scale);
             font = this.Content.Load<SpriteFont>("SpriteFont1");
         }
 
@@ -104,7 +104,8 @@ namespace Tanks3DFPP
                 this.terrain.Dispose();
             }
 
-            this.terrain = new Terrain.MultiTexturedTerrain(this.GraphicsDevice, this.Content, heightMap = new FractalMap(mapSize, roughness, maxHeight, 1), Scale);
+            this.terrain = new Terrain.QuadTreeTerrain(this, Vector3.Zero, heightMap, this.camera.View, this.projection, Scale);
+            //this.terrain = new Terrain.MultiTexturedTerrain(this.GraphicsDevice, this.Content, heightMap = new FractalMap(mapSize, roughness, maxHeight, 1), Scale);
             sphere = new CollisionSphere(this, heightMap, new Vector3(50, 0, -50), Scale);
             tankController = new TankController(this, 2);
         }
@@ -131,7 +132,6 @@ namespace Tanks3DFPP
             KeyboardHandler.KeyAction(Keys.G, () =>
             {
                 this.GenerateEverything();
-                //this.terrain = new QuadTreeTerrain(this, Vector3.Zero, heightMap = new FractalMap(mapSize, roughness, maxHeight, 1), this.camera.View, this.projection, Scale);
 
             });
 
@@ -158,12 +158,29 @@ namespace Tanks3DFPP
             {
                 this.terrain.SwitchBlending(false);
             });
-            //this.terrain.Update(this.camera, this.projection);
+
+            this.terrain.Update(this.camera, this.projection);
             sphere.Update(gameTime);
             this.camera.Update(gameTime);
             tankController.Update(gameTime);
             base.Update(gameTime);
         }
+
+        private void DrawBoundingElements()
+        {
+            foreach (Tank tank in tankController.TanksInGame)
+            {
+                foreach (BoundingSphere boundingSphere in tank.BoundingSpheres)
+                {
+                    BoundingSphereRenderer.Render(boundingSphere, this.GraphicsDevice, this.camera.View, this.projection, Color.Red);
+                }
+            }
+
+            BoundingSphereRenderer.Render(tankController.MissleInGame.BoundingSphere, this.GraphicsDevice, this.camera.View, this.projection, Color.Red);
+            BoundingSphereRenderer.Render(sphere.BoundingSphere, this.GraphicsDevice, this.camera.View, this.projection, Color.Red);
+            BoundingFrustumRenderer.Render(this.camera.Frustum, this.GraphicsDevice, this.camera.View, this.projection, Color.Red);
+        }
+
 
         /// <summary>
         /// This is called when the game should draw itself.
@@ -177,22 +194,12 @@ namespace Tanks3DFPP
             //GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
             GraphicsDevice.Clear(Color.Black);
             sphere.Draw(world, this.camera.View, projection);
-            this.terrain.Draw(this.world, this.camera.View, this.projection);
+            //this.terrain.Draw(this.world, this.camera.View, this.projection);
+            this.terrain.Draw(gameTime);
             tankController.Draw(this.camera.View, this.projection);
-            foreach (Tank tank in tankController.TanksInGame)
-            {
-                foreach (BoundingSphere boundingSphere in tank.BoundingSpheres)
-                {
-                    BoundingSphereRenderer.Render(boundingSphere, this.GraphicsDevice, this.camera.View, this.projection, Color.Red);
-                }
-            }
-
-            BoundingSphereRenderer.Render(tankController.MissleInGame.BoundingSphere, this.GraphicsDevice, this.camera.View, this.projection, Color.Red);
-
-            BoundingSphereRenderer.Render(sphere.BoundingSphere, this.GraphicsDevice, this.camera.View, this.projection, Color.Red);
 
             //this.terrain.Render(world, this.camera.View, this.projection);
-            BoundingFrustumRenderer.Render(this.camera.Frustum, this.GraphicsDevice, this.camera.View, this.projection, Color.Red);
+            
             //spriteBatch.Begin();
             //spriteBatch.DrawString(font, string.Format("Near: {0}, Far: {1}", camera.Frustum.Near.D, camera.Frustum.Far.D), Vector2.Zero, Color.Wheat);
             //spriteBatch.End();

@@ -138,8 +138,8 @@ namespace Tanks3DFPP.Terrain
                     int ndx = x + y * this.Width;
                     this.vertices[ndx].Position = new Vector3(x * this.scale, (this.heightMap.Data[x, y]) * this.scale - this.heightMap.HeightOffset * this.scale, -y * this.scale);
                     this.vertices[ndx].Normal = new Vector3(0, 0, 0);
-                    this.vertices[ndx].TextureCoordinate.X = (float)x / 30f;
-                    this.vertices[ndx].TextureCoordinate.Y = (float)y / 30f;
+                    this.vertices[ndx].TextureCoordinate.X = (float)x / 50f;
+                    this.vertices[ndx].TextureCoordinate.Y = (float)y / 50f;
 
                     #region Texture weight calculation
                     this.vertices[ndx].TextureWeights.X = MathHelper.Clamp(1f - Math.Abs(this.heightMap.Data[x, y] - minSandHeight) / sandBracket, 0, 1);     // Sand, 0.2666666666666667

@@ -33,10 +33,19 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
 
         private GraphicsDevice graphicsDevice;
 
+        private int InactiveBufferIndex
+        {
+            get
+            {
+                return (activeIndexBuffer + 1) % 2;
+            }
+        }
+
         internal BufferManager(VertexMultitextured[] vertices, GraphicsDevice graphicsDevice)
         {
             this.graphicsDevice = graphicsDevice;
             this.VertexBuffer = new VertexBuffer(this.graphicsDevice, VertexMultitextured.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
+            this.VertexBuffer.SetData(vertices);
 
             this.indexBuffers = new[]
             {
@@ -45,9 +54,9 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
             };
         }
 
-        internal void UpdateIndexBuffer(int[] indices, int indexCount)  //getlength maybe?
+        internal void UpdateIndexBuffer(int[] indices, int indexCount)
         {
-
+            this.indexBuffers[this.InactiveBufferIndex].SetData(indices, 0, indexCount);
         }
 
         internal void SwapBuffer()

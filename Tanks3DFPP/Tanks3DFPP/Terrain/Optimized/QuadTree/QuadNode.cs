@@ -19,9 +19,10 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
         private QuadTreeTerrain parentTree;
 
         private int depth,
-                    size;
+                    size,
+                    positionIndex;
 
-        private bool hasChildren;
+        private bool hasChildren, isSplit;
 
 
         /*
@@ -118,8 +119,14 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
             this.Type = type;
             this.size = size;
             this.depth = depth;
+            
             this.parentNode = parent;
             this.parentTree = parentTree;
+
+            this.positionIndex = positionIndex;
+
+
+            this.AddVertices();
 
             /*
              * The bounding box is used to determine where the tree
@@ -137,7 +144,6 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
             this.Bounds.Min.Y = -limY;
             this.Bounds.Max.Y = limY;
 
-            this.AddVertices();
 
             //If node does not belong to the highest LOD
             if (this.size >= minSizeToContainChildren)
@@ -160,11 +166,25 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
                 this.VertexCenter.ShouldBeRendered = true;
                 this.VertexBottomLeft.ShouldBeRendered = true;
                 this.VertexBottomRight.ShouldBeRendered = true;
+
+                this.VertexTop.ShouldBeRendered = true;
+                this.VertexLeft.ShouldBeRendered = true;
+                this.VertexRight.ShouldBeRendered = true;
+                this.VertexBottom.ShouldBeRendered = true;
             }
         }
 
         internal void ActivateVertices()
         {
+
+            if (this.isSplit && this.hasChildren)
+            {
+                this.ChildTopLeft.ActivateVertices();
+                this.ChildTopRight.ActivateVertices();
+                this.ChildBottomLeft.ActivateVertices();
+                this.ChildBottomRight.ActivateVertices();
+            }
+
             #region The top triangle (triangles)
             this.parentTree.UpdateBuffer(this.VertexCenter.Index);
             this.parentTree.UpdateBuffer(this.VertexTopLeft.Index);
@@ -258,7 +278,7 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
                     this.VertexBottomLeft = parentNode.VertexBottom;
                     this.VertexBottomRight = parentNode.VertexBottomRight;
                     break;
-                default:    // Really, if it's a full node.
+                case NodeType.FullNode:    // Really, if it's a full node.
                     this.VertexTopLeft = new QuadNodeVertex
                         {
                             ShouldBeRendered = true,
@@ -272,7 +292,7 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
                     this.VertexBottomLeft = new QuadNodeVertex
                     {
                         ShouldBeRendered = true,
-                        Index = (this.parentTree.TopNodeSize + 1) * parentTree.TopNodeSize
+                        Index = (this.size + 1) * parentTree.TopNodeSize
                     };
                     this.VertexBottomRight = new QuadNodeVertex
                     {
@@ -280,6 +300,8 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
                         Index = this.VertexBottomLeft.Index + this.size
                     };
                     break;
+                default:
+                    throw new InvalidOperationException("Unknown node type");
             }
 
             int halfSize = this.size / 2;

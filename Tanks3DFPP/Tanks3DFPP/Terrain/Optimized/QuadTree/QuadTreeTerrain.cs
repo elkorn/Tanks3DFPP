@@ -13,7 +13,6 @@ namespace Tanks3DFPP.Terrain
     {
         private QuadNode root;
 
-
         private TreeVertexCollection vertices;
 
         private Effect effect;
@@ -23,8 +22,7 @@ namespace Tanks3DFPP.Terrain
         private Vector3 position;
         private int topNodeSize, indexCount;
 
-        private Vector3 cameraPosition,
-            lastCameraPosition;
+        private BoundingFrustum lastCameraFrustum;
 
         /// <summary>
         /// The indices to be currently used.
@@ -66,20 +64,9 @@ namespace Tanks3DFPP.Terrain
             }
         }
 
-        public Vector3 CameraPosition
-        {
-            get
-            {
-                return cameraPosition;
-            }
-
-            set
-            {
-                cameraPosition = value;
-            }
-        }
-
         internal BoundingFrustum ViewFrustum { get; set; }
+
+        public const int MinimumDepth = 6;
 
         public QuadTreeTerrain(Game game, Vector3 position, IHeightMap heightMap, Matrix view, Matrix projection, int scale)
             :base(game)
@@ -95,26 +82,46 @@ namespace Tanks3DFPP.Terrain
             this.grass = this.Game.Content.Load<Texture>("grass");
             this.rock = this.Game.Content.Load<Texture>("rock");
             this.snow = this.Game.Content.Load<Texture>("snow");
+
+
+            this.View = view;
+            this.Projection = projection;
+
             this.InitializeEffect();
 
             this.root = new QuadNode(NodeType.FullNode, this.topNodeSize, 1, null, this, 0);
-            
-            this.View = view;
-            this.Projection = projection;
             
             this.ViewFrustum = new BoundingFrustum(this.View * this.Projection);
 
             this.Indices = new int[(heightMap.Width + 1) * (heightMap.Height + 1) * 3];
         }
 
+        /// <summary>
+        /// Switches the lighting.
+        /// </summary>
+        public void SwitchLighting()
+        {
+            effect.Parameters["xEnableLighting"].SetValue(!effect.Parameters["xEnableLighting"].GetValueBoolean());
+        }
+
+        public void SwitchBlending(bool? value)
+        {
+            if (!value.HasValue)
+            {
+                value = !effect.Parameters["xEnableBlending"].GetValueBoolean();
+            }
+
+            effect.Parameters["xEnableBlending"].SetValue(value.Value);
+        }
+
         public void Update(ICamera camera, Matrix projection)
         {
-            if (camera.Position != this.lastCameraPosition)
+            // Checking camera position is not enough - terrain has to update also while changing the angle.
+            if (camera.Frustum != this.lastCameraFrustum)
             {
                 this.effect.Parameters["xView"].SetValue(camera.View);
-                this.effect.Parameters["xProjection"].SetValue(projection);
 
-                this.lastCameraPosition = camera.Position;
+                this.lastCameraFrustum = camera.Frustum;
                 this.indexCount = 0;
 
                 this.root.ActivateVertices();
@@ -145,6 +152,7 @@ namespace Tanks3DFPP.Terrain
         {
             Vector3 lightDir = new Vector3(1, -1, -1);
             lightDir.Normalize();
+          
             effect.CurrentTechnique = effect.Techniques["MultiTextured"];
             effect.Parameters["xTexture0"].SetValue(sand);
             effect.Parameters["xTexture1"].SetValue(grass);
@@ -154,6 +162,7 @@ namespace Tanks3DFPP.Terrain
             effect.Parameters["xAmbient"].SetValue(0.1f);
             effect.Parameters["xLightDirection"].SetValue(lightDir);
             effect.Parameters["xWorld"].SetValue(Matrix.Identity);
+            this.effect.Parameters["xProjection"].SetValue(this.Projection);
         }
 
         protected override void Dispose(bool disposing)
