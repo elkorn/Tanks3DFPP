@@ -31,7 +31,8 @@ namespace Tanks3DFPP
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Matrix world, projection;
-        Terrain.QuadTreeTerrain terrain;
+        //Terrain.QuadTreeTerrain terrain;
+        Terrain.MultiTexturedTerrain terrain;
         SpriteFont font;
         ICamera camera;
         int currentColoringMethod = 1;
@@ -104,8 +105,8 @@ namespace Tanks3DFPP
                 this.terrain.Dispose();
             }
 
-            this.terrain = new Terrain.QuadTreeTerrain(this, Vector3.Zero, heightMap, this.camera.View, this.projection, Scale);
-            //this.terrain = new Terrain.MultiTexturedTerrain(this.GraphicsDevice, this.Content, heightMap = new FractalMap(mapSize, roughness, maxHeight, 1), Scale);
+            //this.terrain = new Terrain.QuadTreeTerrain(this, Vector3.Zero, heightMap, this.camera.View, this.projection, Scale);
+            this.terrain = new Terrain.MultiTexturedTerrain(this.GraphicsDevice, this.Content, heightMap = new FractalMap(mapSize, roughness, maxHeight, 1), Scale);
             sphere = new CollisionSphere(this, heightMap, new Vector3(50, 0, -50), Scale);
             tankController = new TankController(this, 2);
         }
@@ -159,7 +160,7 @@ namespace Tanks3DFPP
                 this.terrain.SwitchBlending(false);
             });
 
-            this.terrain.Update(this.camera, this.projection);
+            //this.terrain.Update(this.camera, this.projection);
             sphere.Update(gameTime);
             this.camera.Update(gameTime);
             tankController.Update(gameTime);
@@ -194,8 +195,8 @@ namespace Tanks3DFPP
             //GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
             GraphicsDevice.Clear(Color.Black);
             sphere.Draw(world, this.camera.View, projection);
-            //this.terrain.Draw(this.world, this.camera.View, this.projection);
-            this.terrain.Draw(gameTime);
+            this.terrain.Draw(this.world, this.camera.View, this.projection);
+            //this.terrain.Draw(gameTime);
             tankController.Draw(this.camera.View, this.projection);
 
             //this.terrain.Render(world, this.camera.View, this.projection);

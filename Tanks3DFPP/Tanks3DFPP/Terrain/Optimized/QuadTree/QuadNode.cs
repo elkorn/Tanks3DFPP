@@ -22,7 +22,7 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
                     size,
                     positionIndex;
 
-        private bool hasChildren, isSplit;
+        private bool hasChildren, isRendered, isSplit;
 
 
         /*
@@ -174,9 +174,43 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
             }
         }
 
+        public void EnforceMinimumDepth()
+        {
+            if (this.depth < this.parentTree.MinimumDepth)
+            {
+                if (this.hasChildren)
+                {
+                    this.isRendered = false;    // These are probably complimentary, as of isSplit == !isRendered. May change with introduction of frustum culling.
+                    this.isSplit = true;
+
+                    this.ChildTopLeft.EnforceMinimumDepth();
+                    this.ChildTopRight.EnforceMinimumDepth();
+                    this.ChildBottomLeft.EnforceMinimumDepth();
+                    this.ChildBottomRight.EnforceMinimumDepth();
+                }
+                else
+                {
+                    this.StartRendering();
+                    this.isSplit = false;
+                }
+            }
+            else
+            {
+                if (this.depth == this.parentTree.MinimumDepth)
+                {
+                    this.StartRendering();
+                    this.isSplit = false;
+                }
+                else
+                {
+                    throw new ArgumentOutOfRangeException("depth", string.Format("Node depth cannot exceed {0}. Culprit value: {1}", this.parentTree.MinimumDepth, this.depth));
+                }
+
+            }
+        }
+
         internal void ActivateVertices()
         {
-
             if (this.isSplit && this.hasChildren)
             {
                 this.ChildTopLeft.ActivateVertices();
@@ -244,6 +278,17 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
 
             this.parentTree.UpdateBuffer(this.VertexTopLeft.Index);
             #endregion
+        }
+
+        // TODO: better method naming
+        internal void StartRendering()
+        {
+            this.VertexTopLeft.ShouldBeRendered = true;
+            this.VertexTopRight.ShouldBeRendered = true;
+            this.VertexCenter.ShouldBeRendered = true;
+            this.VertexBottomLeft.ShouldBeRendered = true;
+            this.VertexBottomRight.ShouldBeRendered = true;
+            this.isRendered = true;
         }
 
         /// <summary>

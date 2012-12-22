@@ -45,7 +45,6 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
             IHeightMap heightMap,
             int scale)
         {
-
             this.position = position;
             this.scale = scale;
             this.topSize = heightMap.Width - 1;
@@ -83,7 +82,7 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
                     ++z;
                 }
 
-                this.Vertices[ndx].Position = new Vector3(x * this.scale, (height) * this.scale - heightMap.HeightOffset, z * this.scale);
+                this.Vertices[ndx].Position = new Vector3(x * this.scale, (height) * this.scale - heightMap.HeightOffset, -z * this.scale);
                 this.Vertices[ndx].Normal = new Vector3(0, 0, 0);
                 this.Vertices[ndx].TextureCoordinate.X = (this.Vertices[ndx].Position.X - this.position.X) / this.topSize;
                 this.Vertices[ndx].TextureCoordinate.Y = (this.Vertices[ndx].Position.Z - this.position.Z) / this.topSize;

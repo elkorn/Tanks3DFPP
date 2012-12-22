@@ -66,7 +66,7 @@ namespace Tanks3DFPP.Terrain
 
         internal BoundingFrustum ViewFrustum { get; set; }
 
-        public const int MinimumDepth = 6;
+        public readonly int MinimumDepth = 6;
 
         public QuadTreeTerrain(Game game, Vector3 position, IHeightMap heightMap, Matrix view, Matrix projection, int scale)
             :base(game)
@@ -90,9 +90,7 @@ namespace Tanks3DFPP.Terrain
             this.InitializeEffect();
 
             this.root = new QuadNode(NodeType.FullNode, this.topNodeSize, 1, null, this, 0);
-            
             this.ViewFrustum = new BoundingFrustum(this.View * this.Projection);
-
             this.Indices = new int[(heightMap.Width + 1) * (heightMap.Height + 1) * 3];
         }
 
@@ -124,6 +122,7 @@ namespace Tanks3DFPP.Terrain
                 this.lastCameraFrustum = camera.Frustum;
                 this.indexCount = 0;
 
+                this.root.EnforceMinimumDepth();
                 this.root.ActivateVertices();
                 this.buffers.UpdateIndexBuffer(this.Indices, this.indexCount);
                 this.buffers.SwapBuffer();

@@ -84,7 +84,6 @@ namespace Tanks3DFPP.Terrain
             this.BufferIndexData(device);
         }
 
-
         private void InitializeEffect()
         {
             Vector3 lightDir = new Vector3(1, -1, -1);
@@ -131,21 +130,21 @@ namespace Tanks3DFPP.Terrain
                   grassBracket = 0.2f * this.heightMap.HighestPeak,
                   rockBracket = 0.2f * this.heightMap.HighestPeak,
                   snowBracket = 0.2f * this.heightMap.HighestPeak;
-            for (int y = 0; y < this.Width; ++y)
+            for (int z = 0; z < this.Width; ++z)
             {
                 for (int x = 0; x < this.Height; ++x)
                 {
-                    int ndx = x + y * this.Width;
-                    this.vertices[ndx].Position = new Vector3(x * this.scale, (this.heightMap.Data[x, y]) * this.scale - this.heightMap.HeightOffset * this.scale, -y * this.scale);
+                    int ndx = x + z * this.Width;
+                    this.vertices[ndx].Position = new Vector3(x * this.scale, (this.heightMap.Data[x, z]) * this.scale - this.heightMap.HeightOffset * this.scale, z * this.scale);
                     this.vertices[ndx].Normal = new Vector3(0, 0, 0);
                     this.vertices[ndx].TextureCoordinate.X = (float)x / 50f;
-                    this.vertices[ndx].TextureCoordinate.Y = (float)y / 50f;
+                    this.vertices[ndx].TextureCoordinate.Y = (float)z / 50f;
 
                     #region Texture weight calculation
-                    this.vertices[ndx].TextureWeights.X = MathHelper.Clamp(1f - Math.Abs(this.heightMap.Data[x, y] - minSandHeight) / sandBracket, 0, 1);     // Sand, 0.2666666666666667
-                    this.vertices[ndx].TextureWeights.Y = MathHelper.Clamp(1f - Math.Abs(this.heightMap.Data[x, y] - minGrassHeight /* 0.4 */) / grassBracket, 0, 1);   // Grass, 0.2
-                    this.vertices[ndx].TextureWeights.Z = MathHelper.Clamp(1f - Math.Abs(this.heightMap.Data[x, y] - minRockHeight /* 0.6666666666666667 n*/) / rockBracket, 0, 1);  // Rock
-                    this.vertices[ndx].TextureWeights.W = MathHelper.Clamp(1f - Math.Abs(this.heightMap.Data[x, y] - minSnowHeight /* 1 */) / snowBracket, 0, 1);  // Snow
+                    this.vertices[ndx].TextureWeights.X = MathHelper.Clamp(1f - Math.Abs(this.heightMap.Data[x, z] - minSandHeight) / sandBracket, 0, 1);     // Sand, 0.2666666666666667
+                    this.vertices[ndx].TextureWeights.Y = MathHelper.Clamp(1f - Math.Abs(this.heightMap.Data[x, z] - minGrassHeight /* 0.4 */) / grassBracket, 0, 1);   // Grass, 0.2
+                    this.vertices[ndx].TextureWeights.Z = MathHelper.Clamp(1f - Math.Abs(this.heightMap.Data[x, z] - minRockHeight /* 0.6666666666666667 n*/) / rockBracket, 0, 1);  // Rock
+                    this.vertices[ndx].TextureWeights.W = MathHelper.Clamp(1f - Math.Abs(this.heightMap.Data[x, z] - minSnowHeight /* 1 */) / snowBracket, 0, 1);  // Snow
 
                     float totalWeight = this.vertices[ndx].TextureWeights.X
                         + this.vertices[ndx].TextureWeights.Y
@@ -230,10 +229,18 @@ namespace Tanks3DFPP.Terrain
             {
                 for (int x = 0; x < width; ++x)
                 {
-                    int bottomLeft = x + y * this.Width;
-                    int bottomRight = (x + 1) + y * this.Width;
-                    int topLeft = x + (y + 1) * this.Width;
-                    int topRight = (x + 1) + (y + 1) * this.Width;
+                    #region Indices for -z
+                    //int bottomLeft = x + y * this.Width;
+                    //int bottomRight = (x + 1) + y * this.Width;
+                    //int topLeft = x + (y + 1) * this.Width;
+                    //int topRight = (x + 1) + (y + 1) * this.Width; 
+                    #endregion
+                    #region Indices for +z
+                    int topLeft = x + y * this.Width;
+                    int topRight = (x + 1) + y * this.Width;
+                    int bottomLeft = x + (y + 1) * this.Width;
+                    int bottomRight = (x + 1) + (y + 1) * this.Width;
+                    #endregion
 
                     this.indices[index++] = topLeft;
                     this.indices[index++] = bottomRight;
