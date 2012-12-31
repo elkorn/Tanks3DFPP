@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Tanks3DFPP.Camera.Interfaces;
 using Tanks3DFPP.Terrain.Optimization.QuadTree;
@@ -74,7 +70,7 @@ namespace Tanks3DFPP.Terrain
             this.position = position;
             this.topNodeSize = heightMap.Width - 1;
             
-            this.vertices = new TreeVertexCollection(this.Game.Content, this.position, heightMap, scale);
+            this.vertices = new TreeVertexCollection(this.position, heightMap, scale);
             this.buffers = new BufferManager(this.vertices.Vertices, this.GraphicsDevice);
 
             this.effect = this.Game.Content.Load<Effect>("Multitexture");
@@ -112,7 +108,7 @@ namespace Tanks3DFPP.Terrain
             effect.Parameters["xEnableBlending"].SetValue(value.Value);
         }
 
-        public void Update(ICamera camera, Matrix projection)
+        public void Update(ICamera camera)
         {
             // Checking camera position is not enough - terrain has to update also while changing the angle.
             if (camera.Frustum != this.lastCameraFrustum)
@@ -121,7 +117,6 @@ namespace Tanks3DFPP.Terrain
 
                 this.lastCameraFrustum = camera.Frustum;
                 this.indexCount = 0;
-
                 this.root.EnforceMinimumDepth();
                 this.root.ActivateVertices();
                 this.buffers.UpdateIndexBuffer(this.Indices, this.indexCount);

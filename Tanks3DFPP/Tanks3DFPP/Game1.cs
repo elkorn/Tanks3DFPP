@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using Tanks3DFPP.Terrain;
 using System.IO;
+using Tanks3DFPP.Terrain.Optimization.QuadTree;
 using Tanks3DFPP.Utilities;
 using Tanks3DFPP.Camera.Interfaces;
 using Tanks3DFPP.Camera;
@@ -28,14 +29,16 @@ namespace Tanks3DFPP
             maxHeight = 300;
 
 
+        private static int nodesCount = 0;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Matrix world, projection;
-        Terrain.QuadTreeTerrain terrain;
+        QuadTreeTerrain terrain;
         //Terrain.MultiTexturedTerrain terrain;
+        private static IList<QuadNode> nodes = new List<QuadNode>();
+
         SpriteFont font;
         ICamera camera;
-        int currentColoringMethod = 1;
         bool wireFrame;
         public static KeyboardState CurrentKeyboardState { get; private set; }
         public static MouseState CurrentMouseState { get; private set; }
@@ -51,6 +54,42 @@ namespace Tanks3DFPP
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+        }
+
+        public static void SetNodeAsRendered(QuadNode node, bool rendered)
+        {
+            //if (rendered)
+            //{
+            //    if (!nodes.Contains(node))
+            //    {
+            //        nodes.Add(node);
+            //    }
+            //}
+            //else
+            //{
+            //    if (nodes.Contains(node))
+            //    {
+            //        nodes.Remove(node);
+            //    }
+            //}
+
+            //nodeText = string.Join(" : ", nodes.Select(x => x.Depth.ToString()));
+            if (rendered)
+            {
+                if (!nodes.Contains(node))
+                {
+                    nodes.Add(node);
+                    nodesCount++;
+                }
+            }
+            else
+            {
+                if (nodes.Contains(node))
+                {
+                    nodes.Remove(node);
+                    nodesCount--;
+                }
+            }
         }
 
         /// <summary>
@@ -103,7 +142,8 @@ namespace Tanks3DFPP
                 this.terrain.Dispose();
             }
 
-            this.terrain = new Terrain.QuadTreeTerrain(this, Vector3.Zero, heightMap = new FractalMap(mapSize, roughness, maxHeight, 1), this.camera.View, this.projection, Scale);
+            nodes.Clear();
+            this.terrain = new QuadTreeTerrain(this, Vector3.Zero, heightMap = new FractalMap(mapSize, roughness, maxHeight, 1), this.camera.View, this.projection, Scale);
             //this.terrain = new Terrain.MultiTexturedTerrain(this.GraphicsDevice, this.Content, heightMap = new FractalMap(mapSize, roughness, maxHeight, 1), Scale);
             sphere = new CollisionSphere(this, heightMap, new Vector3(50, 0, 150), Scale);
             tankController = new TankController(this, 2);
@@ -122,17 +162,13 @@ namespace Tanks3DFPP
                 || CurrentKeyboardState.IsKeyDown(Keys.Escape))
                 this.Exit();
 
-            KeyboardHandler.KeyAction(Keys.C, () =>
-            {
-                currentColoringMethod += 1;
-                currentColoringMethod %= this.coloringMethods.Length;
-            });
+            //KeyboardHandler.KeyAction(Keys.C, () =>
+            //{
+            //    currentColoringMethod += 1;
+            //    currentColoringMethod %= this.coloringMethods.Length;
+            //});
 
-            KeyboardHandler.KeyAction(Keys.G, () =>
-            {
-                this.GenerateEverything();
-
-            });
+            KeyboardHandler.KeyAction(Keys.G, GenerateEverything);
 
             KeyboardHandler.KeyAction(Keys.F, () =>
             {
@@ -170,7 +206,7 @@ namespace Tanks3DFPP
                 }
             });
 
-            this.terrain.Update(this.camera, this.projection);
+            this.terrain.Update(this.camera);
             sphere.Update(gameTime);
             this.camera.Update(gameTime);
             tankController.Update(gameTime);
@@ -200,20 +236,21 @@ namespace Tanks3DFPP
         protected override void Draw(GameTime gameTime)
         {
 
-            //GraphicsDevice.BlendState = BlendState.Opaque;
-            //GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            //GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
+            GraphicsDevice.BlendState = BlendState.Opaque;
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
             GraphicsDevice.Clear(Color.Black);
             sphere.Draw(world, this.camera.View, projection);
             //this.terrain.Draw(this.world, this.camera.View, this.projection);
             this.terrain.Draw(gameTime);
             tankController.Draw(this.camera.View, this.projection);
             spriteBatch.Begin();
-            spriteBatch.DrawString(font, string.Format("Near: {0}, Far: {1}", camera.Frustum.Near.D, camera.Frustum.Far.D), Vector2.Zero, Color.Wheat);
+            spriteBatch.DrawString(font, string.Format("Near: {0}, Far: {1}, nodes: {2}", camera.Frustum.Near.D, camera.Frustum.Far.D, nodesCount), Vector2.Zero, Color.Wheat);
             spriteBatch.End();
 
             base.Draw(gameTime);
         }
     }
 }
+
 

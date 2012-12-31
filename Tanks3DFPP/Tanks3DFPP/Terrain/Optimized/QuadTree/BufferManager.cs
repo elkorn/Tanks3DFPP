@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Tanks3DFPP.Utilities;
 
@@ -25,7 +22,7 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
         /// <summary>
         /// The active index buffer.
         /// </summary>
-        private int activeIndexBuffer = 0;
+        private int activeIndexBuffer;
 
         private const int indexBufferSize = 100000;
 

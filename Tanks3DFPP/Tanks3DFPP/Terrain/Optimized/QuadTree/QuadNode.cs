@@ -22,8 +22,28 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
                     size,
                     positionIndex;
 
-        private bool hasChildren, isRendered, isSplit;
+        private bool hasChildren;
+        private bool _isRendered;
+        private bool isSplit;
 
+
+        public int Depth
+        {
+            get
+            {
+                return this.depth;
+            }
+        }
+
+        private bool isRendered
+        {
+            get { return _isRendered; }
+            set
+            {
+                Game1.SetNodeAsRendered(this, value);
+                _isRendered = value;
+            }
+        }
 
         /*
          * Each quad looks like this:
@@ -190,6 +210,7 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
                 }
                 else
                 {
+                  
                     this.StartRendering();
                     this.isSplit = false;
                 }
@@ -198,6 +219,7 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
             {
                 if (this.depth == this.parentTree.MinimumDepth)
                 {
+
                     this.StartRendering();
                     this.isSplit = false;
                 }
