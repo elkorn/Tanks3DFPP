@@ -47,34 +47,6 @@ namespace Tanks3DFPP
         public static IHeightMap heightMap;
         public static int Scale = 2;
 
-        ////////////////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// menu variable
-        /// </summary>
-        Menu.Menu menu;
-
-        /// <summary>
-        /// list of player names , size of it is player count(menu adjusted from 2 to 4 players)
-        /// </summary>
-        List<string> playerNames;
-
-        /// <summary>
-        /// starting player number according to the playerNames index
-        /// </summary>
-        private int startingPlayerNumber;
-
-        /// <summary>
-        /// percent of creating terrain process
-        /// </summary>
-        private int percent;
-
-        //time for loading
-        private int timesince = 0;
-        private int timeperframe = 200;
-
-        ////////////////////////////////////////////////////////////////////////////////////////
-
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -103,15 +75,8 @@ namespace Tanks3DFPP
             };
 
             spriteBatch = new SpriteBatch(this.GraphicsDevice);
-
-            //
-            //for menu
-            //
-            menu = new Menu.Menu(graphics);
-
             base.Initialize();
-            this.GenerateEverything();           
-
+            this.GenerateEverything();
         }
 
         /// <summary>
@@ -121,7 +86,6 @@ namespace Tanks3DFPP
         protected override void LoadContent()
         {
             font = this.Content.Load<SpriteFont>("SpriteFont1");
-            menu.LoadMenu(Content);
         }
 
         /// <summary>
@@ -152,127 +116,64 @@ namespace Tanks3DFPP
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            Game1.CurrentKeyboardState = Keyboard.GetState();
+            Game1.CurrentMouseState = Mouse.GetState();
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed
+                || CurrentKeyboardState.IsKeyDown(Keys.Escape))
+                this.Exit();
 
-             //
-            //for menu
-            //
-            if (menu.GetmenuON())
+            KeyboardHandler.KeyAction(Keys.C, () =>
             {
-                //
-                //this list contains menu results depending on its state.
-                //
-                List<object> listWithResults = menu.updateMenu(gameTime, percent);
+                currentColoringMethod += 1;
+                currentColoringMethod %= this.coloringMethods.Length;
+            });
 
-                //checking the state of menu, if 1 then play page is done which means we have necessary variables for creating terrain
-                if ((int)listWithResults[0] == 1)
+            KeyboardHandler.KeyAction(Keys.G, () =>
+            {
+                this.GenerateEverything();
+
+            });
+
+            KeyboardHandler.KeyAction(Keys.F, () =>
+            {
+                if (wireFrame)
                 {
-                    if ((int)listWithResults[1] == 1)
-                    {
-                        //next button in play page pressed
-                        //set variables
-                        mapSize = int.Parse((string)listWithResults[2]);
-                        maxHeight = int.Parse((string)listWithResults[3]);
-                        roughness = int.Parse((string)listWithResults[4]);
-
-                        playerNames = new List<string>();
-                        for (int i = 0; i < listWithResults.Count - 5; ++i)
-                        {
-                            playerNames.Add((string)listWithResults[i + 5]);
-                        }
-
-                        percent = 0;
-                    }
+                    this.GraphicsDevice.RasterizerState = new RasterizerState { FillMode = FillMode.Solid };
                 }
-                if ((int)listWithResults[0] == 2)
+                else
                 {
-                    //loading page is on 
-                    //start creating the terrain
-                    //getting percent variable which ranges from 0 to 100 , if it reaches 100(loading terrain process is over) menu will be no more... :D and the fun will begin
-                    
-                    //tu powinno byc tworzenie terenu
-                    //loading jest teraz pokazowe jak chcesz zeby polaczyc go z kreowaniem terenu to  
-                    //zmienna percent(int) która trzeba by zmieniac od 0 do 100 (wtedy wyjdzie z menu, czyli powinno zakonczyc tworzenie terenu)
-
-                    timesince += gameTime.ElapsedGameTime.Milliseconds;
-                    if (timesince > timeperframe)
-                    {
-                        if (percent >= 100)
-                        {
-                            startingPlayerNumber = (int)listWithResults[1];                       
-                        }
-                        percent++;
-                    }
+                    this.GraphicsDevice.RasterizerState = new RasterizerState { FillMode = FillMode.WireFrame };
                 }
 
-            }
-            //
-            //
-            //
+                wireFrame = !wireFrame;
+            });
 
-            if (!menu.GetmenuON())
+            KeyboardHandler.KeyAction(Keys.L, this.terrain.SwitchLighting);
+            KeyboardHandler.KeyAction(Keys.B, () =>
             {
+                this.terrain.SwitchBlending(true);
+            });
+            KeyboardHandler.KeyAction(Keys.N, () =>
+            {
+                this.terrain.SwitchBlending(false);
+            });
 
-
-                Game1.CurrentKeyboardState = Keyboard.GetState();
-                Game1.CurrentMouseState = Mouse.GetState();
-                if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed
-                    || CurrentKeyboardState.IsKeyDown(Keys.Escape))
-                    this.Exit();
-
-                KeyboardHandler.KeyAction(Keys.C, () =>
+            KeyboardHandler.KeyAction(Keys.C, () =>
+            {
+                if (this.GraphicsDevice.RasterizerState.CullMode == CullMode.None)
                 {
-                    currentColoringMethod += 1;
-                    currentColoringMethod %= this.coloringMethods.Length;
-                });
-
-                KeyboardHandler.KeyAction(Keys.G, () =>
+                    this.GraphicsDevice.RasterizerState = new RasterizerState { CullMode = CullMode.CullCounterClockwiseFace };
+                }
+                else
                 {
-                    this.GenerateEverything();
+                    this.GraphicsDevice.RasterizerState = new RasterizerState { CullMode = CullMode.None };
+                }
+            });
 
-                });
-
-                KeyboardHandler.KeyAction(Keys.F, () =>
-                {
-                    if (wireFrame)
-                    {
-                        this.GraphicsDevice.RasterizerState = new RasterizerState { FillMode = FillMode.Solid };
-                    }
-                    else
-                    {
-                        this.GraphicsDevice.RasterizerState = new RasterizerState { FillMode = FillMode.WireFrame };
-                    }
-
-                    wireFrame = !wireFrame;
-                });
-
-                KeyboardHandler.KeyAction(Keys.L, this.terrain.SwitchLighting);
-                KeyboardHandler.KeyAction(Keys.B, () =>
-                {
-                    this.terrain.SwitchBlending(true);
-                });
-                KeyboardHandler.KeyAction(Keys.N, () =>
-                {
-                    this.terrain.SwitchBlending(false);
-                });
-
-                KeyboardHandler.KeyAction(Keys.C, () =>
-                {
-                    if (this.GraphicsDevice.RasterizerState.CullMode == CullMode.None)
-                    {
-                        this.GraphicsDevice.RasterizerState = new RasterizerState { CullMode = CullMode.CullCounterClockwiseFace };
-                    }
-                    else
-                    {
-                        this.GraphicsDevice.RasterizerState = new RasterizerState { CullMode = CullMode.None };
-                    }
-                });
-
-                this.terrain.Update(this.camera, this.projection);
-                sphere.Update(gameTime);
-                this.camera.Update(gameTime);
-                tankController.Update(gameTime);
-            }
-
+            this.terrain.Update(this.camera, this.projection);
+            sphere.Update(gameTime);
+            this.camera.Update(gameTime);
+            tankController.Update(gameTime);
             base.Update(gameTime);
         }
 
@@ -303,27 +204,14 @@ namespace Tanks3DFPP
             //GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             //GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
             GraphicsDevice.Clear(Color.Black);
+            sphere.Draw(world, this.camera.View, projection);
+            //this.terrain.Draw(this.world, this.camera.View, this.projection);
+            this.terrain.Draw(gameTime);
+            tankController.Draw(this.camera.View, this.projection);
+            spriteBatch.Begin();
+            spriteBatch.DrawString(font, string.Format("Near: {0}, Far: {1}", camera.Frustum.Near.D, camera.Frustum.Far.D), Vector2.Zero, Color.Wheat);
+            spriteBatch.End();
 
-            //
-            //for menu
-            //
-            if (menu.quit)
-                this.Exit();
-            if (menu.GetmenuON())
-            {
-                menu.showMenu();
-            }
-            else
-            {
-
-                sphere.Draw(world, this.camera.View, projection);
-                //this.terrain.Draw(this.world, this.camera.View, this.projection);
-                this.terrain.Draw(gameTime);
-                tankController.Draw(this.camera.View, this.projection);
-                spriteBatch.Begin();
-                spriteBatch.DrawString(font, string.Format("Near: {0}, Far: {1}", camera.Frustum.Near.D, camera.Frustum.Far.D), Vector2.Zero, Color.Wheat);
-                spriteBatch.End();
-            }
             base.Draw(gameTime);
         }
     }
