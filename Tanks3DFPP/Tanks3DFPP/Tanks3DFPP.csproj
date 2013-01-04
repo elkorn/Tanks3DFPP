@@ -124,7 +124,7 @@
     <Compile Include="Terrain\Optimized\QuadTree\NodeType.cs" />
     <Compile Include="Terrain\Optimized\QuadTree\QuadNode.cs" />
     <Compile Include="Terrain\Optimized\QuadTree\QuadNodeVertex.cs" />
-    <Compile Include="Terrain\Optimized\QuadTree\QuadTreeTerrain.cs" />
+    <Compile Include="Terrain\Optimized\QuadTree\QuadTree.cs" />
     <Compile Include="Terrain\Optimized\QuadTree\TreeVertexCollection.cs">
       <SubType>Code</SubType>
     </Compile>

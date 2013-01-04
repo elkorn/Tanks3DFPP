@@ -18,6 +18,6 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
         /// <summary>
         /// Determines wherther this vertex should be rendered.
         /// </summary>
-        public bool ShouldBeRendered;
+        public bool Activated;
     }
 }

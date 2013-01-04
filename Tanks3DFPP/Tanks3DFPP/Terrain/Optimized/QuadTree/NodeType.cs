@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Tanks3DFPP.Terrain.Optimization.QuadTree
+﻿namespace Tanks3DFPP.Terrain.Optimization.QuadTree
 {
     public enum NodeType
     {

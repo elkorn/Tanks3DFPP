@@ -5,9 +5,9 @@ using Tanks3DFPP.Terrain.Optimization.QuadTree;
 
 namespace Tanks3DFPP.Terrain
 {
-    public class QuadTreeTerrain : GameComponent
+    public class QuadTree : GameComponent
     {
-        private QuadNode root;
+        private QuadNode root, active;
 
         private TreeVertexCollection vertices;
 
@@ -64,7 +64,7 @@ namespace Tanks3DFPP.Terrain
 
         public readonly int MinimumDepth = 6;
 
-        public QuadTreeTerrain(Game game, Vector3 position, IHeightMap heightMap, Matrix view, Matrix projection, int scale)
+        public QuadTree(Game game, Vector3 position, IHeightMap heightMap, Matrix view, Matrix projection, int scale)
             :base(game)
         {
             this.position = position;
@@ -117,8 +117,17 @@ namespace Tanks3DFPP.Terrain
 
                 this.lastCameraFrustum = camera.Frustum;
                 this.indexCount = 0;
+
+                this.root.Merge();
                 this.root.EnforceMinimumDepth();
-                this.root.ActivateVertices();
+                this.active = root.DeepestNodeContainingPoint(camera.LookAt);
+                if (this.active != null)
+                {
+                    this.active.Split();
+                }
+
+                this.root.SetActiveVertices();
+
                 this.buffers.UpdateIndexBuffer(this.Indices, this.indexCount);
                 this.buffers.SwapBuffer();
             }
@@ -139,7 +148,8 @@ namespace Tanks3DFPP.Terrain
 
         internal void UpdateBuffer(int vertexIndex)
         {
-            this.Indices[this.indexCount++] = vertexIndex;
+            this.Indices[this.indexCount] = vertexIndex;
+            this.indexCount += 1;
         }
 
         private void InitializeEffect()

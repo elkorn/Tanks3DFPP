@@ -26,15 +26,15 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
 
         private const int indexBufferSize = 100000;
 
-        private IndexBuffer[] indexBuffers;
+        private readonly IndexBuffer[] indexBuffers;
 
-        private GraphicsDevice graphicsDevice;
+        private readonly GraphicsDevice graphicsDevice;
 
         private int InactiveBufferIndex
         {
             get
             {
-                return (activeIndexBuffer + 1) % 2;
+                return activeIndexBuffer == 0 ? 1 : 0;
             }
         }
 
@@ -53,13 +53,15 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
 
         internal void UpdateIndexBuffer(int[] indices, int indexCount)
         {
-            this.indexBuffers[this.InactiveBufferIndex].SetData(indices, 0, indexCount);
+            //if (this.indexBuffers[this.InactiveBufferIndex] != this.graphicsDevice.Indices)
+            {
+                this.indexBuffers[this.InactiveBufferIndex].SetData(indices, 0, indexCount);
+            }
         }
 
         internal void SwapBuffer()
         {
-            ++activeIndexBuffer;
-            activeIndexBuffer %= 2;
+            activeIndexBuffer = activeIndexBuffer == 1 ? 0 : 1;
         }
 
         public void Dispose()
