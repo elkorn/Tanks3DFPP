@@ -1,55 +1,71 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Tanks3DFPP.Camera.Interfaces;
-using Microsoft.Xna.Framework;
-using Tanks3DFPP.Utilities;
-using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Tanks3DFPP.Camera.Interfaces;
+using Tanks3DFPP.Utilities;
 
 namespace Tanks3DFPP.Camera
 {
-    class FPPCamera : ICamera
+    internal class FPPCamera : ICamera
     {
-
+        private readonly float maxPitch;
+        private readonly Matrix projection;
         private readonly float rotationSpeed;
-
-        private float yawAngle, pitchAngle, maxPitch, moveSpeed;
+        private Vector3 lookAt;
+        private float moveSpeed;
+        private MouseState originalMouseState;
+        private float pitchAngle;
+        private MouseState referenceMouseState;
 
         private Vector3 up;
+        private float yawAngle;
 
-        private Matrix projection;
-
-        public BoundingFrustum Frustum
+        public FPPCamera(GraphicsDevice device, Vector3 startingPosition, float rotationSpeed, float moveSpeed,
+                         Matrix projection)
         {
-            get
-            {
-                return new BoundingFrustum(this.View * this.projection);
-            }
+            Mouse.SetPosition(device.Viewport.Width/2, device.Viewport.Height/2);
+            originalMouseState = referenceMouseState = Mouse.GetState();
+            this.rotationSpeed = rotationSpeed;
+            this.moveSpeed = moveSpeed;
+            Position = startingPosition;
+            this.projection = projection;
+            maxPitch = MathHelper.ToRadians(90);
         }
 
-        public Microsoft.Xna.Framework.Vector3 Position
-        {
-            get;
-            set;
-        }
-
-        public Microsoft.Xna.Framework.Vector3 LookAt
-        {
-            get;
-            set;
-        }
+        public Vector3 Direction { get; private set; }
 
         private Matrix Rotation
         {
-            get
+            get { return Matrix.CreateRotationX(pitchAngle)*Matrix.CreateRotationY(yawAngle); }
+        }
+
+        #region ICamera Members
+
+        public BoundingFrustum Frustum
+        {
+            get { return new BoundingFrustum(View*projection); }
+        }
+
+        public Vector3 Position { get; set; }
+
+        public Vector3 LookAt
+        {
+            get { return lookAt; }
+            set
             {
-                return Matrix.CreateRotationX(this.pitchAngle) * Matrix.CreateRotationY(this.yawAngle);
+                lookAt = value;
+                Direction = Position - lookAt;
+                Direction.Normalize();
             }
         }
 
-        MouseState referenceMouseState, originalMouseState;
+        public Ray Ray
+        {
+            get
+            {
+                return new Ray(this.Position, this.Direction);
+            }
+        }
 
         /*
          *      YAW     - around y axis
@@ -57,89 +73,58 @@ namespace Tanks3DFPP.Camera
          *      ROLL    - around Z axis
          */
 
-
-        public Microsoft.Xna.Framework.Matrix View
+        public Matrix View
         {
-            get
-            {
-                return Matrix.CreateLookAt(this.Position, this.LookAt, this.up);
-            }
+            get { return Matrix.CreateLookAt(Position, LookAt, up); }
         }
 
-        public FPPCamera(GraphicsDevice device, Vector3 startingPosition, float rotationSpeed, float moveSpeed, Matrix projection)
-        {
-            Mouse.SetPosition(device.Viewport.Width / 2, device.Viewport.Height / 2);
-            this.originalMouseState = this.referenceMouseState = Mouse.GetState();
-            this.rotationSpeed = rotationSpeed;
-            this.moveSpeed = moveSpeed;
-            this.Position = startingPosition;
-            this.projection = projection;
-            this.maxPitch = MathHelper.ToRadians(90);
-        }
-
-        public void Update(Microsoft.Xna.Framework.GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
             Vector3 velocity = Vector3.Zero;
-            KeyboardHandler.TurboKeyAction(Keys.W, () =>
-            {
-                velocity += -Vector3.UnitZ;
-            });
-            KeyboardHandler.TurboKeyAction(Keys.S, () =>
-            {
-                velocity += Vector3.UnitZ;
-            });
-            KeyboardHandler.TurboKeyAction(Keys.A, () =>
-            {
-                velocity += -Vector3.UnitX;
-            });
-            KeyboardHandler.TurboKeyAction(Keys.D, () =>
-            {
-                velocity += Vector3.UnitX;
-            });
+            KeyboardHandler.TurboKeyAction(Keys.W, () => { velocity += -Vector3.UnitZ; });
+            KeyboardHandler.TurboKeyAction(Keys.S, () => { velocity += Vector3.UnitZ; });
+            KeyboardHandler.TurboKeyAction(Keys.A, () => { velocity += -Vector3.UnitX; });
+            KeyboardHandler.TurboKeyAction(Keys.D, () => { velocity += Vector3.UnitX; });
 
-            KeyboardHandler.TurboKeyAction(Keys.OemPlus, () =>
-            {
-                this.moveSpeed++;
-            });
+            KeyboardHandler.TurboKeyAction(Keys.OemPlus, () => { moveSpeed++; });
 
-            KeyboardHandler.TurboKeyAction(Keys.OemMinus, () =>
-            {
-                this.moveSpeed--;
-            });
+            KeyboardHandler.TurboKeyAction(Keys.OemMinus, () => { moveSpeed--; });
 
-            this.Move(velocity);
-            this.Rotate((float)(gameTime.ElapsedGameTime.TotalMilliseconds / 1000));
+            Move(velocity);
+            Rotate((float) (gameTime.ElapsedGameTime.TotalMilliseconds/1000));
         }
+
+        #endregion
 
         private Vector2 GetMousePositionDifference()
         {
             MouseState currentState = Mouse.GetState();
-            return new Vector2(currentState.X - this.originalMouseState.X, currentState.Y - this.originalMouseState.Y);
-        }
-
-        private void Rotate(float increment)
-        {
-            Vector2 dRotation = this.GetMousePositionDifference();
-            this.yawAngle -= this.rotationSpeed * dRotation.X * increment;
-            this.pitchAngle += this.rotationSpeed * dRotation.Y * increment;
-            this.pitchAngle = MathHelper.Clamp(this.pitchAngle, -maxPitch, maxPitch);
-            Mouse.SetPosition(this.referenceMouseState.X, this.referenceMouseState.Y);
-            UpdateView();
+            return new Vector2(currentState.X - originalMouseState.X, currentState.Y - originalMouseState.Y);
         }
 
         private void Move(Vector3 velocity)
         {
-            this.Position += this.moveSpeed * Vector3.Transform(velocity, this.Rotation);
-            this.UpdateView();
+            Position += moveSpeed*Vector3.Transform(velocity, Rotation);
+            UpdateView();
+        }
+
+        private void Rotate(float increment)
+        {
+            Vector2 dRotation = GetMousePositionDifference();
+            yawAngle -= rotationSpeed*dRotation.X*increment;
+            pitchAngle += rotationSpeed*dRotation.Y*increment;
+            pitchAngle = MathHelper.Clamp(pitchAngle, -maxPitch, maxPitch);
+            Mouse.SetPosition(referenceMouseState.X, referenceMouseState.Y);
+            UpdateView();
         }
 
         private void UpdateView()
         {
-            Matrix rotation = this.Rotation;
+            Matrix rotation = Rotation;
             Vector3 originalTarget = -Vector3.UnitZ,
                     rotatedTarget = Vector3.Transform(originalTarget, rotation);
-            this.LookAt = this.Position + rotatedTarget;
-            this.up = Vector3.Transform(Vector3.Up, rotation);
+            LookAt = Position + rotatedTarget;
+            up = Vector3.Transform(Vector3.Up, rotation);
         }
     }
 }

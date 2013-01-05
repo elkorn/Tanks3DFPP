@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Tanks3DFPP.Utilities;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Content;
-using Tanks3DFPP.Camera.Interfaces;
+using Tanks3DFPP.Utilities;
 namespace Tanks3DFPP.Terrain.Optimization.QuadTree
 {
     public class TreeVertexCollection
@@ -64,10 +58,10 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
                   limX = x + this.topSize;
 
             float minSandHeight = 0,
-                  minGrassHeight = 0.4f * heightMap.HighestPeak,
+                  minGrassHeight = 0.3f * heightMap.HighestPeak,
                   minRockHeight = (2 / 3f) * heightMap.HighestPeak,
                   minSnowHeight = heightMap.HighestPeak,
-                  sandBracket = (2 / 3f) * heightMap.HighestPeak,
+                  sandBracket = (0.2f) * heightMap.HighestPeak,
                   grassBracket = 0.2f * heightMap.HighestPeak,
                   rockBracket = 0.2f * heightMap.HighestPeak,
                   snowBracket = 0.2f * heightMap.HighestPeak;

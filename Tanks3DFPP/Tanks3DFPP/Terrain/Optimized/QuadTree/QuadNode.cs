@@ -8,7 +8,7 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
         /// <summary>
         ///     The absolute value of height constituting the bounding volume of the current node.
         /// </summary>
-        private const float limY = 950f;
+        public static float limY = 2500f;
 
         /// <summary>
         ///     The minimum size a quad node has to be to contain children.
@@ -81,7 +81,7 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
                 this.parentTree.Vertices[VertexTopLeft.Index].Position,
                 this.parentTree.Vertices[VertexBottomRight.Index].Position)
                 {
-                    Min = { Y = -limY },
+                    Min = { Y = 0 },
                     Max = { Y = limY }
                 };
 
@@ -137,6 +137,16 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
         public bool CanBeSplit
         {
             get { return size >= 2; }
+        }
+
+        public bool IsInView
+        {
+            get { return this.Contains(this.parentTree.ViewFrustum); }
+        }
+
+        private bool CulledAway
+        {
+            get { return this.parentTree.CullingEnabled && !this.IsInView; }
         }
 
         /// <summary>
@@ -449,6 +459,11 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
                 };
         }
 
+        public bool Contains(BoundingFrustum frustum)
+        {
+            return this.Bounds.Intersects(frustum);
+        }
+
         public bool Contains(Vector3 point)
         {
             point.Y = 0;
@@ -592,6 +607,9 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
 
         internal void SetActiveVertices()
         {
+            if (this.CulledAway)
+                return;
+
             if (IsSplit && hasChildren)
             {
                 ChildTopLeft.SetActiveVertices();
@@ -656,6 +674,9 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
 
         public void Split()
         {
+            if (this.CulledAway)
+                return;
+
             if (Parent != null && !Parent.IsSplit)
             {
                 Parent.Split();

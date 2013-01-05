@@ -1,101 +1,128 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using Tanks3DFPP.Camera.Interfaces;
 using Tanks3DFPP.Terrain.Optimization.QuadTree;
+using Tanks3DFPP.Utilities;
 
 namespace Tanks3DFPP.Terrain
 {
     public class QuadTree : GameComponent
     {
-        private QuadNode root, active;
+        public readonly int MinimumDepth = 6;
+        private readonly BufferManager buffers;
+        private readonly Effect effect;
+        private readonly Texture grass;
+        private readonly Vector3 position;
+        private readonly Texture rock;
+        private readonly QuadNode root;
+        private readonly Texture sand;
+        private readonly Texture snow;
 
-        private TreeVertexCollection vertices;
-
-        private Effect effect;
-        private Texture sand, grass, rock, snow;
-
-        private BufferManager buffers;
-        private Vector3 position;
-        private int topNodeSize, indexCount;
-
-        private BoundingFrustum lastCameraFrustum;
+        private readonly int topNodeSize;
+        private readonly TreeVertexCollection vertices;
 
         /// <summary>
-        /// The indices to be currently used.
+        ///     The indices to be currently used.
         /// </summary>
         public int[] Indices;
 
-        public Matrix View,
-            Projection;
+        public Matrix Projection;
+        public Matrix View;
+        private QuadNode active;
+
+        public int IndexCount { get; private set; }
+
+        private BoundingFrustum lastCameraFrustum;
+
+        public QuadTree(Game game, Vector3 position, IHeightMap heightMap, Matrix view, Matrix projection, int scale)
+            : base(game)
+        {
+            this.position = position;
+            topNodeSize = heightMap.Width - 1;
+
+            vertices = new TreeVertexCollection(this.position, heightMap, scale);
+            buffers = new BufferManager(vertices.Vertices, GraphicsDevice);
+
+            effect = Game.Content.Load<Effect>("Multitexture");
+            sand = Game.Content.Load<Texture>("Dirt cracked 00 seamless");
+            grass = Game.Content.Load<Texture>("ground_other_ground_0010_01_preview");
+            rock = Game.Content.Load<Texture>("Tileable stone texture (2)");
+            snow = Game.Content.Load<Texture>("snow");
+
+
+            View = view;
+            Projection = projection;
+
+            InitializeEffect();
+
+            root = new QuadNode(NodeType.FullNode, topNodeSize, 1, null, this, 0);
+            Indices = new int[(heightMap.Width + 1) * (heightMap.Height + 1) * 3];
+        }
+
+        internal BoundingFrustum ViewFrustum
+        {
+            get { return lastCameraFrustum; }
+        }
+
+        public bool CullingEnabled { get; set; }
 
         public GraphicsDevice GraphicsDevice
         {
-            get
-            {
-                return this.Game.GraphicsDevice;
-            }
+            get { return Game.GraphicsDevice; }
         }
 
         public int TopNodeSize
         {
-            get
-            {
-                return this.topNodeSize;
-            }
+            get { return topNodeSize; }
         }
 
         public QuadNode Root
         {
-            get
-            {
-                return root;
-            }
+            get { return root; }
         }
 
         public TreeVertexCollection Vertices
         {
-            get
+            get { return vertices; }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            buffers.Dispose();
+            base.Dispose(disposing);
+        }
+
+        public void Draw(GameTime gameTime)
+        {
+            GraphicsDevice.SetVertexBuffer(buffers.VertexBuffer);
+            GraphicsDevice.Indices = buffers.IndexBuffer;
+
+            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
             {
-                return vertices;
+                pass.Apply();
+                GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertices.Vertices.Length, 0,
+                                                     IndexCount / 3);
             }
         }
 
-        internal BoundingFrustum ViewFrustum { get; set; }
-
-        public readonly int MinimumDepth = 6;
-
-        public QuadTree(Game game, Vector3 position, IHeightMap heightMap, Matrix view, Matrix projection, int scale)
-            :base(game)
+        private void InitializeEffect()
         {
-            this.position = position;
-            this.topNodeSize = heightMap.Width - 1;
-            
-            this.vertices = new TreeVertexCollection(this.position, heightMap, scale);
-            this.buffers = new BufferManager(this.vertices.Vertices, this.GraphicsDevice);
+            var lightDir = new Vector3(1, -1, -1);
+            lightDir.Normalize();
 
-            this.effect = this.Game.Content.Load<Effect>("Multitexture");
-            this.sand = this.Game.Content.Load<Texture>("sand");
-            this.grass = this.Game.Content.Load<Texture>("grass");
-            this.rock = this.Game.Content.Load<Texture>("rock");
-            this.snow = this.Game.Content.Load<Texture>("snow");
+            effect.CurrentTechnique = effect.Techniques["MultiTextured"];
+            effect.Parameters["xTexture0"].SetValue(sand);
+            effect.Parameters["xTexture1"].SetValue(grass);
+            effect.Parameters["xTexture2"].SetValue(rock);
+            effect.Parameters["xTexture3"].SetValue(snow);
+            effect.Parameters["xEnableLighting"].SetValue(true);
+            effect.Parameters["xAmbient"].SetValue(0.1f);
+            effect.Parameters["xLightDirection"].SetValue(lightDir);
+            effect.Parameters["xWorld"].SetValue(Matrix.Identity);
+            effect.Parameters["xProjection"].SetValue(Projection);
+            effect.Parameters["xEnableBlending"].SetValue(true);
 
-
-            this.View = view;
-            this.Projection = projection;
-
-            this.InitializeEffect();
-
-            this.root = new QuadNode(NodeType.FullNode, this.topNodeSize, 1, null, this, 0);
-            this.ViewFrustum = new BoundingFrustum(this.View * this.Projection);
-            this.Indices = new int[(heightMap.Width + 1) * (heightMap.Height + 1) * 3];
-        }
-
-        /// <summary>
-        /// Switches the lighting.
-        /// </summary>
-        public void SwitchLighting()
-        {
-            effect.Parameters["xEnableLighting"].SetValue(!effect.Parameters["xEnableLighting"].GetValueBoolean());
         }
 
         public void SwitchBlending(bool? value)
@@ -108,72 +135,48 @@ namespace Tanks3DFPP.Terrain
             effect.Parameters["xEnableBlending"].SetValue(value.Value);
         }
 
+        /// <summary>
+        ///     Switches the lighting.
+        /// </summary>
+        public void SwitchLighting()
+        {
+            effect.Parameters["xEnableLighting"].SetValue(!effect.Parameters["xEnableLighting"].GetValueBoolean());
+        }
+
         public void Update(ICamera camera)
         {
             // Checking camera position is not enough - terrain has to update also while changing the angle.
-            if (camera.Frustum != this.lastCameraFrustum)
+            if (camera.Frustum != lastCameraFrustum)
             {
-                this.effect.Parameters["xView"].SetValue(camera.View);
+                effect.Parameters["xView"].SetValue(camera.View);
 
-                this.lastCameraFrustum = camera.Frustum;
-                this.indexCount = 0;
+                lastCameraFrustum = camera.Frustum;
+                IndexCount = 0;
 
-                this.root.Merge();
-                this.root.EnforceMinimumDepth();
-                this.active = root.DeepestNodeContainingPoint(camera.LookAt);
-                if (this.active != null)
+                root.Merge();
+                root.EnforceMinimumDepth();
+                active = root.DeepestNodeContainingPoint(camera.LookAt);
+                if (active != null)
                 {
-                    this.active.Split();
+                    active.Split();
                 }
 
-                this.root.SetActiveVertices();
+                root.SetActiveVertices();
 
-                this.buffers.UpdateIndexBuffer(this.Indices, this.indexCount);
-                this.buffers.SwapBuffer();
+                buffers.UpdateIndexBuffer(Indices, IndexCount);
+                buffers.SwapBuffer();
             }
 
-        }
-
-        public void Draw(GameTime gameTime)
-        {
-            this.GraphicsDevice.SetVertexBuffer(this.buffers.VertexBuffer);
-            this.GraphicsDevice.Indices = this.buffers.IndexBuffer;
-
-            foreach (EffectPass pass in this.effect.CurrentTechnique.Passes)
+            KeyboardHandler.KeyAction(Keys.C, () =>
             {
-                pass.Apply();
-                this.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, this.vertices.Vertices.Length, 0, this.indexCount / 3);
-            }
+                this.CullingEnabled = !this.CullingEnabled;
+            });
+
         }
 
         internal void UpdateBuffer(int vertexIndex)
         {
-            this.Indices[this.indexCount] = vertexIndex;
-            this.indexCount += 1;
+            Indices[IndexCount++] = vertexIndex;
         }
-
-        private void InitializeEffect()
-        {
-            Vector3 lightDir = new Vector3(1, -1, -1);
-            lightDir.Normalize();
-          
-            effect.CurrentTechnique = effect.Techniques["MultiTextured"];
-            effect.Parameters["xTexture0"].SetValue(sand);
-            effect.Parameters["xTexture1"].SetValue(grass);
-            effect.Parameters["xTexture2"].SetValue(rock);
-            effect.Parameters["xTexture3"].SetValue(snow);
-            effect.Parameters["xEnableLighting"].SetValue(true);
-            effect.Parameters["xAmbient"].SetValue(0.1f);
-            effect.Parameters["xLightDirection"].SetValue(lightDir);
-            effect.Parameters["xWorld"].SetValue(Matrix.Identity);
-            this.effect.Parameters["xProjection"].SetValue(this.Projection);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            this.buffers.Dispose();
-            base.Dispose(disposing);
-        }
-
     }
 }

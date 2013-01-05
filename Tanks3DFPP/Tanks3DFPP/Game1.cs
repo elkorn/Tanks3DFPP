@@ -29,31 +29,27 @@ namespace Tanks3DFPP
             maxHeight = 300;
 
 
-        private static int nodesCount = 0;
-        GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Matrix world, projection;
         QuadTree terrain;
         //Terrain.MultiTexturedTerrain terrain;
-        private static IList<QuadNode> nodes = new List<QuadNode>();
-
+        private GraphicsDeviceManager graphics;
         SpriteFont font;
         ICamera camera;
         bool wireFrame;
         public static KeyboardState CurrentKeyboardState { get; private set; }
         public static MouseState CurrentMouseState { get; private set; }
-        IHeightToColorTranslationMethod[] coloringMethods;
 
         CollisionSphere sphere;
         TankController tankController;
 
         public static IHeightMap heightMap;
-        public static int Scale = 10;
+        public static int Scale = 100;
 
         public Game1()
         {
-            graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            graphics = new GraphicsDeviceManager(this);
         }
 
         public static void SetNodeAsRendered(QuadNode node, bool rendered)
@@ -102,17 +98,11 @@ namespace Tanks3DFPP
         {
             // TODO: Add your initialization logic here
             world = Matrix.Identity;
-
+            QuadNode.limY = (Scale+1)*maxHeight;
             projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), this.GraphicsDevice.Viewport.AspectRatio, 1, 20000f);
             this.camera = new FPPCamera(this.GraphicsDevice, new Vector3(500, maxHeight * Scale, 500), 0.3f, 2.0f, this.projection);
 
             heightMap = new FractalMap(mapSize, roughness, maxHeight);
-            coloringMethods = new IHeightToColorTranslationMethod[] 
-            {
-                new GreenYellowRed(maxHeight),
-                new HeightToGrayscale(maxHeight)
-            };
-
             spriteBatch = new SpriteBatch(this.GraphicsDevice);
             base.Initialize();
             this.GenerateEverything();
@@ -142,7 +132,6 @@ namespace Tanks3DFPP
                 this.terrain.Dispose();
             }
 
-            nodes.Clear();
             this.terrain = new QuadTree(this, Vector3.Zero, heightMap = new FractalMap(mapSize, roughness, maxHeight, 1), this.camera.View, this.projection, Scale);
             //this.terrain = new Terrain.MultiTexturedTerrain(this.GraphicsDevice, this.Content, heightMap = new FractalMap(mapSize, roughness, maxHeight, 1), Scale);
             sphere = new CollisionSphere(this, heightMap, new Vector3(50, 0, 150), Scale);
@@ -178,27 +167,6 @@ namespace Tanks3DFPP
             });
 
             KeyboardHandler.KeyAction(Keys.L, this.terrain.SwitchLighting);
-            KeyboardHandler.KeyAction(Keys.B, () =>
-            {
-                this.terrain.SwitchBlending(true);
-            });
-            KeyboardHandler.KeyAction(Keys.N, () =>
-            {
-                this.terrain.SwitchBlending(false);
-            });
-
-            //KeyboardHandler.KeyAction(Keys.C, () =>
-            //{
-            //    if (this.GraphicsDevice.RasterizerState.CullMode == CullMode.None)
-            //    {
-            //        this.GraphicsDevice.RasterizerState = this.terrain.GraphicsDevice.RasterizerState = new RasterizerState { FillMode = this.GraphicsDevice.RasterizerState.FillMode, CullMode = CullMode.CullCounterClockwiseFace };
-            //    }
-            //    else
-            //    {
-            //        this.GraphicsDevice.RasterizerState = this.terrain.GraphicsDevice.RasterizerState = new RasterizerState { FillMode = this.GraphicsDevice.RasterizerState.FillMode, CullMode = CullMode.None };
-            //    }
-            //});
-
             this.terrain.Update(this.camera);
             sphere.Update(gameTime);
             this.camera.Update(gameTime);
@@ -221,6 +189,16 @@ namespace Tanks3DFPP
             BoundingFrustumRenderer.Render(this.camera.Frustum, this.GraphicsDevice, this.camera.View, this.projection, Color.Red);
         }
 
+        private void DrawDebugInfo()
+        {
+            spriteBatch.Begin();
+            spriteBatch.DrawString(font, string.Format("Near: {0}, Far: {1}, rs: {2}", camera.Frustum.Near.D, camera.Frustum.Far.D, this.GraphicsDevice.RasterizerState.FillMode.ToString()), Vector2.Zero, Color.Wheat);
+            spriteBatch.DrawString(font, string.Format("pos: {0}", camera.Position), Vector2.UnitY * 20, Color.Wheat);
+            spriteBatch.DrawString(font, string.Format("lookat: {0}", camera.LookAt), Vector2.UnitY * 40, Color.Wheat);
+            spriteBatch.DrawString(font, string.Format("vec: {0}", ((FPPCamera)camera).Direction), Vector2.UnitY * 60, Color.Wheat);
+            spriteBatch.DrawString(font, string.Format("tris: {0}", this.terrain.IndexCount / 3), Vector2.UnitY * 80, Color.Wheat);
+            spriteBatch.End();
+        }
 
         /// <summary>
         /// This is called when the game should draw itself.
@@ -231,17 +209,11 @@ namespace Tanks3DFPP
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
-            //this.GraphicsDevice.RasterizerState = new RasterizerState { FillMode = FillMode.WireFrame };
             GraphicsDevice.Clear(Color.Black);
             sphere.Draw(world, this.camera.View, projection);
-            //this.terrain.Draw(this.world, this.camera.View, this.projection);
             this.terrain.Draw(gameTime);
             tankController.Draw(this.camera.View, this.projection);
-            spriteBatch.Begin();
-            spriteBatch.DrawString(font, string.Format("Near: {0}, Far: {1}, rs: {2}", camera.Frustum.Near.D, camera.Frustum.Far.D, this.GraphicsDevice.RasterizerState.FillMode.ToString()), Vector2.Zero, Color.Wheat);
-            spriteBatch.DrawString(font, string.Format("pos: {0}", camera.Position), Vector2.UnitY * 20, Color.Wheat);
-            spriteBatch.DrawString(font, string.Format("lookat: {0}",camera.LookAt), Vector2.UnitY * 40, Color.Wheat);
-            spriteBatch.End();
+            this.DrawDebugInfo();
 
             base.Draw(gameTime);
         }

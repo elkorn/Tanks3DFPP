@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
-using Tanks3DFPP.Camera.Interfaces;
-using Tanks3DFPP.Terrain;
 using Tanks3DFPP.Entities;
+using Tanks3DFPP.Terrain;
 
 
 namespace Tanks3DFPP.Utilities
