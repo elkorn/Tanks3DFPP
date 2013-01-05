@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Tanks3DFPP.Camera;
 using Tanks3DFPP.Camera.Interfaces;
+using Tanks3DFPP.Entities;
 using Tanks3DFPP.Tanks;
 using Tanks3DFPP.Terrain;
 using Tanks3DFPP.Terrain.Optimization.QuadTree;
@@ -29,8 +30,8 @@ namespace Tanks3DFPP
         private int roughness = 500;
 
         private RasterizerState rs = new RasterizerState {FillMode = FillMode.Solid};
-        private Texture2D sky;
-        private Model skyDome;
+        private Sky sky;
+
         private CollisionSphere sphere;
         private SpriteBatch spriteBatch;
         private TankController tankController;
@@ -57,7 +58,7 @@ namespace Tanks3DFPP
             //spriteBatch.Draw(sky, GraphicsDevice.Viewport.Bounds, Color.White);
             //spriteBatch.End();
             GraphicsDevice.Clear(Color.Black);
-            this.DrawSkyDome();
+            sky.Draw(camera);
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
@@ -103,27 +104,6 @@ namespace Tanks3DFPP
             spriteBatch.End();
         }
 
-        private void DrawSkyDome()
-        {
-            Matrix[] modelTransforms = new Matrix[skyDome.Bones.Count];
-            skyDome.CopyAbsoluteBoneTransformsTo(modelTransforms);
-
-            Matrix wMatrix = Matrix.CreateTranslation(0, -.3f, 0) * Matrix.CreateScale(heightMap.Width * Scale) * Matrix.CreateTranslation(this.camera.Position);
-            foreach (ModelMesh mesh in skyDome.Meshes)
-            {
-                foreach (BasicEffect currentEffect in mesh.Effects)
-                {
-                    Matrix worldMatrix = modelTransforms[mesh.ParentBone.Index] * wMatrix;
-                    currentEffect.World = worldMatrix;
-                    currentEffect.View = camera.View;
-                    currentEffect.Projection = projection;
-                    currentEffect.TextureEnabled = true;
-                    currentEffect.Texture = sky;
-                }
-                mesh.Draw();
-            }
-        }
-
         private void GenerateEverything()
         {
             if (terrain != null)
@@ -157,7 +137,6 @@ namespace Tanks3DFPP
             heightMap = new FractalMap(mapSize, roughness, maxHeight);
             spriteBatch = new SpriteBatch(GraphicsDevice);
             base.Initialize();
-            skyDome.Meshes[0].MeshParts[0].Effect = new BasicEffect(this.GraphicsDevice);
             GenerateEverything();
         }
 
@@ -168,8 +147,7 @@ namespace Tanks3DFPP
         protected override void LoadContent()
         {
             font = Content.Load<SpriteFont>("SpriteFont1");
-            skyDome = Content.Load<Model>("dome");
-            sky = Content.Load<Texture2D>("Starry_Sky_by_A_rien");
+            sky = new Sky(this.GraphicsDevice, this.Content, this.projection, heightMap.Width);
         }
 
         public static void SetNodeAsRendered(QuadNode node, bool rendered)

@@ -53,7 +53,7 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
 
         internal void UpdateIndexBuffer(int[] indices, int indexCount)
         {
-            //if (this.indexBuffers[this.InactiveBufferIndex] != this.graphicsDevice.Indices)
+            if (this.indexBuffers[this.InactiveBufferIndex] != this.graphicsDevice.Indices)
             {
                 this.indexBuffers[this.InactiveBufferIndex].SetData(indices, 0, indexCount);
             }

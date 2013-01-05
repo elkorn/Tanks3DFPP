@@ -9,7 +9,7 @@ namespace Tanks3DFPP.Terrain
 {
     public class QuadTree : GameComponent
     {
-        public readonly int MinimumDepth = 6;
+        public readonly int MinimumDepth = 7;
         private readonly BufferManager buffers;
         private readonly Effect effect;
         private readonly Texture grass;
