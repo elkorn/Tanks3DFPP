@@ -87,6 +87,11 @@ namespace Tanks3DFPP.Terrain
             get { return vertices; }
         }
 
+        public Effect Effect
+        {
+            get { return effect; }
+        }
+
         protected override void Dispose(bool disposing)
         {
             buffers.Dispose();
@@ -98,7 +103,7 @@ namespace Tanks3DFPP.Terrain
             GraphicsDevice.SetVertexBuffer(buffers.VertexBuffer);
             GraphicsDevice.Indices = buffers.IndexBuffer;
 
-            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+            foreach (EffectPass pass in Effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
                 GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertices.Vertices.Length, 0,
@@ -111,17 +116,17 @@ namespace Tanks3DFPP.Terrain
             var lightDir = new Vector3(1, -1, -1);
             lightDir.Normalize();
 
-            effect.CurrentTechnique = effect.Techniques["MultiTextured"];
-            effect.Parameters["xTexture0"].SetValue(sand);
-            effect.Parameters["xTexture1"].SetValue(grass);
-            effect.Parameters["xTexture2"].SetValue(rock);
-            effect.Parameters["xTexture3"].SetValue(snow);
-            effect.Parameters["xEnableLighting"].SetValue(true);
-            effect.Parameters["xAmbient"].SetValue(0.1f);
-            effect.Parameters["xLightDirection"].SetValue(lightDir);
-            effect.Parameters["xWorld"].SetValue(Matrix.Identity);
-            effect.Parameters["xProjection"].SetValue(Projection);
-            effect.Parameters["xEnableBlending"].SetValue(true);
+            Effect.CurrentTechnique = Effect.Techniques["MultiTextured"];
+            Effect.Parameters["xTexture0"].SetValue(sand);
+            Effect.Parameters["xTexture1"].SetValue(grass);
+            Effect.Parameters["xTexture2"].SetValue(rock);
+            Effect.Parameters["xTexture3"].SetValue(snow);
+            Effect.Parameters["xEnableLighting"].SetValue(true);
+            Effect.Parameters["xAmbient"].SetValue(0.1f);
+            Effect.Parameters["xLightDirection"].SetValue(lightDir);
+            Effect.Parameters["xWorld"].SetValue(Matrix.Identity);
+            Effect.Parameters["xProjection"].SetValue(Projection);
+            Effect.Parameters["xEnableBlending"].SetValue(true);
 
         }
 
@@ -129,10 +134,10 @@ namespace Tanks3DFPP.Terrain
         {
             if (!value.HasValue)
             {
-                value = !effect.Parameters["xEnableBlending"].GetValueBoolean();
+                value = !Effect.Parameters["xEnableBlending"].GetValueBoolean();
             }
 
-            effect.Parameters["xEnableBlending"].SetValue(value.Value);
+            Effect.Parameters["xEnableBlending"].SetValue(value.Value);
         }
 
         /// <summary>
@@ -140,7 +145,7 @@ namespace Tanks3DFPP.Terrain
         /// </summary>
         public void SwitchLighting()
         {
-            effect.Parameters["xEnableLighting"].SetValue(!effect.Parameters["xEnableLighting"].GetValueBoolean());
+            Effect.Parameters["xEnableLighting"].SetValue(!Effect.Parameters["xEnableLighting"].GetValueBoolean());
         }
 
         public void Update(ICamera camera)
@@ -148,7 +153,7 @@ namespace Tanks3DFPP.Terrain
             // Checking camera position is not enough - terrain has to update also while changing the angle.
             if (camera.Frustum != lastCameraFrustum)
             {
-                effect.Parameters["xView"].SetValue(camera.View);
+                Effect.Parameters["xView"].SetValue(camera.View);
 
                 lastCameraFrustum = camera.Frustum;
                 IndexCount = 0;
