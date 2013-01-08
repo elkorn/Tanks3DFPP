@@ -70,7 +70,10 @@ namespace Tanks3DFPP.Tanks
                 do
                 {
                     bNotSpawnedCorrectly = false;
-                    TanksInGame[i].SpawnAt(new Vector3(rand.Next(0, Game1.heightMap.Width * Game1.Scale), 0, rand.Next(-Game1.heightMap.Height * Game1.Scale, 0))); // Y should be calculated
+                    do
+                    {
+                        TanksInGame[i].SpawnAt(new Vector3(rand.Next(0, (Game1.heightMap.Width - 1) * Game1.Scale), 0, rand.Next((-Game1.heightMap.Height + 1) * Game1.Scale, 0))); // Y should be calculated
+                    } while (!TanksInGame[i].IsOnMap);
                     for (int j = 0; j < TanksInGame.Count; ++j)
                     {
                         // make sure the tanks don't intersect with themselves at the beginning

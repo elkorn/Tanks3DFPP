@@ -17,17 +17,17 @@ namespace Tanks3DFPP.Tanks
         const float CannonDegMin = 0;
         const float ScaleFactor = 0.05f;
         const float MaxPower = 7.0f;
-        const float MinPower = 1.1f;
+        const float MinPower = 1.5f;
         readonly Matrix ScaleMatrix = Matrix.CreateScale(ScaleFactor);
 
         public String PlayerName { get; set; }
 
         #region Properties
 
-        public Vector3 Position
-        {
-            get { return base.Position; }
-        }
+        //public Vector3 Position
+        //{
+        //    get { return base.Position; }
+        //}
 
         public Vector3 CannonPosition
         {
@@ -96,7 +96,6 @@ namespace Tanks3DFPP.Tanks
         {
             model = content.Load<Model>("Tank");
             boneTransforms = new Matrix[model.Bones.Count];
-
 
             boundingSpheres = new List<BoundingSphere>();
             foreach (ModelMesh mesh in model.Meshes)
@@ -214,8 +213,8 @@ namespace Tanks3DFPP.Tanks
 
             worldMatrix = tankOrientation * Matrix.CreateTranslation(Position);
 
-            cannonPosition = (cannonBone.Transform * ScaleMatrix * worldMatrix).Translation;
-            cannonPosition.Y += 2 * (cannonPosition.Y - Position.Y);
+            cannonPosition = (turretBone.Transform * cannonBone.Transform * ScaleMatrix * worldMatrix).Translation;
+            //cannonPosition.Y += 2 * (cannonPosition.Y - Position.Y);
 
             for (int i = 0; i < model.Meshes.Count; ++i)
             {
@@ -239,6 +238,11 @@ namespace Tanks3DFPP.Tanks
             }
         }
 
+        public bool IsOnMap
+        {
+            get { return IsInFloorBounds(Game1.heightMap); }
+        }
+
         protected override bool IsInFloorBounds(Terrain.IHeightMap floor)
         {
             return this.IsInFloorBounds(floor, this.Position);
@@ -246,12 +250,23 @@ namespace Tanks3DFPP.Tanks
 
         protected override bool IsInFloorBounds(Terrain.IHeightMap floor, Vector3 position)
         {
-            foreach (ModelMesh mesh in this.model.Meshes)
+            //foreach (ModelMesh mesh in this.model.Meshes)
+            //{
+            //    BoundingSphere sphere = mesh.BoundingSphere.Transform(
+            //        mesh.ParentBone.Transform 
+            //        * this.tankOrientation 
+            //        * Matrix.CreateTranslation(position));   // probably needs fixing.
+            //    if (sphere.Center.X + sphere.Radius > floor.Width * Game1.Scale
+            //        || sphere.Center.X - sphere.Radius < 0
+            //        || sphere.Center.Z + sphere.Radius > 0
+            //        || sphere.Center.Z - sphere.Radius < -floor.Height * Game1.Scale)
+            //    {
+            //        return false;
+            //    }
+            //}
+
+            foreach (BoundingSphere sphere in boundingSpheres)
             {
-                BoundingSphere sphere = mesh.BoundingSphere.Transform(
-                    mesh.ParentBone.Transform 
-                    * this.tankOrientation 
-                    * Matrix.CreateTranslation(position));   // probably needs fixing.
                 if (sphere.Center.X + sphere.Radius > floor.Width * Game1.Scale
                     || sphere.Center.X - sphere.Radius < 0
                     || sphere.Center.Z + sphere.Radius > 0
