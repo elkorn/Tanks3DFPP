@@ -57,7 +57,8 @@ namespace Tanks3DFPP.Tanks
         SoundEffectInstance cannonMoveSound;
         SoundEffectInstance morePowerSound;
         SoundEffectInstance lessPowerSound;
-        SoundEffectInstance DanseMacabre;
+        SoundEffectInstance danseMacabre;
+        SoundEffectInstance ambience;
 
         //ExplosionSystem Explosion;
 
@@ -97,13 +98,14 @@ namespace Tanks3DFPP.Tanks
             MissleInGame.LoadContent(game.Content);
 
             InfoFont = game.Content.Load<SpriteFont>("SpriteFont1");
-            //explosionSound = game.Content.Load<SoundEffect>("");
+            explosionSound = game.Content.Load<SoundEffect>("cinema boom impact");
             shotSound = game.Content.Load<SoundEffect>("shoot");
             turretMoveSound = game.Content.Load<SoundEffect>("turret").CreateInstance();
             cannonMoveSound = game.Content.Load<SoundEffect>("turret").CreateInstance();
             morePowerSound = game.Content.Load<SoundEffect>("morepower").CreateInstance();
             lessPowerSound = game.Content.Load<SoundEffect>("lesspower").CreateInstance();
-            DanseMacabre = game.Content.Load<SoundEffect>("Danse Macabre - Big Hit 2").CreateInstance();
+            danseMacabre = game.Content.Load<SoundEffect>("Danse Macabre - Big Hit 2").CreateInstance();
+            //ambience = game.Content.Load<SoundEffect>("nosferatu ambience").CreateInstance();
 
             //Explosion = new ExplosionSystem();
             //Explosion.LoadContent(game.Content, GD);
@@ -184,11 +186,14 @@ namespace Tanks3DFPP.Tanks
                             {
                                 playersOrderedByScore.Add(TanksInGame[0].PlayerName);
                                 bDisplayScores = true;
-                                DanseMacabre.Play();
+                                if (ambience != null)
+                                    ambience.Stop();
+                                danseMacabre.Play();
                             }
                         }
                     }
-                    //explosionSound.Play();
+                    if (explosionSound != null)
+                        explosionSound.Play();
                     // next turn
                     ++TurnToken;
                     TurnToken %= TanksInGame.Count;
@@ -205,10 +210,17 @@ namespace Tanks3DFPP.Tanks
             {
                 // go back to menu?
 
-                if (KS.IsKeyDown(Keys.Enter) && DanseMacabre.State != SoundState.Playing)
+                if (KS.IsKeyDown(Keys.Enter) && danseMacabre.State != SoundState.Playing)
                 {
                     bDisplayScores = false;
                     this.Game.Exit();
+                }
+            }
+            else
+            {
+                if (ambience != null && ambience.State != SoundState.Playing)
+                {
+                    ambience.Play();
                 }
             }
 

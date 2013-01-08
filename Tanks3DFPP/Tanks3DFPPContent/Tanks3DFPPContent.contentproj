@@ -42,6 +42,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="cinema boom impact.wav">
+      <Name>cinema boom impact</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+    </Compile>
     <Compile Include="dome.x">
       <Name>dome</Name>
       <Importer>XImporter</Importer>
