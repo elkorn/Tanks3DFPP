@@ -50,6 +50,15 @@ namespace Tanks3DFPP.Tanks
         String ShotInfoString;
         Random rand;
 
+
+        SoundEffect explosionSound;
+        SoundEffect shotSound;
+        SoundEffectInstance turretMoveSound;
+        SoundEffectInstance cannonMoveSound;
+        SoundEffectInstance morePowerSound;
+        SoundEffectInstance lessPowerSound;
+        SoundEffectInstance DanseMacabre;
+
         //ExplosionSystem Explosion;
 
         public TankController(Game game, int numOfPlayers)
@@ -88,6 +97,13 @@ namespace Tanks3DFPP.Tanks
             MissleInGame.LoadContent(game.Content);
 
             InfoFont = game.Content.Load<SpriteFont>("SpriteFont1");
+            //explosionSound = game.Content.Load<SoundEffect>("");
+            shotSound = game.Content.Load<SoundEffect>("shoot");
+            turretMoveSound = game.Content.Load<SoundEffect>("turret").CreateInstance();
+            cannonMoveSound = game.Content.Load<SoundEffect>("turret").CreateInstance();
+            morePowerSound = game.Content.Load<SoundEffect>("morepower").CreateInstance();
+            lessPowerSound = game.Content.Load<SoundEffect>("lesspower").CreateInstance();
+            DanseMacabre = game.Content.Load<SoundEffect>("Danse Macabre - Big Hit 2").CreateInstance();
 
             //Explosion = new ExplosionSystem();
             //Explosion.LoadContent(game.Content, GD);
@@ -140,7 +156,10 @@ namespace Tanks3DFPP.Tanks
                     TanksInGame[TurnToken].CannonPosition, //new Vector3(TanksInGame[TurnToken].CannonPosition.X, TanksInGame[TurnToken].CannonPosition.Y, TanksInGame[TurnToken].CannonPosition.Z), 
                     TanksInGame[TurnToken].InitialVelocityPower);
                 bShotFired = true;
+                shotSound.Play();
             }
+
+            HandleMovementSound();
 
             if (bShotFired)
             {
@@ -165,10 +184,11 @@ namespace Tanks3DFPP.Tanks
                             {
                                 playersOrderedByScore.Add(TanksInGame[0].PlayerName);
                                 bDisplayScores = true;
+                                DanseMacabre.Play();
                             }
                         }
                     }
-
+                    //explosionSound.Play();
                     // next turn
                     ++TurnToken;
                     TurnToken %= TanksInGame.Count;
@@ -184,7 +204,8 @@ namespace Tanks3DFPP.Tanks
             if (TanksInGame.Count == 1)
             {
                 // go back to menu?
-                if (KS.IsKeyDown(Keys.Enter))
+
+                if (KS.IsKeyDown(Keys.Enter) && DanseMacabre.State != SoundState.Playing)
                 {
                     bDisplayScores = false;
                     this.Game.Exit();
@@ -194,7 +215,31 @@ namespace Tanks3DFPP.Tanks
             base.Update(gameTime);
         }
 
-        public bool KeyPressed(Keys key)
+        private void HandleMovementSound()
+        {
+            if (tanksInGame[TurnToken].bCannonMoves)
+                cannonMoveSound.Play();
+            else
+                cannonMoveSound.Stop();
+
+            if (tanksInGame[TurnToken].bTurretMoves)
+                turretMoveSound.Play();
+            else
+                turretMoveSound.Stop();
+
+            if (tanksInGame[TurnToken].bPowerIncreases)
+                morePowerSound.Play();
+            else
+                morePowerSound.Stop();
+
+            if (tanksInGame[TurnToken].bPowerDecreases)
+                lessPowerSound.Play();
+            else
+                lessPowerSound.Stop();
+
+        }
+
+        private bool KeyPressed(Keys key)
         {
             KeyboardState KS = Keyboard.GetState();
             if (KS.IsKeyUp(key))
@@ -218,7 +263,10 @@ namespace Tanks3DFPP.Tanks
             {
                 tank.Draw(viewMatrix, projectionMatrix);
             }
-            MissleInGame.Draw(viewMatrix, projectionMatrix);
+            if (!bShotFired)
+            {
+                MissleInGame.Draw(viewMatrix, projectionMatrix);
+            }
 
             spriteBatch.Begin();
             if (bDisplayScores)

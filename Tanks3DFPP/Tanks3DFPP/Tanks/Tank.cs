@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Input;
 using Tanks3DFPP.Entities;
+using Microsoft.Xna.Framework.Audio;
 
 namespace Tanks3DFPP.Tanks
 {
@@ -65,6 +66,20 @@ namespace Tanks3DFPP.Tanks
         }
         private List<BoundingSphere> boundingSpheres;
 
+        public Matrix CameraOrientation
+        {
+            get { return cameraOrientation; }
+        }
+        private Matrix cameraOrientation;
+
+        public bool bPowerIncreases { get; private set; }
+
+        public bool bPowerDecreases { get; private set; }
+
+        public bool bTurretMoves { get; private set; }
+
+        public bool bCannonMoves { get; private set; }
+
         public int Health { get; set; }
 
         #endregion
@@ -85,6 +100,11 @@ namespace Tanks3DFPP.Tanks
 
         Matrix turretTransform;
         Matrix cannonTransform;
+
+        float turretTurnAmount;
+        float cannonTurnAmount;
+        float previousInitialVelocityPower;
+        float previousCannonDirectionAngle;
 
         #endregion
 
@@ -147,7 +167,7 @@ namespace Tanks3DFPP.Tanks
         /// <param name="KS">The KS.</param>
         public void HandleInput(KeyboardState KS)
         {
-            float turretTurnAmount = 0;
+            turretTurnAmount = 0;
             if (KS.IsKeyDown(Keys.Left))
             {
                 turretTurnAmount += 1;
@@ -157,7 +177,7 @@ namespace Tanks3DFPP.Tanks
                 turretTurnAmount -= 1;
             }
 
-            float cannonTurnAmount = 0;
+            cannonTurnAmount = 0;
             if (KS.IsKeyDown(Keys.Up))
             {
                 cannonTurnAmount -= 1;
@@ -167,26 +187,50 @@ namespace Tanks3DFPP.Tanks
                 cannonTurnAmount += 1;
             }
 
+            previousInitialVelocityPower = initialVelocityPower;
             if (KS.IsKeyDown(Keys.OemCloseBrackets))
             {
-                initialVelocityPower += 0.02f;
+                initialVelocityPower += 0.01f;
             }
             if (KS.IsKeyDown(Keys.OemOpenBrackets))
             {
-                initialVelocityPower -= 0.02f;
+                initialVelocityPower -= 0.01f;
             }
-            initialVelocityPower = MathHelper.Clamp(initialVelocityPower, MinPower, MaxPower);
 
             turretTurnAmount = MathHelper.Clamp(turretTurnAmount, -1, +1);
             turretDirectionAngle += turretTurnAmount * TurretTurnSpeed;
             turretDirectionAngle = turretDirectionAngle % MathHelper.ToRadians(360);
 
+            previousCannonDirectionAngle = cannonDirectionAngle;
             cannonTurnAmount = MathHelper.Clamp(cannonTurnAmount, -1, +1);
             cannonDirectionAngle += cannonTurnAmount * TurretTurnSpeed;
             cannonDirectionAngle = MathHelper.Clamp(cannonDirectionAngle, MathHelper.ToRadians(CannonDegMax), MathHelper.ToRadians(CannonDegMin));
 
+            initialVelocityPower = MathHelper.Clamp(initialVelocityPower, MinPower, MaxPower);
+
             turretOrientation = Matrix.CreateRotationY(turretDirectionAngle);
             cannonOrientation = Matrix.CreateRotationX(cannonDirectionAngle);
+
+            //sound
+            if (cannonDirectionAngle != previousCannonDirectionAngle)
+                bCannonMoves = true;
+            else
+                bCannonMoves = false;
+
+            if (turretTurnAmount != 0)
+                bTurretMoves = true;
+            else
+                bTurretMoves = false;
+
+            if (previousInitialVelocityPower > initialVelocityPower)
+                bPowerIncreases = true;
+            else if (previousInitialVelocityPower < initialVelocityPower)
+                bPowerDecreases = true;
+            else
+            {
+                bPowerIncreases = false;
+                bPowerDecreases = false;
+            }
         }
 
         public bool CollisionCheckWith(Tank tank)
@@ -213,6 +257,7 @@ namespace Tanks3DFPP.Tanks
 
             worldMatrix = tankOrientation * Matrix.CreateTranslation(Position);
 
+            cameraOrientation = turretBone.Transform * cannonBone.Transform * ScaleMatrix * worldMatrix;
             cannonPosition = (turretBone.Transform * cannonBone.Transform * ScaleMatrix * worldMatrix).Translation;
             //cannonPosition.Y += 2 * (cannonPosition.Y - Position.Y);
 

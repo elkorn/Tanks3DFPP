@@ -97,6 +97,8 @@ namespace Tanks3DFPP.Tanks
         // CollisionPoint to change
         public bool UpdatePositionAfterShot(List<Tank> tanks, int except, out BoundingSphere SphereHit, out int HitIndex) //float CollisionPoint, 
         {
+            boundingSphere = new BoundingSphere(this.position, radius);
+
             SphereHit = new BoundingSphere(Vector3.Zero, 0f);
             HitIndex = -1;
 
@@ -171,7 +173,6 @@ namespace Tanks3DFPP.Tanks
                     mesh.Draw();
                 }
             }
-            boundingSphere = new BoundingSphere(this.position, radius);
         }
 
         protected override bool IsInFloorBounds(Terrain.IHeightMap floor)

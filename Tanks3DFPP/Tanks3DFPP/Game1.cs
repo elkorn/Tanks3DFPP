@@ -33,7 +33,8 @@ namespace Tanks3DFPP
         Matrix world, projection;
         Terrain.MultiTexturedTerrain terrain;
         SpriteFont font;
-        ICamera camera;
+        //ICamera camera;
+        FPPCamera camera;
         int currentColoringMethod = 1;
         bool wireFrame;
         public static KeyboardState CurrentKeyboardState { get; private set; }
@@ -161,6 +162,18 @@ namespace Tanks3DFPP
             });
             //this.terrain.Update(this.camera, this.projection);
             sphere.Update(gameTime);
+            if (tankController.bShotFired)
+            {
+                this.camera.Update(gameTime);
+                camera.AttachAndUpdate(tankController.MissleInGame.Position);
+                //camera.Position = tankController.MissleInGame.Position;
+                //camera.LookAt = tankController.MissleInGame.Position + tankController.MissleInGame.Velocity;
+            }
+            //else
+            //{
+            //    camera.Position = tankController.TanksInGame[tankController.TurnToken].CannonPosition;
+            //    camera.AttachAndUpdate(tankController.TanksInGame[tankController.TurnToken].CameraOrientation);
+            //}
             this.camera.Update(gameTime);
             tankController.Update(gameTime);
             base.Update(gameTime);
