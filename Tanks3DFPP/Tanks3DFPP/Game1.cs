@@ -17,17 +17,34 @@ namespace Tanks3DFPP
     public class Game1 : Game
     {
         public static IHeightMap heightMap;
-        public static int Scale = 10;
+        public static int Scale = 15;
         private ICamera camera;
         private SpriteFont font;
         private GraphicsDeviceManager graphics;
+        private Texture2D bgTexture;
         private int mapSize = 10;
         private const float FarClippingPlane = 20000f;
 
-        private int maxHeight = 300;
+        private int maxHeight = 500;
+
+        public int MaxHeight
+        {
+            get
+            {
+                return this.maxHeight;
+            }
+
+            set
+            {
+                if (value >= 100 && value <= 1000)
+                {
+                    this.maxHeight = value;
+                }
+            }
+        }
 
         private Matrix projection;
-        private int roughness = 500;
+        private int roughness = 900;
 
         private RasterizerState rs = new RasterizerState {FillMode = FillMode.Solid};
         private Sky sky;
@@ -39,6 +56,10 @@ namespace Tanks3DFPP
         private bool wireFrame;
         private Matrix world;
 
+        public static Vector3 SunPos;
+
+        private Color bgColor = new Color(69,125,200);
+
         public Game1()
         {
             Content.RootDirectory = "Content";
@@ -48,16 +69,28 @@ namespace Tanks3DFPP
         public static KeyboardState CurrentKeyboardState { get; private set; }
         public static MouseState CurrentMouseState { get; private set; }
 
+        public int Roughness
+        {
+            get { return roughness; }
+            set
+            {
+                if (value >= 150 && value <= 900)
+                {
+                    roughness = value;
+                }
+            }
+        }
+
         /// <summary>
         ///     This is called when the game should draw itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            //spriteBatch.Begin();
-            //spriteBatch.Draw(sky, GraphicsDevice.Viewport.Bounds, Color.White);
-            //spriteBatch.End();
             GraphicsDevice.Clear(Color.Black);
+            //spriteBatch.Begin();
+            //spriteBatch.Draw(bgTexture, GraphicsDevice.Viewport.Bounds, Color.White);
+            //spriteBatch.End();
             sky.Draw(camera);
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -111,10 +144,13 @@ namespace Tanks3DFPP
                 terrain.Dispose();
             }
 
-            terrain = new QuadTree(this, Vector3.Zero, heightMap = new FractalMap(mapSize, roughness, maxHeight, 1),
-                                   camera.View, projection, Scale);
-            //skyDome.Meshes[0].MeshParts[0].Effect = terrain.Effect.Clone();
-            //this.terrain = new Terrain.MultiTexturedTerrain(this.GraphicsDevice, this.Content, heightMap = new FractalMap(mapSize, roughness, maxHeight, 1), Scale);
+            terrain = new QuadTree(
+                this, 
+                Vector3.Zero,
+                heightMap = new FractalMap(mapSize, Roughness, maxHeight),
+                camera.View,
+                projection,
+                Scale);
             sphere = new CollisionSphere(this, heightMap, new Vector3(50, 0, 150), Scale);
             tankController = new TankController(this, 2);
         }
@@ -127,17 +163,24 @@ namespace Tanks3DFPP
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
             world = Matrix.Identity;
             QuadNode.limY = (Scale + 1)*maxHeight;
             projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45),
-                                                             GraphicsDevice.Viewport.AspectRatio, 1, FarClippingPlane);
-            camera = new FPPCamera(GraphicsDevice, new Vector3(500, maxHeight*Scale, 500), 0.3f, 2.0f, projection);
+                                                             GraphicsDevice.Viewport.AspectRatio, 
+                                                             1, 
+                                                             FarClippingPlane);
+            camera = new FPPCamera(GraphicsDevice, 
+                new Vector3(500, maxHeight*Scale, 500), 
+                0.3f,
+                2.0f,
+                projection);
 
-            heightMap = new FractalMap(mapSize, roughness, maxHeight);
             spriteBatch = new SpriteBatch(GraphicsDevice);
             base.Initialize();
             GenerateEverything();
+            //sphere = new CollisionSphere(this, heightMap, new Vector3(500, maxHeight * Scale, 500), Scale);
+            sky = new Sky(this.GraphicsDevice, this.Content, this.projection, heightMap.Width);
+
         }
 
         /// <summary>
@@ -147,7 +190,7 @@ namespace Tanks3DFPP
         protected override void LoadContent()
         {
             font = Content.Load<SpriteFont>("SpriteFont1");
-            sky = new Sky(this.GraphicsDevice, this.Content, this.projection, heightMap.Width);
+            this.bgTexture = Content.Load<Texture2D>("TRON__grid_only_by_hardwayjackson");
         }
 
         public static void SetNodeAsRendered(QuadNode node, bool rendered)
@@ -192,6 +235,8 @@ namespace Tanks3DFPP
         /// </summary>
         protected override void UnloadContent()
         {
+            terrain.Dispose();
+            this.Content.Unload();
         }
 
         /// <summary>
@@ -211,9 +256,6 @@ namespace Tanks3DFPP
             KeyboardHandler.KeyAction(Keys.F, () =>
                 {
                     rs = new RasterizerState {FillMode = wireFrame ? FillMode.Solid : FillMode.WireFrame};
-                    //this.GraphicsDevice.RasterizerState = rs;
-                    //this.terrain.GraphicsDevice.RasterizerState = rs;
-
                     wireFrame = !wireFrame;
                 });
 

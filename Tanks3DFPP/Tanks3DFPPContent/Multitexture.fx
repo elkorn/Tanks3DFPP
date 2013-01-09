@@ -2,6 +2,12 @@
 float4x4 xView;
 float4x4 xProjection;
 float4x4 xWorld;
+
+float xFogStart;
+float xFogEnd;
+float3 xFogColor;
+bool xFogEnabled;
+
 float3 xLightDirection;
 float xAmbient;
 bool xEnableLighting;
@@ -31,6 +37,7 @@ struct MTVertexToPixel
 	float4 LightDirection	: TEXCOORD2;
 	float4 TextureWeights	: TEXCOORD3;
 	float Depth				: TEXCOORD4;	// this will serve to change texture detailing depending on the camera distance from texture.
+	float Fog				: TEXCOORD5;
 };
 
 struct MTPixelToFrame
@@ -51,6 +58,11 @@ MTVertexToPixel MultiTexturedVS( float4 inPos : POSITION, float3 inNormal : NORM
 	Output.LightDirection.w = 1;
 	Output.TextureWeights = inTexWeights;
 	Output.Depth = Output.Position.z / Output.Position.w;
+	if(xFogEnabled)
+	{
+		Output.Fog = saturate((length(xView - xWorld) - xFogStart) / (xFogEnd - xFogStart));
+	}
+
 	return Output;
 }
 
@@ -88,7 +100,14 @@ MTPixelToFrame MultiTexturedPS(MTVertexToPixel PSIn)
 		Output.Color += tex2D(TextureSampler2, PSIn.TextureCoords) * PSIn.TextureWeights.z;
 		Output.Color += tex2D(TextureSampler3, PSIn.TextureCoords) * PSIn.TextureWeights.w;
 	}
+
+
 	Output.Color *= lightingFactor;
+
+	if(xFogEnabled)
+	{
+		Output.Color.xyz = lerp(Output.Color, xFogColor, PSIn.Fog);
+	}
 
 	return Output;
 }

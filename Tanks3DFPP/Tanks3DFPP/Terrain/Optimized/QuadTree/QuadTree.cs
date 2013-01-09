@@ -14,6 +14,7 @@ namespace Tanks3DFPP.Terrain
         private readonly Effect effect;
         private readonly Texture grass;
         private readonly Vector3 position;
+        private Vector3 lightDir;
         private readonly Texture rock;
         private readonly QuadNode root;
         private readonly Texture sand;
@@ -46,7 +47,7 @@ namespace Tanks3DFPP.Terrain
 
             effect = Game.Content.Load<Effect>("Multitexture");
             sand = Game.Content.Load<Texture>("Dirt cracked 00 seamless");
-            grass = Game.Content.Load<Texture>("ground_other_ground_0010_01_preview");
+            grass = Game.Content.Load<Texture>("grass0026_1_l2");
             rock = Game.Content.Load<Texture>("Tileable stone texture (2)");
             snow = Game.Content.Load<Texture>("snow");
 
@@ -111,23 +112,45 @@ namespace Tanks3DFPP.Terrain
             }
         }
 
+        private void InitializeFog(float start, float end, Color color)
+        {
+            this.effect.Parameters["xFogStart"].SetValue(start);
+            this.effect.Parameters["xFogEnd"].SetValue(end);
+            this.effect.Parameters["xFogColor"].SetValue(new Vector3(color.R,color.G,color.B));
+            this.effect.Parameters["xFogEnabled"].SetValue(true);
+        }
+
         private void InitializeEffect()
         {
-            var lightDir = new Vector3(1, -1, -1);
+            lightDir = new Vector3(0, -1, -1);
             lightDir.Normalize();
-
             Effect.CurrentTechnique = Effect.Techniques["MultiTextured"];
             Effect.Parameters["xTexture0"].SetValue(sand);
             Effect.Parameters["xTexture1"].SetValue(grass);
             Effect.Parameters["xTexture2"].SetValue(rock);
             Effect.Parameters["xTexture3"].SetValue(snow);
             Effect.Parameters["xEnableLighting"].SetValue(true);
-            Effect.Parameters["xAmbient"].SetValue(0.1f);
+            this.SetAmbient(.2f);
             Effect.Parameters["xLightDirection"].SetValue(lightDir);
             Effect.Parameters["xWorld"].SetValue(Matrix.Identity);
             Effect.Parameters["xProjection"].SetValue(Projection);
             Effect.Parameters["xEnableBlending"].SetValue(true);
+            this.InitializeFog(2,18,Color.Red);
+        }
 
+        private void SetAmbient(float value)
+        {
+            Effect.Parameters["xAmbient"].SetValue(value);
+        }
+
+        private void MoreAmbient()
+        {
+            this.SetAmbient(Effect.Parameters["xAmbient"].GetValueSingle() + .1f);
+        }
+
+        private void LessAmbient()
+        {
+            this.SetAmbient(Effect.Parameters["xAmbient"].GetValueSingle() - .1f);
         }
 
         public void SwitchBlending(bool? value)
@@ -148,11 +171,19 @@ namespace Tanks3DFPP.Terrain
             Effect.Parameters["xEnableLighting"].SetValue(!Effect.Parameters["xEnableLighting"].GetValueBoolean());
         }
 
+        private void RotateLight(float degrees = 1)
+        {
+            lightDir = Vector3.TransformNormal(lightDir, Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(degrees), 0, 0));
+            lightDir.Normalize();
+            Effect.Parameters["xLightDirection"].SetValue(lightDir);
+        }
+
         public void Update(ICamera camera)
         {
             // Checking camera position is not enough - terrain has to update also while changing the angle.
             if (camera.Frustum != lastCameraFrustum)
             {
+
                 Effect.Parameters["xView"].SetValue(camera.View);
 
                 lastCameraFrustum = camera.Frustum;
@@ -177,6 +208,7 @@ namespace Tanks3DFPP.Terrain
                 this.CullingEnabled = !this.CullingEnabled;
             });
 
+            this.RotateLight(.2f);
         }
 
         internal void UpdateBuffer(int vertexIndex)
