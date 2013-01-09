@@ -15,12 +15,13 @@ namespace Tanks3DFPP.Menu
     /// </summary>
     public class LoadingPage
     {
-
         private MenuTank tank = new MenuTank();
         private Texture2D backGround;
         private Characters characters;
         private double loadingPercent = 0;
-        private Model cube;
+        private Model cube2;
+        private Model cube3;
+        private Model cube4;
         private float cubeRotationValue = 0;
         private Random rand = new Random();
         private Vector3 cubePosition;
@@ -31,11 +32,14 @@ namespace Tanks3DFPP.Menu
         /// Class constructor used to load necessary elements.
         /// </summary>
         /// <param name="Content"></param>
+        /// <param name="num"></param>
         public LoadingPage(ContentManager Content)
         {
             backGround = Content.Load<Texture2D>("MenuContent/backGround");
             characters = new Characters(Content);
-            cube = Content.Load<Model>("MenuContent/cube");
+            cube2 = Content.Load<Model>("MenuContent/cube2");
+            cube3 = Content.Load<Model>("MenuContent/cube3");
+            cube4 = Content.Load<Model>("MenuContent/cube4");
             cubeRotationValue = rand.Next(70, 140);
             cubePosition = new Vector3(-700, 300, 0);
             tank.Load(Content, Matrix.Identity * Matrix.CreateRotationY(MathHelper.ToRadians(90.0f)) * Matrix.CreateTranslation(-1500, -500, -1200));
@@ -53,6 +57,7 @@ namespace Tanks3DFPP.Menu
         {
             spritebatch.Begin();
             spritebatch.Draw(backGround, new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height), Color.White);
+       
             spritebatch.End();
 
             GraphicsDevice.BlendState = BlendState.Opaque;
@@ -60,7 +65,13 @@ namespace Tanks3DFPP.Menu
             GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
             tank.Draw(view, projection);
             characters.Draw("LOADING : ", 1.0f, new Vector3(-600, 0, 0), view, projection);
-
+            if (loadingPercent >= 100)
+                characters.Draw("PRESS ANY KEY TO CONTINUE...", 0.4f, new Vector3(-850, -500, 0), view, projection);
+            Model cube = cube2;
+            if (playernumber == 3)
+                cube = cube3;
+            if (playernumber == 4)
+                cube = cube4;
             foreach (ModelMesh mesh in cube.Meshes)
             {
                 Matrix[] transforms = new Matrix[cube.Bones.Count];
@@ -90,9 +101,12 @@ namespace Tanks3DFPP.Menu
             tank.wheelRotationValue += 5;
             if (percent >= 100)
             {
-                result = true;
                 percent = 100;
                 whichSideOfTheCube();
+            }
+            if (Keyboard.GetState().GetPressedKeys().Length > 0 && percent == 100)
+            {
+                result = true;
             }
             if (!result && loadingPercent != percent)
             {
@@ -108,11 +122,29 @@ namespace Tanks3DFPP.Menu
         /// </summary>
         public int whichSideOfTheCube()
         {
-            int result;
-            if (((cubeRotationValue % 360) > 20 && (cubeRotationValue % 360) < 150) || ((cubeRotationValue % 360) > 230 && (cubeRotationValue % 360) < 280))
-                result = 0;
-            else
-                result = 1;
+            int result = 0;
+            switch (playernumber)
+            {
+                case 2:
+                    if (((cubeRotationValue % 360) > 20 && (cubeRotationValue % 360) < 150) || ((cubeRotationValue % 360) > 230 && (cubeRotationValue % 360) < 280))
+                        result = 0;
+                    else
+                        result = 1;
+                    break;
+                case 3:
+                    if (((cubeRotationValue % 360) > 20 && (cubeRotationValue % 360) < 150) || ((cubeRotationValue % 360) > 230 && (cubeRotationValue % 360) < 280))
+                        result = 0;
+                    else
+                        result = 1;
+                    break;
+                case 4:
+                    if (((cubeRotationValue % 360) > 20 && (cubeRotationValue % 360) < 150) || ((cubeRotationValue % 360) > 230 && (cubeRotationValue % 360) < 280))
+                        result = 0;
+                    else
+                        result = 1;
+                    break;
+            }
+
             return result;
         }
 

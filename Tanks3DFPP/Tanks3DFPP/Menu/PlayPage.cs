@@ -32,7 +32,7 @@ namespace Tanks3DFPP.Menu
         /// Class constructor loads necessary elements.
         /// </summary>
         /// <param name="Content">Content manager.</param>
-        public PlayPage(ContentManager Content)
+        public PlayPage(ContentManager Content,List<string> playerNames,int mapSize,int roughness,int maxHeight)
         {
             backGround = Content.Load<Texture2D>("MenuContent/backGround");
             menuSelect = Content.Load<SoundEffect>("MenuContent/menu_select");
@@ -40,20 +40,26 @@ namespace Tanks3DFPP.Menu
             //
             //Creating textboxes in loading page.
             //
+            if (playerNames ==null)
+            {
+                playerNames = new List<string>();
+                playerNames.Add("PLAYER1");
+                playerNames.Add("PLAYER2");
+            }
             //
             //first column in menu
             //
-            listOfTextBoxes.Add(new TextBox(Content, "FIRST PLAYER NAME", "PLAYER1", false, 0, 0, new Vector3(-900, 400, 0), 0.2f));
-            listOfTextBoxes.Add(new TextBox(Content, "THIRD PLAYER NAME", "", false, 0, 0, new Vector3(-900, 200, 0), 0.2f));
-            listOfTextBoxes.Add(new TextBox(Content, "MAP SIZE", "10", true, 0, 100, new Vector3(-900, 0, 0), 0.2f));
-            listOfTextBoxes.Add(new TextBox(Content, "MAP HEIGHT", "500", true, 0, 500, new Vector3(-900, -200, 0), 0.2f));
+            listOfTextBoxes.Add(new TextBox(Content, "FIRST PLAYER NAME", playerNames[0], false, 0, 0, new Vector3(-900, 400, 0), 0.2f));
+            listOfTextBoxes.Add(new TextBox(Content, "THIRD PLAYER NAME", playerNames.Count>2 ? playerNames[2]:"", false, 0, 0, new Vector3(-900, 200, 0), 0.2f));
+            listOfTextBoxes.Add(new TextBox(Content, "MAP SIZE", mapSize.ToString(), true, 0, 100, new Vector3(-900, 0, 0), 0.2f));
+            listOfTextBoxes.Add(new TextBox(Content, "MAP HEIGHT", maxHeight.ToString(), true, 0, 500, new Vector3(-900, -200, 0), 0.2f));
 
             //
             //second column in menu
             //
-            listOfTextBoxes.Add(new TextBox(Content, "SECOND PLAYER NAME", "PLAYER2", false, 0, 0, new Vector3(100, 400, 0), 0.2f));
-            listOfTextBoxes.Add(new TextBox(Content, "FOURTH PLAYER NAME", "", false, 0, 0, new Vector3(100, 200, 0), 0.2f));
-            listOfTextBoxes.Add(new TextBox(Content, "ROUGHNESS", "300", true, 0, 1000, new Vector3(100, 0, 0), 0.2f));
+            listOfTextBoxes.Add(new TextBox(Content, "SECOND PLAYER NAME", playerNames[1], false, 0, 0, new Vector3(100, 400, 0), 0.2f));
+            listOfTextBoxes.Add(new TextBox(Content, "FOURTH PLAYER NAME", playerNames.Count > 3 ? playerNames[3] : "", false, 0, 0, new Vector3(100, 200, 0), 0.2f));
+            listOfTextBoxes.Add(new TextBox(Content, "ROUGHNESS", roughness.ToString(), true, 0, 1000, new Vector3(100, 0, 0), 0.2f));
 
             listOfTextBoxes[0].SetFocus(true);
         }

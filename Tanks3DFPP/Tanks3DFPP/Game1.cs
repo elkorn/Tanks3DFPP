@@ -72,7 +72,7 @@ namespace Tanks3DFPP
 
         //time for loading percent needed until backgroundworker for loading terrain is done :D
         private int timesince = 0;
-        private int timeperframe = 200;
+        private int timeperframe = 400;
 
         ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -155,7 +155,7 @@ namespace Tanks3DFPP
             //
             //loading menu
             //
-            menu.LoadMenu(Content);
+            menu.LoadMenu(Content,mapSize,roughness,maxHeight);
             //////////////////////////////////////////////////
         }
 
@@ -194,29 +194,29 @@ namespace Tanks3DFPP
                         {
                             playerNames.Add((string)listWithResults[i + 5]);
                         }
-
-                        percent = 0;
                     }
                 }
+                
                 if ((int)listWithResults[0] == 2)
                 {
                     //loading page is on 
                     //start creating the terrain
                     //getting percent variable which ranges from 0 to 100 , if it reaches 100(loading terrain process is over) menu will be no more... :D and the fun will begin
 
-                    //tu powinno byc tworzenie terenu
+                    //tu powinno byc zaczecie tworzenia terenu
                     //loading jest teraz pokazowe jak chcesz zeby polaczyc go z kreowaniem terenu to  
-                    //zmienna percent(int) która trzeba by zmieniac od 0 do 100 (wtedy wyjdzie z menu, czyli powinno zakonczyc tworzenie terenu)
+                    //zmienna percent(int) trzeba by zmieniac od 0 do 100 (wtedy wyjdzie z menu, czyli powinno zakonczyc tworzenie terenu)
 
                     timesince += gameTime.ElapsedGameTime.Milliseconds;
                     if (timesince > timeperframe)
                     {
-                        if (percent >= 100)
-                        {
+                        if(listWithResults.Count>1)
                             startingPlayerNumber = (int)listWithResults[1];
-                        }
-                        percent++;
+                        else
+                            percent++;
                     }
+
+
                 }
 
             }

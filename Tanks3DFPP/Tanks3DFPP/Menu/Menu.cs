@@ -21,6 +21,13 @@ namespace Tanks3DFPP.Menu
         private int timeper = 200;
         private SpriteBatch spritebatch;
         private bool menuON = true;
+        /// <summary>
+        /// list of player names , size of it is player count(menu adjusted from 2 to 4 players)
+        /// </summary>
+        List<string> playerNames;
+        int mapSize = 10,
+            roughness = 500,
+            maxHeight = 300;
 
         /// <summary>
         /// method to get menuON.
@@ -73,13 +80,17 @@ namespace Tanks3DFPP.Menu
         /// Method used to load models and create necessary objects.
         /// </summary>
         /// <param name="Content"></param>
-        public void LoadMenu(ContentManager Content)
+        public void LoadMenu(ContentManager Content, int siz, int rough, int maxh)
         {
+            mapSize = siz;
+            roughness = rough;
+            maxHeight = maxh;
+            
             menuCancel = Content.Load<SoundEffect>("MenuContent/menu_cancel");
             menuChange = Content.Load<SoundEffect>("MenuContent/menu_change");
             mainMenuObj = new MainMenu(Content, graphics.GraphicsDevice);
             helpPageObj = new HelpPage(Content);
-            playPageObj = new PlayPage(Content);
+            playPageObj = new PlayPage(Content,playerNames,mapSize,roughness,maxHeight);
             loadingPageObj = new LoadingPage(Content);
         }
 
@@ -165,7 +176,7 @@ namespace Tanks3DFPP.Menu
                 {
                     result[0] = 2;
                     if (loadingPageObj.updateLoadingPage(graphics.GraphicsDevice, percent))
-                    {
+                    {                        
                         result.Add(loadingPageObj.whichSideOfTheCube());
                         menuON = false;
                     }
@@ -180,8 +191,10 @@ namespace Tanks3DFPP.Menu
                         //next button pressed
                         playPageON = false;
                         loadingPageON = true;
+                        loadingPageObj.playernumber = result.Count - 5;
                         menuChange.Play();
                         timesince = 0;
+                        setVariables(result);
                     }
                     if ((int)result[1] == -1)
                     {
@@ -197,6 +210,27 @@ namespace Tanks3DFPP.Menu
             return result;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="listWithResults"></param>
+        public void setVariables(List<object> listWithResults)
+        {
+                if ((int)listWithResults[1] == 1)
+                {
+                    //next button in play page pressed
+                    //set variables
+                    mapSize = int.Parse((string)listWithResults[2]);
+                    maxHeight = int.Parse((string)listWithResults[3]);
+                    roughness = int.Parse((string)listWithResults[4]);
 
+                    playerNames = new List<string>();
+                    for (int i = 0; i < listWithResults.Count - 5; ++i)
+                    {
+                        playerNames.Add((string)listWithResults[i + 5]);
+                    }
+                }
+
+        }
     }
 }
