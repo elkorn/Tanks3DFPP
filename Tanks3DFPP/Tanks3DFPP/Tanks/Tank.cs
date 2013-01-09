@@ -128,13 +128,15 @@ namespace Tanks3DFPP.Tanks
 
             turretTransform = turretBone.Transform;
             cannonTransform = cannonBone.Transform;
+
         }
 
         public void SpawnAt(Vector3 location)
         {
             base.Position = this.OffsetToFloorHeight(Game1.heightMap, location);
             Health = 100;
-            initialVelocityPower = 1.0f;
+            initialVelocityPower = 1.5f;
+            previousInitialVelocityPower = initialVelocityPower;
 
             Model.CopyAbsoluteBoneTransformsTo(boneTransforms);
             worldMatrix = tankOrientation * Matrix.CreateTranslation(Position);
@@ -180,6 +182,7 @@ namespace Tanks3DFPP.Tanks
             }
 
             previousInitialVelocityPower = initialVelocityPower;
+            if(KS.IsKeyDown(Keys.OemPlus))
             {
                 initialVelocityPower += 0.01f;
             }
@@ -305,8 +308,8 @@ namespace Tanks3DFPP.Tanks
             {
                 if (sphere.Center.X + sphere.Radius > floor.Width * Game1.Scale
                     || sphere.Center.X - sphere.Radius < 0
-                    || sphere.Center.Z + sphere.Radius > 0
-                    || sphere.Center.Z - sphere.Radius < -floor.Height * Game1.Scale)
+                    || sphere.Center.Z - sphere.Radius < 0
+                    || sphere.Center.Z + sphere.Radius > floor.Height * Game1.Scale)
                 {
                     return false;
                 }
@@ -330,7 +333,7 @@ namespace Tanks3DFPP.Tanks
 
             return new Vector3(
                     position.X,
-                    floor.Data[(int)(position.X / Game1.Scale), (int)(-position.Z / Game1.Scale)]
+                    floor.Data[(int)(position.Z / Game1.Scale), (int)(position.X / Game1.Scale)]
                     * Game1.Scale - floor.HeightOffset,
                     position.Z);
         }

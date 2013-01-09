@@ -53,12 +53,14 @@ namespace Tanks3DFPP.Tanks
 
         SoundEffect explosionSound;
         SoundEffect shotSound;
+        
         SoundEffectInstance turretMoveSound;
         SoundEffectInstance cannonMoveSound;
         SoundEffectInstance morePowerSound;
         SoundEffectInstance lessPowerSound;
         SoundEffectInstance danseMacabre;
-        SoundEffectInstance ambience;
+        Song ambience;
+        private SoundEffectInstance missileFlight;
 
         //ExplosionSystem Explosion;
 
@@ -82,7 +84,7 @@ namespace Tanks3DFPP.Tanks
                     bNotSpawnedCorrectly = false;
                     do
                     {
-                        TanksInGame[i].SpawnAt(new Vector3(rand.Next(0, (Game1.heightMap.Width - 1) * Game1.Scale), 0, rand.Next((-Game1.heightMap.Height + 1) * Game1.Scale, 0))); // Y should be calculated
+                        TanksInGame[i].SpawnAt(new Vector3(rand.Next(0, (Game1.heightMap.Width - 1) * Game1.Scale), 0, rand.Next(0, (Game1.heightMap.Height - 1) * Game1.Scale))); // Y should be calculated
                     } while (!TanksInGame[i].IsOnMap);
                     for (int j = 0; j < TanksInGame.Count; ++j)
                     {
@@ -105,7 +107,9 @@ namespace Tanks3DFPP.Tanks
             morePowerSound = game.Content.Load<SoundEffect>("morepower").CreateInstance();
             lessPowerSound = game.Content.Load<SoundEffect>("lesspower").CreateInstance();
             danseMacabre = game.Content.Load<SoundEffect>("Danse Macabre - Big Hit 2").CreateInstance();
-            //ambience = game.Content.Load<SoundEffect>("nosferatu ambience").CreateInstance();
+            missileFlight = game.Content.Load<SoundEffect>("151914__carroll27__rocket-taking-off").CreateInstance();
+            missileFlight.IsLooped = true;
+            ambience = game.Content.Load<Song>("nosferatu ambience_96");
 
             //Explosion = new ExplosionSystem();
             //Explosion.LoadContent(game.Content, GD);
@@ -165,6 +169,12 @@ namespace Tanks3DFPP.Tanks
 
             if (bShotFired)
             {
+                if (missileFlight.State != SoundState.Playing)
+                {
+                    missileFlight.Play();
+                }
+
+                //sound 
                 if (MissleInGame.UpdatePositionAfterShot(TanksInGame, TurnToken, out SphereHit, out HitIndex)) //0, 
                 {
                     //Explosion.AddExplosion(new Vector2(GD.Viewport.X / 2, GD.Viewport.Y / 2), 4, 30.0f, 1000.0f, gameTime);
@@ -187,7 +197,8 @@ namespace Tanks3DFPP.Tanks
                                 playersOrderedByScore.Add(TanksInGame[0].PlayerName);
                                 bDisplayScores = true;
                                 if (ambience != null)
-                                    ambience.Stop();
+                                    MediaPlayer.Stop();
+                                //ambience.Stop();
                                 danseMacabre.Play();
                             }
                         }
@@ -205,6 +216,10 @@ namespace Tanks3DFPP.Tanks
                 }
                 //allow free camera to look around
             }
+            else if (missileFlight.State == SoundState.Playing)
+            {
+                missileFlight.Stop();
+            }
 
             if (TanksInGame.Count == 1)
             {
@@ -218,9 +233,10 @@ namespace Tanks3DFPP.Tanks
             }
             else
             {
-                if (ambience != null && ambience.State != SoundState.Playing)
+                if (ambience != null && MediaPlayer.State != MediaState.Playing)
                 {
-                    ambience.Play();
+                    MediaPlayer.IsRepeating = true;
+                    MediaPlayer.Play(ambience);
                 }
             }
 

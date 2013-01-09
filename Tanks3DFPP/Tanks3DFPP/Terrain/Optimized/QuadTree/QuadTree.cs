@@ -135,7 +135,7 @@ namespace Tanks3DFPP.Terrain
             Effect.Parameters["xWorld"].SetValue(Matrix.Identity);
             Effect.Parameters["xProjection"].SetValue(Projection);
             Effect.Parameters["xEnableBlending"].SetValue(true);
-            this.InitializeFog(2,18,Color.Red);
+            //this.InitializeFog(2,18,Color.Red);
         }
 
         private void SetAmbient(float value)

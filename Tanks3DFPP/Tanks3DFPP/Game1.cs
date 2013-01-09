@@ -18,7 +18,7 @@ namespace Tanks3DFPP
     {
         public static IHeightMap heightMap;
         public static int Scale = 15;
-        private ICamera camera;
+        private FPPCamera camera;
         private SpriteFont font;
         private GraphicsDeviceManager graphics;
         private Texture2D bgTexture;
@@ -87,9 +87,6 @@ namespace Tanks3DFPP
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-            //spriteBatch.Begin();
-            //spriteBatch.Draw(bgTexture, GraphicsDevice.Viewport.Bounds, Color.White);
-            //spriteBatch.End();
             sky.Draw(camera);
             GraphicsDevice.BlendState = BlendState.Opaque;
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
@@ -98,7 +95,6 @@ namespace Tanks3DFPP
             sphere.Draw(world, camera.View, projection);
             terrain.Draw(gameTime);
             tankController.Draw(camera.View, projection);
-            DrawDebugInfo();
             base.Draw(gameTime);
         }
 
@@ -265,17 +261,11 @@ namespace Tanks3DFPP
             {
                 this.camera.Update(gameTime);
                 camera.AttachAndUpdate(tankController.MissleInGame.Position);
-                //camera.Position = tankController.MissleInGame.Position;
-                //camera.LookAt = tankController.MissleInGame.Position + tankController.MissleInGame.Velocity;
             }
-            //else
-            //{
-            //    camera.Position = tankController.TanksInGame[tankController.TurnToken].CannonPosition;
-            //    camera.AttachAndUpdate(tankController.TanksInGame[tankController.TurnToken].CameraOrientation);
-            //}
+
+            camera.Update(gameTime);
             tankController.Update(gameTime);
             base.Update(gameTime);
         }
-            //BoundingFrustumRenderer.Render(this.camera.Frustum, this.GraphicsDevice, this.camera.View, this.projection, Color.Red);
     }
 }

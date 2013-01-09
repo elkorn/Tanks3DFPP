@@ -150,7 +150,7 @@ namespace Tanks3DFPP.Utilities
             // and how the height map is laid out onto terrain.
             return new Vector3(
                 position.X,
-                floor.Data[(int)(position.X / this.mapScale), (int)(position.Z / this.mapScale)]
+                floor.Data[(int)(position.Z / this.mapScale), (int)(position.X / this.mapScale)]
                 * this.mapScale - floor.HeightOffset + this.radius,
                 position.Z);
         }
