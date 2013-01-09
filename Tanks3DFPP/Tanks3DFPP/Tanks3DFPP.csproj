@@ -115,6 +115,15 @@
     <Compile Include="Entities\Sky.cs" />
     <Compile Include="Terrain\Basic\ColoredTerrain.cs" />
     <Compile Include="Tanks\ExplosionSystem.cs" />
+    <Compile Include="Menu\Characters.cs" />
+    <Compile Include="Menu\HelpPage.cs" />
+    <Compile Include="Menu\LoadingPage.cs" />
+    <Compile Include="Menu\MainMenu.cs" />
+    <Compile Include="Menu\Menu.cs" />
+    <Compile Include="Menu\MenuTank.cs" />
+    <Compile Include="Menu\PlayPage.cs" />
+    <Compile Include="Menu\TextBox.cs" />
+    <Compile Include="Terrain\ColoredTerrain.cs" />
     <Compile Include="Tanks\Tank.cs" />
     <Compile Include="Tanks\TankMissle.cs" />
     <Compile Include="Tanks\TanksController.cs" />

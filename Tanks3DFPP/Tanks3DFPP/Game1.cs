@@ -59,6 +59,38 @@ namespace Tanks3DFPP
 
         private Color bgColor = new Color(69,125,200);
 
+
+
+        ////////////////////////////////////////////////////////////////////////////////////////
+        /////menu variables
+        /// <summary>
+        /// menu variable
+        /// </summary>
+        Menu.Menu menu;
+
+        /// <summary>
+        /// list of player names , size of it is player count(menu adjusted from 2 to 4 players)
+        /// </summary>
+        List<string> playerNames;
+
+        /// <summary>
+        /// starting player number according to the playerNames index
+        /// </summary>
+        private int startingPlayerNumber;
+
+        /// <summary>
+        /// percent of creating terrain process(from 0 - 100)
+        /// </summary>
+        private int percent;
+
+        //time for loading percent needed until backgroundworker for loading terrain is done :D
+        private int timesince = 0;
+        private int timeperframe = 400;
+
+        ////////////////////////////////////////////////////////////////////////////////////////
+
+
+
         public Game1()
         {
             Content.RootDirectory = "Content";
@@ -171,6 +203,14 @@ namespace Tanks3DFPP
                 projection);
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            //////////////////////////////////////////////////////////
+            //
+            //initializing menu
+            //
+            menu = new Menu.Menu(graphics);
+            /////////////////////////////////////////////////////////
+
             base.Initialize();
             GenerateEverything();
             //sphere = new CollisionSphere(this, heightMap, new Vector3(500, maxHeight * Scale, 500), Scale);
@@ -232,6 +272,13 @@ namespace Tanks3DFPP
         {
             terrain.Dispose();
             this.Content.Unload();
+
+            //////////////////////////////////////////////////
+            //
+            //loading menu
+            //
+            menu.LoadMenu(Content,mapSize,roughness,maxHeight);
+            //////////////////////////////////////////////////
         }
 
         /// <summary>
@@ -243,12 +290,75 @@ namespace Tanks3DFPP
         {
             CurrentKeyboardState = Keyboard.GetState();
             CurrentMouseState = Mouse.GetState();
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed
-                || CurrentKeyboardState.IsKeyDown(Keys.Escape))
-                Exit();
+            //
+            //for menu
+            //
+            if (menu.GetmenuON())
+            {
+                //
+                //this list contains menu results depending on its state.
+                //
+                List<object> listWithResults = menu.updateMenu(gameTime, percent);
+
+                //checking the state of menu, if 1 then play page is done which means we have necessary variables for creating terrain
+                if ((int)listWithResults[0] == 1)
+                {
+                    if ((int)listWithResults[1] == 1)
+                    {
+                        //next button in play page pressed
+                        //set variables
+                        mapSize = int.Parse((string)listWithResults[2]);
+                        maxHeight = int.Parse((string)listWithResults[3]);
+                        roughness = int.Parse((string)listWithResults[4]);
+
+                        playerNames = new List<string>();
+                        for (int i = 0; i < listWithResults.Count - 5; ++i)
+                        {
+                            playerNames.Add((string)listWithResults[i + 5]);
+                        }
+                    }
+                }
+                
+                if ((int)listWithResults[0] == 2)
+                {
+                    //loading page is on 
+                    //start creating the terrain
+                    //getting percent variable which ranges from 0 to 100 , if it reaches 100(loading terrain process is over) menu will be no more... :D and the fun will begin
+
+                    //tu powinno byc zaczecie tworzenia terenu
+                    //loading jest teraz pokazowe jak chcesz zeby polaczyc go z kreowaniem terenu to  
+                    //zmienna percent(int) trzeba by zmieniac od 0 do 100 (wtedy wyjdzie z menu, czyli powinno zakonczyc tworzenie terenu)
+
+                    timesince += gameTime.ElapsedGameTime.Milliseconds;
+                    if (timesince > timeperframe)
+                    {
+                        if(listWithResults.Count>1)
+                            startingPlayerNumber = (int)listWithResults[1];
+                        else
+                            percent++;
+                    }
+
+
+                }
+
+            }
+            //
+            //
+            //
+
+
+            if (!menu.GetmenuON())
+            {
+
+
+                Game1.CurrentKeyboardState = Keyboard.GetState();
+                Game1.CurrentMouseState = Mouse.GetState();
+                if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed
+                    || CurrentKeyboardState.IsKeyDown(Keys.Escape))
+                    this.Exit();
 
             KeyboardHandler.KeyAction(Keys.G, GenerateEverything);
-            KeyboardHandler.KeyAction(Keys.F, () =>
+                KeyboardHandler.KeyAction(Keys.F, () =>
                 {
                     rs = new RasterizerState {FillMode = wireFrame ? FillMode.Solid : FillMode.WireFrame};
                     wireFrame = !wireFrame;
@@ -256,16 +366,29 @@ namespace Tanks3DFPP
 
             KeyboardHandler.KeyAction(Keys.L, terrain.SwitchLighting);
             terrain.Update(camera);
-            sphere.Update(gameTime);
+                sphere.Update(gameTime);
             if (tankController.bShotFired)
             {
                 this.camera.Update(gameTime);
                 camera.AttachAndUpdate(tankController.MissleInGame.Position);
+
+            }
+
             }
 
             camera.Update(gameTime);
             tankController.Update(gameTime);
             base.Update(gameTime);
+            //for menu
+            //
+            if (menu.quit)
+                this.Exit();
+            if (menu.GetmenuON())
+            {
+                menu.showMenu();
+            }
+            else
+            {
         }
     }
 }
