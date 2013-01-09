@@ -97,7 +97,6 @@ namespace Tanks3DFPP.Menu
         public bool updateLoadingPage(GraphicsDevice GraphicsDevice, int percent)
         {
             bool result = false;
-
             if (percent >= 100)
             {
                 percent = 100;
@@ -129,24 +128,28 @@ namespace Tanks3DFPP.Menu
             switch (playernumber)
             {
                 case 2:
-                    if (((cubeRotationValue % 360) > 0 && (cubeRotationValue % 360) < 50) || ((cubeRotationValue % 360) > 150 && (cubeRotationValue % 360) < 200) || ((cubeRotationValue % 360) > 330 && (cubeRotationValue % 360) < 361))
+                    if (((cubeRotationValue % 360) > 135 && (cubeRotationValue % 360) <= 160) || ((cubeRotationValue % 360) > 195 && (cubeRotationValue % 360) <= 240) || ((cubeRotationValue % 360) > 250 && (cubeRotationValue % 360) <= 285) || ((cubeRotationValue % 360) > 40 && (cubeRotationValue % 360) <= 110))
                         result = 0;
                     else
                         result = 1;
                     break;
                 case 3:
-                    if (((cubeRotationValue % 360) > 0 && (cubeRotationValue % 360) < 130))
-                        result = 0;
-                    else if (((cubeRotationValue % 360) > 220 && (cubeRotationValue % 360) < 290))
+                    if (((cubeRotationValue % 360) > 0 && (cubeRotationValue % 360) <= 20) || ((cubeRotationValue % 360) > 45 && (cubeRotationValue % 360) <= 90) || ((cubeRotationValue % 360) > 100 && (cubeRotationValue % 360) <= 110) || ((cubeRotationValue % 360) > 140 && (cubeRotationValue % 360) <= 145) || ((cubeRotationValue % 360) > 170 && (cubeRotationValue % 360) <= 180) || ((cubeRotationValue % 360) > 200 && (cubeRotationValue % 360) <= 210) || ((cubeRotationValue % 360) > 225 && (cubeRotationValue % 360) <= 240) || ((cubeRotationValue % 360) > 290 && (cubeRotationValue % 360) <= 300) || ((cubeRotationValue % 360) > 330 && (cubeRotationValue % 360) <= 340))
+                          result = 0;
+                    else if (((cubeRotationValue % 360) > 25 && (cubeRotationValue % 360) <= 35) || ((cubeRotationValue % 360) > 90 && (cubeRotationValue % 360) <= 100) || ((cubeRotationValue % 360) > 110 && (cubeRotationValue % 360) <= 120) || ((cubeRotationValue % 360) > 155 && (cubeRotationValue % 360) <= 170) || ((cubeRotationValue % 360) > 180 && (cubeRotationValue % 360) <= 200) || ((cubeRotationValue % 360) > 220 && (cubeRotationValue % 360) <= 225) || ((cubeRotationValue % 360) > 270 && (cubeRotationValue % 360) <= 290))
                         result = 1;
                     else
                         result = 2;
                     break;
                 case 4:
-                    if (((cubeRotationValue % 360) > 20 && (cubeRotationValue % 360) < 150) || ((cubeRotationValue % 360) > 230 && (cubeRotationValue % 360) < 280))
-                        result = 0;
-                    else
+                    if (((cubeRotationValue % 360) > 60 && (cubeRotationValue % 360) <= 65) || ((cubeRotationValue % 360) > 75 && (cubeRotationValue % 360) <= 80) || ((cubeRotationValue % 360) > 85 && (cubeRotationValue % 360) <= 100) || ((cubeRotationValue % 360) > 135 && (cubeRotationValue % 360) <= 145) || ((cubeRotationValue % 360) > 160 && (cubeRotationValue % 360) <= 175) || ((cubeRotationValue % 360) > 180 && (cubeRotationValue % 360) <= 200) || ((cubeRotationValue % 360) > 215 && (cubeRotationValue % 360) <= 225) || ((cubeRotationValue % 360) > 245 && (cubeRotationValue % 360) <= 265) || ((cubeRotationValue % 360) > 275 && (cubeRotationValue % 360) <= 285) || ((cubeRotationValue % 360) > 300 && (cubeRotationValue % 360) <= 310))
+                          result = 0;
+                    else if (((cubeRotationValue % 360) > 0 && (cubeRotationValue % 360) <= 20) || ((cubeRotationValue % 360) > 40 && (cubeRotationValue % 360) <= 50) || ((cubeRotationValue % 360) > 70 && (cubeRotationValue % 360) <= 75) || ((cubeRotationValue % 360) > 80 && (cubeRotationValue % 360) <= 85) || ((cubeRotationValue % 360) > 105 && (cubeRotationValue % 360) <= 130) || ((cubeRotationValue % 360) > 145 && (cubeRotationValue % 360) <= 160) || ((cubeRotationValue % 360) > 175 && (cubeRotationValue % 360) <= 180) || ((cubeRotationValue % 360) > 210 && (cubeRotationValue % 360) <= 215) || ((cubeRotationValue % 360) > 285 && (cubeRotationValue % 360) <= 300) || ((cubeRotationValue % 360) > 325 && (cubeRotationValue % 360) <= 340) || ((cubeRotationValue % 360) > 340 && (cubeRotationValue % 360) <= 355))
                         result = 1;
+                    else if (((cubeRotationValue % 360) > 35 && (cubeRotationValue % 360) <= 40) || ((cubeRotationValue % 360) > 65 && (cubeRotationValue % 360) <= 70) || ((cubeRotationValue % 360) > 50 && (cubeRotationValue % 360) <= 60) || ((cubeRotationValue % 360) > 100 && (cubeRotationValue % 360) <= 105) || ((cubeRotationValue % 360) > 130 && (cubeRotationValue % 360) <= 135) || ((cubeRotationValue % 360) > 200 && (cubeRotationValue % 360) <= 210) || ((cubeRotationValue % 360) > 215 && (cubeRotationValue % 360) <= 235) || ((cubeRotationValue % 360) > 265 && (cubeRotationValue % 360) <= 275))
+                        result = 2;
+                    else
+                        result = 3;
                     break;
             }
 
