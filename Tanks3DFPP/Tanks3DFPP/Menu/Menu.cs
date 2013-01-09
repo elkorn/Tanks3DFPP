@@ -21,6 +21,8 @@ namespace Tanks3DFPP.Menu
         private int timeper = 200;
         private SpriteBatch spritebatch;
         private bool menuON = true;
+
+        private Song music;
         /// <summary>
         /// list of player names , size of it is player count(menu adjusted from 2 to 4 players)
         /// </summary>
@@ -92,6 +94,10 @@ namespace Tanks3DFPP.Menu
             helpPageObj = new HelpPage(Content);
             playPageObj = new PlayPage(Content,playerNames,mapSize,roughness,maxHeight);
             loadingPageObj = new LoadingPage(Content);
+
+            music = Content.Load<Song>("Summon the Rawk");
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Play(music);
         }
 
         /// <summary>
@@ -178,6 +184,7 @@ namespace Tanks3DFPP.Menu
                     if (loadingPageObj.updateLoadingPage(graphics.GraphicsDevice, percent))
                     {                        
                         result.Add(loadingPageObj.whichSideOfTheCube());
+                        MediaPlayer.Stop();
                         menuON = false;
                     }
                 }

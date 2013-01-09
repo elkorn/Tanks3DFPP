@@ -123,7 +123,6 @@
     <Compile Include="Menu\MenuTank.cs" />
     <Compile Include="Menu\PlayPage.cs" />
     <Compile Include="Menu\TextBox.cs" />
-    <Compile Include="Terrain\ColoredTerrain.cs" />
     <Compile Include="Tanks\Tank.cs" />
     <Compile Include="Tanks\TankMissle.cs" />
     <Compile Include="Tanks\TanksController.cs" />

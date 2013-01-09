@@ -29,7 +29,7 @@ namespace Tanks3DFPP.Menu
         public HelpPage(ContentManager Content)
         {
             characters = new Characters(Content);
-            backGround = Content.Load<Texture2D>("MenuContent/backGround");
+            backGround = Content.Load<Texture2D>("MenuContent/xnuke.jpg.pagespeed.ic.XD9-0bi6PQ");
             controls = Content.Load<Texture2D>("MenuContent/controls");
         }
 
