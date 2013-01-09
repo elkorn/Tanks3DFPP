@@ -22,12 +22,11 @@ namespace Tanks3DFPP
         private SpriteFont font;
         private GraphicsDeviceManager graphics;
         private Texture2D bgTexture;
-        private int mapSize = 10;
         private const float FarClippingPlane = 20000f;
 
-        int mapSize = 10,
-            roughness = 500,
-
+        private int mapSize = 10,
+                    roughness = 500,
+                    maxHeight = 300;
         public int MaxHeight
         {
             get
@@ -45,7 +44,6 @@ namespace Tanks3DFPP
         }
 
         private Matrix projection;
-        private int roughness = 900;
 
         private RasterizerState rs = new RasterizerState {FillMode = FillMode.Solid};
         private Sky sky;
@@ -238,7 +236,6 @@ namespace Tanks3DFPP
         {
             terrain.Dispose();
             this.Content.Unload();
-            this.terrain = new Terrain.MultiTexturedTerrain(this.GraphicsDevice, this.Content, heightMap = new FractalMap(mapSize, roughness, maxHeight, 20), Scale);
         }
 
         /// <summary>

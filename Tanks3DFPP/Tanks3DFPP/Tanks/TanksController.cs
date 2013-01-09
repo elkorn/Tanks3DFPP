@@ -51,6 +51,17 @@ namespace Tanks3DFPP.Tanks
         Random rand;
 
 
+        SoundEffect explosionSound;
+        SoundEffect shotSound;
+        SoundEffectInstance turretMoveSound;
+        SoundEffectInstance cannonMoveSound;
+        SoundEffectInstance morePowerSound;
+        SoundEffectInstance lessPowerSound;
+        SoundEffectInstance danseMacabre;
+        SoundEffectInstance ambience;
+
+        //ExplosionSystem Explosion;
+
         public TankController(Game game, int numOfPlayers)
             : base(game)
         {
@@ -69,7 +80,10 @@ namespace Tanks3DFPP.Tanks
                 do
                 {
                     bNotSpawnedCorrectly = false;
-                    TanksInGame[i].SpawnAt(new Vector3(rand.Next(0, Game1.heightMap.Width * Game1.Scale), 0, rand.Next(-Game1.heightMap.Height * Game1.Scale, 0))); // Y should be calculated
+                    do
+                    {
+                        TanksInGame[i].SpawnAt(new Vector3(rand.Next(0, (Game1.heightMap.Width - 1) * Game1.Scale), 0, rand.Next((-Game1.heightMap.Height + 1) * Game1.Scale, 0))); // Y should be calculated
+                    } while (!TanksInGame[i].IsOnMap);
                     for (int j = 0; j < TanksInGame.Count; ++j)
                     {
                         // make sure the tanks don't intersect with themselves at the beginning
@@ -84,6 +98,17 @@ namespace Tanks3DFPP.Tanks
             MissleInGame.LoadContent(game.Content);
 
             InfoFont = game.Content.Load<SpriteFont>("SpriteFont1");
+            explosionSound = game.Content.Load<SoundEffect>("cinema boom impact");
+            shotSound = game.Content.Load<SoundEffect>("shoot");
+            turretMoveSound = game.Content.Load<SoundEffect>("turret").CreateInstance();
+            cannonMoveSound = game.Content.Load<SoundEffect>("turret").CreateInstance();
+            morePowerSound = game.Content.Load<SoundEffect>("morepower").CreateInstance();
+            lessPowerSound = game.Content.Load<SoundEffect>("lesspower").CreateInstance();
+            danseMacabre = game.Content.Load<SoundEffect>("Danse Macabre - Big Hit 2").CreateInstance();
+            //ambience = game.Content.Load<SoundEffect>("nosferatu ambience").CreateInstance();
+
+            //Explosion = new ExplosionSystem();
+            //Explosion.LoadContent(game.Content, GD);
 
             this.Initialize();
         }
@@ -126,19 +151,23 @@ namespace Tanks3DFPP.Tanks
                 TanksInGame[TurnToken].HandleInput(KS);
             }
 
-            if (KeyPressed(Keys.Space) && !bShotFired)
+            if (KeyPressed(Keys.Space) && !bShotFired) //(KS.IsKeyDown(Keys.Space))
             {
                 MissleInGame.SetPreShotValues(TanksInGame[TurnToken].TurretDirectionAngle,
                     TanksInGame[TurnToken].CannonDirectionAngle,
                     TanksInGame[TurnToken].CannonPosition, //new Vector3(TanksInGame[TurnToken].CannonPosition.X, TanksInGame[TurnToken].CannonPosition.Y, TanksInGame[TurnToken].CannonPosition.Z), 
                     TanksInGame[TurnToken].InitialVelocityPower);
                 bShotFired = true;
+                shotSound.Play();
             }
+
+            HandleMovementSound();
 
             if (bShotFired)
             {
-                if (MissleInGame.UpdatePositionAfterShot(0, TanksInGame, TurnToken, out SphereHit, out HitIndex))
+                if (MissleInGame.UpdatePositionAfterShot(TanksInGame, TurnToken, out SphereHit, out HitIndex)) //0, 
                 {
+                    //Explosion.AddExplosion(new Vector2(GD.Viewport.X / 2, GD.Viewport.Y / 2), 4, 30.0f, 1000.0f, gameTime);
                     if (HitIndex != -1)
                     {
                         // fire the particle system explosion anim at missle pos and hide the missle
@@ -157,10 +186,14 @@ namespace Tanks3DFPP.Tanks
                             {
                                 playersOrderedByScore.Add(TanksInGame[0].PlayerName);
                                 bDisplayScores = true;
+                                if (ambience != null)
+                                    ambience.Stop();
+                                danseMacabre.Play();
                             }
                         }
                     }
-
+                    if (explosionSound != null)
+                        explosionSound.Play();
                     // next turn
                     ++TurnToken;
                     TurnToken %= TanksInGame.Count;
@@ -176,17 +209,49 @@ namespace Tanks3DFPP.Tanks
             if (TanksInGame.Count == 1)
             {
                 // go back to menu?
-                if (KS.IsKeyDown(Keys.Enter))
+
+                if (KS.IsKeyDown(Keys.Enter) && danseMacabre.State != SoundState.Playing)
                 {
                     bDisplayScores = false;
                     this.Game.Exit();
+                }
+            }
+            else
+            {
+                if (ambience != null && ambience.State != SoundState.Playing)
+                {
+                    ambience.Play();
                 }
             }
 
             base.Update(gameTime);
         }
 
-        public bool KeyPressed(Keys key)
+        private void HandleMovementSound()
+        {
+            if (tanksInGame[TurnToken].bCannonMoves)
+                cannonMoveSound.Play();
+            else
+                cannonMoveSound.Stop();
+
+            if (tanksInGame[TurnToken].bTurretMoves)
+                turretMoveSound.Play();
+            else
+                turretMoveSound.Stop();
+
+            if (tanksInGame[TurnToken].bPowerIncreases)
+                morePowerSound.Play();
+            else
+                morePowerSound.Stop();
+
+            if (tanksInGame[TurnToken].bPowerDecreases)
+                lessPowerSound.Play();
+            else
+                lessPowerSound.Stop();
+
+        }
+
+        private bool KeyPressed(Keys key)
         {
             KeyboardState KS = Keyboard.GetState();
             if (KS.IsKeyUp(key))
@@ -210,29 +275,34 @@ namespace Tanks3DFPP.Tanks
             {
                 tank.Draw(viewMatrix, projectionMatrix);
             }
-            MissleInGame.Draw(viewMatrix, projectionMatrix);
+            if (!bShotFired)
+            {
+                MissleInGame.Draw(viewMatrix, projectionMatrix);
+            }
 
-            //spriteBatch.Begin();
-            //if (bDisplayScores)
-            //{
-            //    for (int i = playersOrderedByScore.Count - 1; i >= 0; --i)
-            //    {
-            //        spriteBatch.DrawString(InfoFont, String.Format("{0}. {1}", playersOrderedByScore.Count - i, playersOrderedByScore[i]), (Vector2.UnitX * GD.Viewport.Width * 0.5f) + (Vector2.UnitY * ((playersOrderedByScore.Count - i) + 1) * 25), Color.DarkMagenta);
-            //    }
-            //}
-            //else
-            //{
-            //    spriteBatch.DrawString(InfoFont, PlayerInfoString, Vector2.UnitX * GD.Viewport.Width * 0.3f, Color.DarkKhaki);
-            //    spriteBatch.DrawString(InfoFont, ShotInfoString, Vector2.Zero, Color.DarkGreen);
-            //    for (int i = 0; i < tanksInGame.Count; ++i)
-            //    {
-            //        spriteBatch.DrawString(InfoFont, String.Format("{0} Health: {1}%", tanksInGame[i].PlayerName, tanksInGame[i].Health), (Vector2.UnitX * GD.Viewport.Width * 0.7f) + (Vector2.UnitY * (i + 1) * 25), Color.DarkMagenta);
-            //        //    spriteBatch.DrawString(InfoFont, string.Format("Tank {0} bs center: {1}", i, tanksInGame[i].BoundingSpheres[5].Center), (Vector2.UnitX * GD.Viewport.Width * 0.35f) + (Vector2.UnitY * (i+1) * 25), Color.White);
-            //        //    spriteBatch.DrawString(InfoFont, string.Format("Tank {0} position: {1}", i, tanksInGame[i].Position), (Vector2.UnitX * GD.Viewport.Width * 0.35f) + (Vector2.UnitY * (i+2)*2 * 25), Color.White);
-            //    }
-            //    //spriteBatch.DrawString(InfoFont, string.Format("Missle position: {0}", missleInGame.boundingSphere.Center), (Vector2.UnitX * GD.Viewport.Width * 0.35f) + (Vector2.UnitY * 5 * 25), Color.White);
-            //}
-            //spriteBatch.End();
+            spriteBatch.Begin();
+            if (bDisplayScores)
+            {
+                for (int i = playersOrderedByScore.Count - 1; i >= 0; --i)
+                {
+                    spriteBatch.DrawString(InfoFont, String.Format("{0}. {1}", playersOrderedByScore.Count - i, playersOrderedByScore[i]), (Vector2.UnitX * GD.Viewport.Width * 0.5f) + (Vector2.UnitY * ((playersOrderedByScore.Count - i) + 1) * 25), Color.Orange);
+                }
+                spriteBatch.DrawString(InfoFont, String.Format("Press G to start a new battle!\nPress Enter to chicken out."), (Vector2.UnitX * GD.Viewport.Width * 0.3f) + (Vector2.UnitY * GD.Viewport.Height * 0.7f), Color.Orange);
+            }
+            else
+            {
+                spriteBatch.DrawString(InfoFont, PlayerInfoString, Vector2.UnitX * GD.Viewport.Width * 0.3f, Color.DarkKhaki);
+                spriteBatch.DrawString(InfoFont, ShotInfoString, Vector2.Zero, Color.DarkGreen);
+                for (int i = 0; i < tanksInGame.Count; ++i)
+                {
+                    spriteBatch.DrawString(InfoFont, String.Format("{0} Health: {1}%", tanksInGame[i].PlayerName, tanksInGame[i].Health), (Vector2.UnitX * GD.Viewport.Width * 0.7f) + (Vector2.UnitY * (i + 1) * 25), Color.DarkMagenta);
+                    //    spriteBatch.DrawString(InfoFont, string.Format("Tank {0} bs center: {1}", i, tanksInGame[i].BoundingSpheres[5].Center), (Vector2.UnitX * GD.Viewport.Width * 0.35f) + (Vector2.UnitY * (i+1) * 25), Color.White);
+                    //    spriteBatch.DrawString(InfoFont, string.Format("Tank {0} position: {1}", i, tanksInGame[i].Position), (Vector2.UnitX * GD.Viewport.Width * 0.35f) + (Vector2.UnitY * (i+2)*2 * 25), Color.White);
+                }
+                //spriteBatch.DrawString(InfoFont, string.Format("Missle position: {0}", missleInGame.boundingSphere.Center), (Vector2.UnitX * GD.Viewport.Width * 0.35f) + (Vector2.UnitY * 5 * 25), Color.White);
+            }
+            //Explosion.DrawExplosion();
+            spriteBatch.End();
 
             GD.BlendState = BlendState.Opaque;
             GD.DepthStencilState = DepthStencilState.Default;
