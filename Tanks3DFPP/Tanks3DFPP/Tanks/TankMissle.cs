@@ -96,25 +96,8 @@ namespace Tanks3DFPP.Tanks
         // CollisionPoint to change
         public bool UpdatePositionAfterShot(float CollisionPoint, List<Tank> tanks, int except, out BoundingSphere SphereHit, out int HitIndex)
         {
-            // check for collision
-            for (int i = 0; i < tanks.Count; ++i)
-            {
-                if (i != except)
-                {
-                    foreach (BoundingSphere sphere in tanks[i].BoundingSpheres)
-                    {
-                        if (this.boundingSphere.Intersects(sphere))
-                        {
-                            bInAir = false;
-                            SphereHit = sphere;
-                            HitIndex = i;
-                            return true;
-                        }
-                    }
-                }
-            }
+            boundingSphere = new BoundingSphere(this.position, radius);
 
-            bInAir = true;
             SphereHit = new BoundingSphere(Vector3.Zero, 0f);
             HitIndex = -1;
 
@@ -124,7 +107,7 @@ namespace Tanks3DFPP.Tanks
                 position += velocity + gravityForce;
                 gravityForce *= gravityFactor;
 
-                if (position.Y < previousPosition.Y)
+                    if ( (position.Y < previousPosition.Y) && (-gravityForce.Y > gravityFactor * 5))
                 {
                     except = -1;
                 }
@@ -140,6 +123,26 @@ namespace Tanks3DFPP.Tanks
                 orientation = Matrix.CreateRotationY(MathHelper.ToRadians(180)) *
                     Matrix.CreateFromYawPitchRoll(yawAngle, pitchAngle + angleDiff, 0) *
                     Matrix.CreateScale(ScaleFactor);
+
+                    // check for collision with tanks
+                    for (int i = 0; i < tanks.Count; ++i)
+                    {
+                        if (i != except)
+                        {
+                            foreach (BoundingSphere sphere in tanks[i].BoundingSpheres)
+                            {
+                                if (this.boundingSphere.Intersects(sphere))
+                                {
+                                    bInAir = false;
+                                    SphereHit = sphere;
+                                    HitIndex = i;
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+
+                    bInAir = true;
                 return false;
             }
 
@@ -166,7 +169,6 @@ namespace Tanks3DFPP.Tanks
                     mesh.Draw();
                 }
             }
-            boundingSphere = new BoundingSphere(this.position, radius);
         }
     }
 }

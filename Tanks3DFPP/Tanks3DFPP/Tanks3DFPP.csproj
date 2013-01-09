@@ -114,6 +114,8 @@
     <Compile Include="Entities\CollidingEntity.cs" />
     <Compile Include="Entities\Sky.cs" />
     <Compile Include="Terrain\Basic\ColoredTerrain.cs" />
+    <Compile Include="Tanks\ExplosionSystem.cs" />
+    <Compile Include="Terrain\ColoredTerrain.cs" />
     <Compile Include="Tanks\Tank.cs" />
     <Compile Include="Tanks\TankMissle.cs" />
     <Compile Include="Tanks\TanksController.cs" />

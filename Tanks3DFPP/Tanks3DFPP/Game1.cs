@@ -25,7 +25,8 @@ namespace Tanks3DFPP
         private int mapSize = 10;
         private const float FarClippingPlane = 20000f;
 
-        private int maxHeight = 500;
+        int mapSize = 10,
+            roughness = 500,
 
         public int MaxHeight
         {
@@ -237,6 +238,7 @@ namespace Tanks3DFPP
         {
             terrain.Dispose();
             this.Content.Unload();
+            this.terrain = new Terrain.MultiTexturedTerrain(this.GraphicsDevice, this.Content, heightMap = new FractalMap(mapSize, roughness, maxHeight, 20), Scale);
         }
 
         /// <summary>
@@ -262,9 +264,21 @@ namespace Tanks3DFPP
             KeyboardHandler.KeyAction(Keys.L, terrain.SwitchLighting);
             terrain.Update(camera);
             sphere.Update(gameTime);
-            camera.Update(gameTime);
+            if (tankController.bShotFired)
+            {
+                this.camera.Update(gameTime);
+                camera.AttachAndUpdate(tankController.MissleInGame.Position);
+                //camera.Position = tankController.MissleInGame.Position;
+                //camera.LookAt = tankController.MissleInGame.Position + tankController.MissleInGame.Velocity;
+            }
+            //else
+            //{
+            //    camera.Position = tankController.TanksInGame[tankController.TurnToken].CannonPosition;
+            //    camera.AttachAndUpdate(tankController.TanksInGame[tankController.TurnToken].CameraOrientation);
+            //}
             tankController.Update(gameTime);
             base.Update(gameTime);
         }
+            //BoundingFrustumRenderer.Render(this.camera.Frustum, this.GraphicsDevice, this.camera.View, this.projection, Color.Red);
     }
 }

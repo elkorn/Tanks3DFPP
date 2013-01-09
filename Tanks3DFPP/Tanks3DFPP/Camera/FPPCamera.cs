@@ -126,5 +126,19 @@ namespace Tanks3DFPP.Camera
             LookAt = Position + rotatedTarget;
             up = Vector3.Transform(Vector3.Up, rotation);
         }
+
+        public void AttachAndUpdate(Matrix cameraOrientation)
+        {
+            Vector3 originalTarget = -Vector3.UnitZ;
+            Vector3 rotatedTarget = Vector3.Transform(originalTarget, cameraOrientation);
+            this.LookAt = cameraOrientation.Translation + rotatedTarget;
+            this.up = Vector3.Transform(Vector3.Up, cameraOrientation);
+        }
+
+        public void AttachAndUpdate(Vector3 missilePos)
+        {
+            this.Position = missilePos;
+            LookAt = -this.up;
+        }
     }
 }
