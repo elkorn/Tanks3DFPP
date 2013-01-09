@@ -41,7 +41,7 @@ namespace Tanks3DFPP.Menu
             cube3 = Content.Load<Model>("MenuContent/cube3");
             cube4 = Content.Load<Model>("MenuContent/cube4");
             cubeRotationValue = rand.Next(70, 140);
-            cubePosition = new Vector3(-700, 300, 0);
+            cubePosition = new Vector3(-700, 400, 0);
             tank.Load(Content, Matrix.Identity * Matrix.CreateRotationY(MathHelper.ToRadians(90.0f)) * Matrix.CreateTranslation(-1500, -500, -1200));
             tank.which = 1;
         }
@@ -78,7 +78,7 @@ namespace Tanks3DFPP.Menu
                 cube.CopyAbsoluteBoneTransformsTo(transforms);
                 foreach (BasicEffect effect in mesh.Effects)
                 {
-                    Matrix transform = Matrix.Identity * Matrix.CreateRotationX(MathHelper.ToRadians(cubeRotationValue)) * Matrix.CreateRotationY(MathHelper.ToRadians(cubeRotationValue)) * Matrix.CreateRotationZ(MathHelper.ToRadians(cubeRotationValue)) * Matrix.CreateScale(100) * Matrix.CreateTranslation(cubePosition);
+                    Matrix transform = Matrix.Identity * Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(cubeRotationValue), MathHelper.ToRadians(cubeRotationValue / 2), MathHelper.ToRadians(cubeRotationValue/3)) * Matrix.CreateScale(100) * Matrix.CreateTranslation(cubePosition);
                     effect.World = effect.World = transforms[mesh.ParentBone.Index] * transform;
                     effect.View = view;
                     effect.Projection = projection;
@@ -97,12 +97,15 @@ namespace Tanks3DFPP.Menu
         public bool updateLoadingPage(GraphicsDevice GraphicsDevice, int percent)
         {
             bool result = false;
-            cubeRotationValue += 5f;
-            tank.wheelRotationValue += 5;
+
             if (percent >= 100)
             {
                 percent = 100;
-                whichSideOfTheCube();
+            }
+            else
+            {
+                cubeRotationValue += 5f;
+                tank.wheelRotationValue += 5;
             }
             if (Keyboard.GetState().GetPressedKeys().Length > 0 && percent == 100)
             {
@@ -126,16 +129,18 @@ namespace Tanks3DFPP.Menu
             switch (playernumber)
             {
                 case 2:
-                    if (((cubeRotationValue % 360) > 20 && (cubeRotationValue % 360) < 150) || ((cubeRotationValue % 360) > 230 && (cubeRotationValue % 360) < 280))
+                    if (((cubeRotationValue % 360) > 0 && (cubeRotationValue % 360) < 50) || ((cubeRotationValue % 360) > 150 && (cubeRotationValue % 360) < 200) || ((cubeRotationValue % 360) > 330 && (cubeRotationValue % 360) < 361))
                         result = 0;
                     else
                         result = 1;
                     break;
                 case 3:
-                    if (((cubeRotationValue % 360) > 20 && (cubeRotationValue % 360) < 150) || ((cubeRotationValue % 360) > 230 && (cubeRotationValue % 360) < 280))
+                    if (((cubeRotationValue % 360) > 0 && (cubeRotationValue % 360) < 130))
                         result = 0;
-                    else
+                    else if (((cubeRotationValue % 360) > 220 && (cubeRotationValue % 360) < 290))
                         result = 1;
+                    else
+                        result = 2;
                     break;
                 case 4:
                     if (((cubeRotationValue % 360) > 20 && (cubeRotationValue % 360) < 150) || ((cubeRotationValue % 360) > 230 && (cubeRotationValue % 360) < 280))
