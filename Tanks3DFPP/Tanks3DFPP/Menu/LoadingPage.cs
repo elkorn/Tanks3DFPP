@@ -35,7 +35,7 @@ namespace Tanks3DFPP.Menu
         /// <param name="num"></param>
         public LoadingPage(ContentManager Content)
         {
-            backGround = Content.Load<Texture2D>("MenuContent/backGround");
+            backGround = Content.Load<Texture2D>("MenuContent/TextureX steel texture shiney piece metal silver camo pattern Texture (1)");
             characters = new Characters(Content);
             cube2 = Content.Load<Model>("MenuContent/cube2");
             cube3 = Content.Load<Model>("MenuContent/cube3");
@@ -100,16 +100,14 @@ namespace Tanks3DFPP.Menu
             if (percent >= 100)
             {
                 percent = 100;
+                result = true;
             }
             else
             {
                 cubeRotationValue += 5f;
                 tank.wheelRotationValue += 5;
             }
-            if (Keyboard.GetState().GetPressedKeys().Length > 0 && percent == 100)
-            {
-                result = true;
-            }
+          
             if (!result && loadingPercent != percent)
             {
                 tank.move(Matrix.CreateTranslation(new Vector3(27, 0, 0)));

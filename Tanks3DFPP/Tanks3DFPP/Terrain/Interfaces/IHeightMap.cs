@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Microsoft.Xna.Framework;
 
 namespace Tanks3DFPP.Terrain
 {
@@ -12,5 +9,7 @@ namespace Tanks3DFPP.Terrain
         int Height { get; }
         int HeightOffset { get; }
         int HighestPeak { get; }
+
+        Vector3? Intersection(Ray ray, int scale = 1);
     }
 }

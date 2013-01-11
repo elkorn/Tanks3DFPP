@@ -34,7 +34,7 @@ namespace Tanks3DFPP.Menu
         /// <param name="GD"></param>
         public MainMenu(ContentManager Content, GraphicsDevice GD)
         {
-            backGround = Content.Load<Texture2D>(@"MenuContent/backGround");
+            backGround = Content.Load<Texture2D>("MenuContent/xnuke.jpg.pagespeed.ic.XD9-0bi6PQ");
             menuSelect = Content.Load<SoundEffect>(@"MenuContent/menu_select");
             tank.Load(Content, Matrix.Identity * Matrix.CreateScale(0.8f) * Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(90.0f), MathHelper.ToRadians(0.0f), MathHelper.ToRadians(45.0f)) * Matrix.CreateTranslation(-300, -200, 0));
             menuButtonOn[0] = true;

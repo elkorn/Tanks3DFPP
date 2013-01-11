@@ -56,6 +56,17 @@ namespace Tanks3DFPP.Terrain
 
         public int HighestPeak { get; private set; }
 
+        public Vector3? Intersection(Ray ray, int scale = 1)
+        {
+            Vector3? result = null;
+            while (result == null)
+            {
+                
+            }
+
+            return null;
+        }
+
         private readonly string numericFormat;
         private float randomizedDisplacement
         {
@@ -162,10 +173,10 @@ namespace Tanks3DFPP.Terrain
         }
 
         // A canvas-like effect occurs due to too extreme decrementation of the displacement
-        private void ReduceDisplacement()
-        {
-            this.displacement *= Math.Pow(2, -1);
-        }
+        //private void ReduceDisplacement()
+        //{
+        //    this.displacement *= Math.Pow(2, -1);
+        //}
 
         private void PerformSquareStep(Rectangle area, float roughness)
         {
@@ -304,5 +315,6 @@ namespace Tanks3DFPP.Terrain
 
             return sb.ToString();
         }
+
     }
 }

@@ -2,6 +2,7 @@
 float4x4 xView;
 float4x4 xProjection;
 float4x4 xWorld;
+
 float3 xLightDirection;
 float xAmbient;
 bool xEnableLighting;
@@ -51,6 +52,7 @@ MTVertexToPixel MultiTexturedVS( float4 inPos : POSITION, float3 inNormal : NORM
 	Output.LightDirection.w = 1;
 	Output.TextureWeights = inTexWeights;
 	Output.Depth = Output.Position.z / Output.Position.w;
+
 	return Output;
 }
 
@@ -88,8 +90,8 @@ MTPixelToFrame MultiTexturedPS(MTVertexToPixel PSIn)
 		Output.Color += tex2D(TextureSampler2, PSIn.TextureCoords) * PSIn.TextureWeights.z;
 		Output.Color += tex2D(TextureSampler3, PSIn.TextureCoords) * PSIn.TextureWeights.w;
 	}
-	Output.Color *= lightingFactor;
 
+	Output.Color *= lightingFactor;
 	return Output;
 }
 
