@@ -11,13 +11,13 @@ using Microsoft.Xna.Framework.Audio;
 
 namespace Tanks3DFPP.Tanks
 {
-    public class Tank : CollidingEntity
+    public class Tank: CollidingEntity
     {
         const float TurretTurnSpeed = 0.015f;
         const float CannonDegMax = -90;
         const float CannonDegMin = 0;
         const float ScaleFactor = 0.05f;
-        const float MaxPower = 7.0f;
+        const float MaxPower = 10.0f;
         const float MinPower = 1.5f;
         readonly Matrix ScaleMatrix = Matrix.CreateScale(ScaleFactor);
 
@@ -86,7 +86,7 @@ namespace Tanks3DFPP.Tanks
 
         #region Fields
 
-        Model model;
+        public Model Model { get; private set; }
 
         Matrix tankOrientation = Matrix.Identity;
         Matrix turretOrientation = Matrix.Identity;
@@ -114,20 +114,21 @@ namespace Tanks3DFPP.Tanks
         /// <param name="content">The content.</param>
         public void LoadContent(ContentManager content)
         {
-            model = content.Load<Model>("Tank");
-            boneTransforms = new Matrix[model.Bones.Count];
+            Model = content.Load<Model>("Tank");
+            boneTransforms = new Matrix[Model.Bones.Count];
 
             boundingSpheres = new List<BoundingSphere>();
-            foreach (ModelMesh mesh in model.Meshes)
+            foreach (ModelMesh mesh in Model.Meshes)
             {
                 boundingSpheres.Add(new BoundingSphere(mesh.BoundingSphere.Center, mesh.BoundingSphere.Radius * ScaleFactor));
             }
 
-            turretBone = model.Bones["turret_geo"];
-            cannonBone = model.Bones["canon_geo"];
+            turretBone = Model.Bones["turret_geo"];
+            cannonBone = Model.Bones["canon_geo"];
 
             turretTransform = turretBone.Transform;
             cannonTransform = cannonBone.Transform;
+
         }
 
         public void SpawnAt(Vector3 location)
@@ -135,21 +136,14 @@ namespace Tanks3DFPP.Tanks
             base.Position = this.OffsetToFloorHeight(Game1.heightMap, location);
             Health = 100;
             initialVelocityPower = 1.5f;
+            previousInitialVelocityPower = initialVelocityPower;
 
-            tankOrientation = Matrix.Identity;
-            turretOrientation = Matrix.Identity;
-            cannonOrientation = Matrix.Identity;
-
-            turretBone.Transform = turretOrientation * turretTransform;
-            cannonBone.Transform = cannonOrientation * cannonTransform;
-
-            model.CopyAbsoluteBoneTransformsTo(boneTransforms);
-
+            Model.CopyAbsoluteBoneTransformsTo(boneTransforms);
             worldMatrix = tankOrientation * Matrix.CreateTranslation(Position);
 
-            for (int i = 0; i < model.Meshes.Count; ++i)
+            for (int i = 0; i < Model.Meshes.Count; ++i)
             {
-                ModelMesh mesh = model.Meshes[i];
+                ModelMesh mesh = Model.Meshes[i];
                 boundingSpheres[i] = new BoundingSphere(mesh.BoundingSphere.Transform(boneTransforms[mesh.ParentBone.Index] * ScaleMatrix * worldMatrix).Center,
                     mesh.BoundingSphere.Radius * ScaleFactor);
                 mesh.Draw();
@@ -188,11 +182,11 @@ namespace Tanks3DFPP.Tanks
             }
 
             previousInitialVelocityPower = initialVelocityPower;
-            if (KS.IsKeyDown(Keys.OemCloseBrackets))
+            if(KS.IsKeyDown(Keys.OemPlus))
             {
                 initialVelocityPower += 0.01f;
             }
-            if (KS.IsKeyDown(Keys.OemOpenBrackets))
+            if (KS.IsKeyDown(Keys.OemMinus))
             {
                 initialVelocityPower -= 0.01f;
             }
@@ -253,7 +247,7 @@ namespace Tanks3DFPP.Tanks
             turretBone.Transform = turretOrientation * turretTransform;
             cannonBone.Transform = cannonOrientation * cannonTransform;
 
-            model.CopyAbsoluteBoneTransformsTo(boneTransforms);
+            Model.CopyAbsoluteBoneTransformsTo(boneTransforms);
 
             worldMatrix = tankOrientation * Matrix.CreateTranslation(Position);
 
@@ -261,9 +255,9 @@ namespace Tanks3DFPP.Tanks
             cannonPosition = (turretBone.Transform * cannonBone.Transform * ScaleMatrix * worldMatrix).Translation;
             //cannonPosition.Y += 2 * (cannonPosition.Y - Position.Y);
 
-            for (int i = 0; i < model.Meshes.Count; ++i)
+            for (int i = 0; i < Model.Meshes.Count; ++i)
             {
-                ModelMesh mesh = model.Meshes[i];
+                ModelMesh mesh = Model.Meshes[i];
                 foreach (BasicEffect effect in mesh.Effects)
                 {
                     effect.World = boneTransforms[mesh.ParentBone.Index] * ScaleMatrix * worldMatrix;
@@ -314,8 +308,8 @@ namespace Tanks3DFPP.Tanks
             {
                 if (sphere.Center.X + sphere.Radius > floor.Width * Game1.Scale
                     || sphere.Center.X - sphere.Radius < 0
-                    || sphere.Center.Z + sphere.Radius > 0
-                    || sphere.Center.Z - sphere.Radius < -floor.Height * Game1.Scale)
+                    || sphere.Center.Z - sphere.Radius < 0
+                    || sphere.Center.Z + sphere.Radius > floor.Height * Game1.Scale)
                 {
                     return false;
                 }
@@ -331,15 +325,15 @@ namespace Tanks3DFPP.Tanks
 
         protected override Vector3 OffsetToFloorHeight(Terrain.IHeightMap floor, Vector3 position)
         {
-            //BoundingSphere mergedSphere = new BoundingSphere();
-            //foreach (ModelMesh mesh in this.model.Meshes)
-            //{
-            //    mergedSphere = BoundingSphere.CreateMerged(mergedSphere, mesh.BoundingSphere.Transform(mesh.ParentBone.Transform));
-            //}
+            BoundingSphere mergedSphere = new BoundingSphere();
+            foreach (ModelMesh mesh in this.Model.Meshes)
+            {
+                mergedSphere = BoundingSphere.CreateMerged(mergedSphere, mesh.BoundingSphere.Transform(mesh.ParentBone.Transform));
+            }
 
             return new Vector3(
                     position.X,
-                    floor.Data[(int)(position.X / Game1.Scale), (int)(-position.Z / Game1.Scale)]
+                    floor.Data[(int)(position.Z / Game1.Scale), (int)(position.X / Game1.Scale)]
                     * Game1.Scale - floor.HeightOffset,
                     position.Z);
         }

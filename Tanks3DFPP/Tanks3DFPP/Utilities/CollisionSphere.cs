@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
-using Tanks3DFPP.Camera.Interfaces;
-using Tanks3DFPP.Terrain;
 using Tanks3DFPP.Entities;
+using Tanks3DFPP.Terrain;
 
 
 namespace Tanks3DFPP.Utilities
@@ -32,6 +24,14 @@ namespace Tanks3DFPP.Utilities
         Matrix[] boneTransforms;
 
         Vector3 movementQuant = Vector3.Zero;
+
+        public BoundingSphere BoundingSphere
+        {
+            get
+            {
+                return new BoundingSphere(Vector3.Transform(this.model.Meshes[0].BoundingSphere.Center, Matrix.CreateTranslation(this.Position)) / this.mapScale, this.model.Meshes[0].BoundingSphere.Radius);
+            }
+        }
 
         private int mapScale;
 
@@ -134,8 +134,8 @@ namespace Tanks3DFPP.Utilities
             return
                 position.X + this.radius < floor.Width * this.mapScale
                 && position.X - this.radius > 0
-                && position.Z + this.radius < 1
-                && position.Z - this.radius > -floor.Height * this.mapScale;
+                && position.Z - this.radius >= 0
+                && position.Z + this.radius < floor.Height * this.mapScale;
         }
 
         protected override Vector3 OffsetToFloorHeight(IHeightMap floor)
@@ -150,7 +150,7 @@ namespace Tanks3DFPP.Utilities
             // and how the height map is laid out onto terrain.
             return new Vector3(
                 position.X,
-                floor.Data[(int)(position.X / this.mapScale), (int)(-position.Z / this.mapScale)]
+                floor.Data[(int)(position.Z / this.mapScale), (int)(position.X / this.mapScale)]
                 * this.mapScale - floor.HeightOffset + this.radius,
                 position.Z);
         }

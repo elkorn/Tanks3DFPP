@@ -112,29 +112,38 @@
     <Compile Include="Camera\Interfaces\ICameraTarget.cs" />
     <Compile Include="Camera\OrbitingCamera.cs" />
     <Compile Include="Entities\CollidingEntity.cs" />
+    <Compile Include="Entities\Sky.cs" />
+    <Compile Include="Terrain\Basic\ColoredTerrain.cs" />
     <Compile Include="Tanks\ExplosionSystem.cs" />
-    <Compile Include="Terrain\ColoredTerrain.cs" />
+    <Compile Include="Menu\Characters.cs" />
+    <Compile Include="Menu\HelpPage.cs" />
+    <Compile Include="Menu\LoadingPage.cs" />
+    <Compile Include="Menu\MainMenu.cs" />
+    <Compile Include="Menu\Menu.cs" />
+    <Compile Include="Menu\MenuTank.cs" />
+    <Compile Include="Menu\PlayPage.cs" />
+    <Compile Include="Menu\TextBox.cs" />
     <Compile Include="Tanks\Tank.cs" />
     <Compile Include="Tanks\TankMissle.cs" />
-    <Compile Include="Tanks\TankController.cs" />
+    <Compile Include="Tanks\TanksController.cs" />
     <Compile Include="Terrain\FractalMap.cs" />
     <Compile Include="Terrain\GreenYellowRed.cs" />
     <Compile Include="Terrain\Interfaces\IHeightMap.cs" />
     <Compile Include="Terrain\Interfaces\IHeightToColorTranslationMethod.cs" />
-    <Compile Include="Terrain\Optimization\QuadTree\BufferManager.cs" />
-    <Compile Include="Terrain\Optimization\QuadTree\NodeType.cs" />
-    <Compile Include="Terrain\Optimization\QuadTree\QuadNode.cs" />
-    <Compile Include="Terrain\Optimization\QuadTree\QuadNodeVertex.cs" />
-    <Compile Include="Terrain\Optimization\QuadTree\QuadTreeTerrain.cs" />
-    <Compile Include="Terrain\Optimization\QuadTree\TreeVertexCollection.cs">
+    <Compile Include="Terrain\Optimized\QuadTree\BufferManager.cs" />
+    <Compile Include="Terrain\Optimized\QuadTree\NodeType.cs" />
+    <Compile Include="Terrain\Optimized\QuadTree\QuadNode.cs" />
+    <Compile Include="Terrain\Optimized\QuadTree\QuadNodeVertex.cs" />
+    <Compile Include="Terrain\Optimized\QuadTree\QuadTree.cs" />
+    <Compile Include="Terrain\Optimized\QuadTree\TreeVertexCollection.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Terrain\Terrain.cs" />
+    <Compile Include="Terrain\Basic\Terrain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="Terrain\HeightToGrayscale.cs" />
-    <Compile Include="Terrain\MultiTexturedTerrain.cs" />
+    <Compile Include="Terrain\Basic\MultiTexturedTerrain.cs" />
     <Compile Include="Utilities\BoundingFrustumRenderer.cs" />
     <Compile Include="Utilities\CollisionSphere.cs" />
     <Compile Include="Utilities\KeyboardHandler.cs" />
@@ -142,6 +151,9 @@
     <Compile Include="Utilities\Utilities.cs" />
     <Compile Include="Utilities\Vertex\VertexMultitextured.cs" />
     <Compile Include="Utilities\Vertex\VertexPositionColorNormal.cs" />
+    <Compile Include="Utilities\BoundingSphereRenderer.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />

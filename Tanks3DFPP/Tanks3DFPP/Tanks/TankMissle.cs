@@ -110,7 +110,7 @@ namespace Tanks3DFPP.Tanks
                     position += velocity + gravityForce;
                     gravityForce *= gravityFactor;
 
-                    if ( (position.Y < previousPosition.Y) && (-gravityForce.Y > gravityFactor * 5))
+                    if ((position.Y < previousPosition.Y) && (-gravityForce.Y > gravityFactor * 5))
                     {
                         except = -1;
                     }
@@ -190,8 +190,8 @@ namespace Tanks3DFPP.Tanks
                     * Matrix.CreateTranslation(position));   // probably needs fixing.
                 if (sphere.Center.X + sphere.Radius > floor.Width * Game1.Scale
                     || sphere.Center.X - sphere.Radius < 0
-                    || sphere.Center.Z + sphere.Radius > 0
-                    || sphere.Center.Z - sphere.Radius < -floor.Height * Game1.Scale)
+                    || sphere.Center.Z - sphere.Radius < 0
+                    || sphere.Center.Z + sphere.Radius > floor.Height * Game1.Scale)
                 {
                     return false;
                 }
@@ -214,7 +214,7 @@ namespace Tanks3DFPP.Tanks
             //}
             return new Vector3(
                     position.X,
-                    floor.Data[(int)(position.X / Game1.Scale), (int)(-position.Z / Game1.Scale)]
+                    floor.Data[(int)(position.Z / Game1.Scale), (int)(position.X / Game1.Scale)]
                     * Game1.Scale - floor.HeightOffset,
                     position.Z);
         }
