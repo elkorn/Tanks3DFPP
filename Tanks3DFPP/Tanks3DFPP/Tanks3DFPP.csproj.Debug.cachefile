@@ -38,6 +38,9 @@ Content\menuContent\font\W.xnb
 Content\menuContent\font\X.xnb
 Content\menuContent\font\Y.xnb
 Content\menuContent\font\Z.xnb
+Content\menuContent\cube2.xnb
+Content\menuContent\cube3.xnb
+Content\menuContent\cube4.xnb
 Content\grass.xnb
 Content\pawball.xnb
 Content\rock.xnb
@@ -66,6 +69,3 @@ Content\menuContent\font\fontTexture_0.xnb
 Content\pawball_0.xnb
 Content\engine_diff_tex_0.xnb
 Content\turret_alt_diff_tex_0.xnb
-Content\menuContent\cube2.xnb
-Content\menuContent\cube3.xnb
-Content\menuContent\cube4.xnb
