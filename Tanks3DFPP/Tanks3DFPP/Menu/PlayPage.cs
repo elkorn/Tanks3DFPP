@@ -18,7 +18,7 @@ namespace Tanks3DFPP.Menu
         private bool nextButtonFocus;
         private bool backButtonFocus;
 
-        private GraphicsDevice gd;
+        //private GraphicsDevice gd;
         /// <summary>
         /// Class constructor loads necessary elements.
         /// </summary>
@@ -26,6 +26,7 @@ namespace Tanks3DFPP.Menu
         public PlayPage(ContentManager content, GraphicsDevice graphicsDevice, List<string> playerNames)
             : base(content, graphicsDevice, Menu.AltBackgroundResourceName, new[]
                 {
+                    // TODO: use playerNames.
                     new TextBox(content, "FIRST PLAYER NAME", 0, "PLAYER1", false, 0, 0, new Vector2(-900, 400), 0.2f),
                     new TextBox(content, "THIRD PLAYER NAME", 1, string.Empty, false, 0, 0, new Vector2(-900, 200), 0.2f),
                     new TextBox(content, "MAP SIZE", 2, Game1.MapScale.ToString(), true, 0, 100, new Vector2(-900, 0), 0.2f),
@@ -34,20 +35,10 @@ namespace Tanks3DFPP.Menu
                     new TextBox(content, "SECOND PLAYER NAME", 5, "PLAYER2", false, 0, 0, new Vector2(100, 400), 0.2f),
                     new TextBox(content, "FOURTH PLAYER NAME", 6, string.Empty, false, 0, 0, new Vector2(100, 200), 0.2f),
                     new TextBox(content, "ROUGHNESS", 7, Game1.Roughness.ToString(), true, 0, 1000, new Vector2(100, 0), 0.2f),
-                    new MenuOption("NEXT", 8, new Vector2(200, -550), 1.1f)
+                    new TextBox(content, "LIGHT CHANGE SPEED", 8, Game1.LightChangeSpeed.ToString(), true, 0, 1000, new Vector2(100, -200), 0.2f),
+                    new MenuOption("NEXT", 9, new Vector2(200, -550), 1.1f)
                 })
         {
-            //
-            //Creating textboxes in loading page.
-            //
-            if (playerNames == null)
-            {
-                playerNames = new List<string>();
-                playerNames.Add("PLAYER1");
-                playerNames.Add("PLAYER2");
-            }
-
-            gd = graphicsDevice;
         }
 
         /// <summary>
@@ -83,48 +74,6 @@ namespace Tanks3DFPP.Menu
                     break;
                 }
             }
-
-            #region right button
-
-            KeyboardHandler.KeyAction(Keys.Right, () =>
-                {
-                    int num = 0;
-                    if (listOfTextBoxes.Count % 2 == 0)
-                        num = listOfTextBoxes.Count / 2;
-                    else
-                        num = (listOfTextBoxes.Count - 1) / 2;
-
-                    if (backButtonFocus)
-                    {
-                        menuSelect.Play(0.5f, 0, 0);
-                        nextButtonFocus = true;
-                        backButtonFocus = false;
-                    }
-
-                    for (int i = 0; i < listOfTextBoxes.Count; ++i)
-                        if (listOfTextBoxes[i].HasFocus)
-                        {
-                            if (i <= num)
-                                if (!backButtonFocus)
-                                {
-                                    if (i + num + 1 <= listOfTextBoxes.Count - 1)
-                                    {
-                                        menuSelect.Play(0.5f, 0, 0);
-                                        listOfTextBoxes[i].HasFocus = false;
-                                        listOfTextBoxes[i + num + 1].HasFocus = true;
-                                    }
-                                    break;
-                                }
-                                else
-                                {
-                                    menuSelect.Play(0.5f, 0, 0);
-                                    listOfTextBoxes[i].HasFocus = false;
-                                    nextButtonFocus = true;
-                                }
-                        }
-                });
-
-            #endregion
 
             #region down button
 
@@ -168,64 +117,34 @@ namespace Tanks3DFPP.Menu
 
             KeyboardHandler.KeyAction(Keys.Up, () =>
                 {
-                        int num = 0;
-                        if (listOfTextBoxes.Count%2 == 0)
-                            num = listOfTextBoxes.Count/2;
-                        else
-                            num = (listOfTextBoxes.Count - 1)/2;
+                    int num = 0;
+                    if (listOfTextBoxes.Count % 2 == 0)
+                        num = listOfTextBoxes.Count / 2;
+                    else
+                        num = (listOfTextBoxes.Count - 1) / 2;
 
-                        for (int i = 0; i < listOfTextBoxes.Count; ++i)
-                            if (i > 0 && i != num + 1)
-                                if (listOfTextBoxes[i].HasFocus)
-                                {
-                                    menuSelect.Play(0.5f, 0, 0);
-                                    listOfTextBoxes[i].HasFocus = false;
-                                    listOfTextBoxes[i - 1].HasFocus = true;
-                                    break;
-                                }
+                    for (int i = 0; i < listOfTextBoxes.Count; ++i)
+                        if (i > 0 && i != num + 1)
+                            if (listOfTextBoxes[i].HasFocus)
+                            {
+                                menuSelect.Play(0.5f, 0, 0);
+                                listOfTextBoxes[i].HasFocus = false;
+                                listOfTextBoxes[i - 1].HasFocus = true;
+                                break;
+                            }
 
-                        if (backButtonFocus)
-                        {
-                            menuSelect.Play(0.5f, 0, 0);
-                            backButtonFocus = false;
-                            listOfTextBoxes[num].HasFocus = true;
-                        }
-                        if (nextButtonFocus)
-                        {
-                            menuSelect.Play(0.5f, 0, 0);
-                            nextButtonFocus = false;
-                            listOfTextBoxes[listOfTextBoxes.Count - 1].HasFocus = true;
-                        }
-                });
-
-            #endregion
-
-            #region left button
-
-            KeyboardHandler.KeyAction(Keys.Left, () =>
-                {
-                        int num = 0;
-                        if (listOfTextBoxes.Count%2 == 0)
-                            num = listOfTextBoxes.Count/2;
-                        else
-                            num = (listOfTextBoxes.Count - 1)/2;
-
-                        if (nextButtonFocus)
-                        {
-                            menuSelect.Play(0.5f, 0, 0);
-                            nextButtonFocus = false;
-                            backButtonFocus = true;
-                        }
-                        else
-                            for (int i = 0; i < listOfTextBoxes.Count; ++i)
-                                if (i > num)
-                                    if (listOfTextBoxes[i].HasFocus)
-                                    {
-                                        menuSelect.Play(0.5f, 0, 0);
-                                        listOfTextBoxes[i].HasFocus = false;
-                                        listOfTextBoxes[i - num - 1].HasFocus = true;
-                                        break;
-                                    }
+                    if (backButtonFocus)
+                    {
+                        menuSelect.Play(0.5f, 0, 0);
+                        backButtonFocus = false;
+                        listOfTextBoxes[num].HasFocus = true;
+                    }
+                    if (nextButtonFocus)
+                    {
+                        menuSelect.Play(0.5f, 0, 0);
+                        nextButtonFocus = false;
+                        listOfTextBoxes[listOfTextBoxes.Count - 1].HasFocus = true;
+                    }
                 });
 
             #endregion
@@ -309,8 +228,13 @@ namespace Tanks3DFPP.Menu
         /// </summary>
         public override void Update()
         {
+            #region A fix for Issue #13- just enough for it to work.
+            KeyboardHandler.KeyAction(Keys.Left, this.SwitchColumnLeft);
+            KeyboardHandler.KeyAction(Keys.Right, this.SwitchColumnRight);
+            #endregion
+            KeyboardHandler.KeyAction(Keys.Up, this.SelectPreviousOption);
+            KeyboardHandler.KeyAction(Keys.Down, this.SelectNextOption);
             base.Update();
-
         }
 
     }

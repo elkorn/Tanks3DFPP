@@ -14,6 +14,16 @@ namespace Tanks3DFPP.Menu
 
         protected readonly float baseScale;
 
+        private float actualScale
+        {
+            get
+            {
+                return this.IsSelected
+                           ? baseScale * 1.2f
+                           : baseScale;
+            }
+        }
+
         public MenuOption(string text, int index, Vector2 position, float baseScale = .7f)
         {
             this.Text = text;
@@ -32,9 +42,13 @@ namespace Tanks3DFPP.Menu
             this.IsSelected = false;
         }
 
+        public virtual void Update()
+        {
+        }
+
         public virtual void Draw(Characters characters, Matrix view, Matrix projection)
         {
-            characters.Draw(this.Text, this.IsSelected ? baseScale + .2f : baseScale, this.position, view, projection);
+            characters.Draw(this.Text, this.actualScale, this.position, view, projection);
         }
     }
 }

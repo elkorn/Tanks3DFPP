@@ -26,7 +26,7 @@ namespace Tanks3DFPP
                            maxHeight = 300,
                            scale = 1,
                            lightChangeSpeed = 1;
-        
+
         private readonly GraphicsDeviceManager graphics;
         private Color bgColor = new Color(69, 125, 200);
         private Texture2D bgTexture;

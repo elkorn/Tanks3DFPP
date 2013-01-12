@@ -60,9 +60,57 @@ namespace Tanks3DFPP.Menu
 
         protected void SelectNextOption()
         {
+            this.SelectOption(this.currentOptionIndex + 1);
+        }
+
+        protected void SelectPreviousOption()
+        {
+            this.SelectOption(this.currentOptionIndex - 1);
+        }
+
+
+        protected void SwitchColumnRight()
+        {
+            int columnSize = this.options.Count / 2;
+            if (this.currentOptionIndex < columnSize)
+            {
+                this.SelectOption(this.currentOptionIndex + columnSize);
+            }
+            else
+            {
+                this.SwitchColumnLeft();
+            }
+
+        }
+
+        #region The proper way of doing this. (Buggy due to KeyboardHandler botch - Issue #13)
+        //protected void SwitchColumn()
+        //{
+        //    int columnSize = this.options.Count / 2;
+        //    this.SelectOption(this.currentOptionIndex > columnSize - 1
+        //    ? this.currentOptionIndex - columnSize
+        //    : this.currentOptionIndex + columnSize);
+        //}
+        #endregion
+
+        protected void SwitchColumnLeft()
+        {
+            int columnSize = this.options.Count / 2;
+            if (this.currentOptionIndex >= columnSize)
+            {
+                this.SelectOption(this.currentOptionIndex - columnSize);
+            }
+            else
+            {
+                this.SwitchColumnRight();
+            }
+        }
+
+        private void SelectOption(int index)
+        {
             int previousOptionIndex = this.currentOptionIndex;
             this.CurrentOption.Deselect();
-            this.currentOptionIndex = (int)MathHelper.Clamp(this.currentOptionIndex + 1, 0, this.options.Count - 1);
+            this.currentOptionIndex = (int)MathHelper.Clamp(index, 0, this.options.Count - 1);
             this.CurrentOption.Select();
             if (currentOptionIndex != previousOptionIndex)
             {
@@ -70,17 +118,6 @@ namespace Tanks3DFPP.Menu
             }
         }
 
-        protected void SelectPreviousOption()
-        {
-            int previousOptionIndex = this.currentOptionIndex;
-            this.CurrentOption.Deselect();
-            this.currentOptionIndex = (int)MathHelper.Clamp(this.currentOptionIndex - 1, 0, this.options.Count - 1);
-            this.CurrentOption.Select();
-            if (currentOptionIndex != previousOptionIndex)
-            {
-                this.OptionChanged.Invoke(this, null);
-            }
-        }
 
         private void PlaySelectSound(object sender, EventArgs e)
         {
@@ -118,7 +155,7 @@ namespace Tanks3DFPP.Menu
         {
             KeyboardHandler.KeyAction(Keys.Escape, () =>
                 {
-                    this.Cancelled.Invoke(this,null);
+                    this.Cancelled.Invoke(this, null);
                 });
         }
 
@@ -126,15 +163,6 @@ namespace Tanks3DFPP.Menu
         {
             characters.Draw(text, scale, new Vector3(position, 0), view, projection);
         }
-
-        //protected void CreateOptions(string[] names)
-        //{
-        //    this.options = new List<MenuOption>();
-        //    for (int i = 0; i < names.Length; ++i)
-        //    {
-        //        this.options.Add(new MenuOption(names[i], i, new Vector2(200, 100 - 330 * i)));
-        //    }
-        //}
 
         protected void CreateOptions(IEnumerable<MenuOption> options)
         {

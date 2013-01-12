@@ -1,9 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Tanks3DFPP.Utilities;
 
 namespace Tanks3DFPP.Menu
 {
@@ -14,11 +12,20 @@ namespace Tanks3DFPP.Menu
     {
         private bool numericOnly;
         private float min, max;
-        private string name;
         private string value;
         private bool keyDone;
         private SoundEffect typeWriter;
+        private Vector3 valuePosition;
 
+        private float actualScale
+        {
+            get
+            {
+                return this.HasFocus
+                           ? this.baseScale * 1.5f
+                           : this.baseScale * 1.3f;
+            }
+        }
         public bool HasFocus
         {
             get { return this.IsSelected; }
@@ -48,18 +55,18 @@ namespace Tanks3DFPP.Menu
         public TextBox(ContentManager Content, string name, int index, string value, bool numericOnly, float minimum, float maximum, Vector2 position, float scale)
             :base(name, index, position, scale)
         {
-            this.name = name;
             this.value = value;
             this.numericOnly = numericOnly;
             min = minimum;
             max = maximum;
+            this.valuePosition = new Vector3(position.X, position.Y - this.baseScale * 400f, 0);
             typeWriter = Content.Load<SoundEffect>(@"MenuContent/typewriter");
         }
 
         /// <summary>
         /// Method used to update textbox.
         /// </summary>
-        public void Update()
+        public override void Update()
         {
             KeyboardState keyboardState = Game1.CurrentKeyboardState;
             if (keyboardState.GetPressedKeys().Length > 0)
@@ -318,20 +325,8 @@ namespace Tanks3DFPP.Menu
         public override void Draw(Characters characters, Matrix view, Matrix projection)
         {
             base.Draw(characters, view, projection);
-            if (HasFocus)
-            {
-                characters.Draw(name, this.baseScale * 1.2f, position, view, projection);
-                Vector3 temp = new Vector3(position.X, position.Y - this.baseScale * 400f, position.Z);
-                characters.Draw(value, this.baseScale * 1.5f, temp, view, projection);
-            }
-            else
-            {
-                characters.Draw(name, this.baseScale, position, view, projection);
-                Vector3 temp = new Vector3(position.X, position.Y - this.baseScale * 400f, position.Z);
-                characters.Draw(value, this.baseScale * 1.3f, temp, view, projection);
-            }
+            characters.Draw(value, actualScale, valuePosition, view, projection);
         }
-
     }
 }
 

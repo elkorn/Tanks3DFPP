@@ -33,11 +33,6 @@ namespace Tanks3DFPP.Menu
             get { return menuON; }
         }
 
-        private bool mainPageON = true;
-        private bool playPageON = false;
-        private bool loadingPageON = false;
-        private bool helpPageON = false;
-
         private MainMenu mainMenu;
         private HelpPage help;
         private PlayPage play;
