@@ -6,4 +6,10 @@
         Help = 1,
         Quit = 2
     }
+
+    internal enum MenuNavigationOption
+    {
+        Back = 0,
+        Next = 1
+    }
 }

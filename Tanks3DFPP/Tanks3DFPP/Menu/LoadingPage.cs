@@ -1,23 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
 namespace Tanks3DFPP.Menu
 {
     /// <summary>
     /// Class used to handle loading page.
     /// </summary>
-    public class LoadingPage
+    internal class LoadingPage: MenuPage
     {
         private MenuTank tank = new MenuTank();
-        private Texture2D backGround;
-        private Characters characters;
         private double loadingPercent = 0;
         private Model cube2;
         private Model cube3;
@@ -31,18 +23,17 @@ namespace Tanks3DFPP.Menu
         /// <summary>
         /// Class constructor used to load necessary elements.
         /// </summary>
-        /// <param name="Content"></param>
+        /// <param name="content"></param>
         /// <param name="num"></param>
-        public LoadingPage(ContentManager Content)
+        public LoadingPage(ContentManager content, GraphicsDevice graphicsDevice)
+            :base(content, graphicsDevice, Menu.AltBackgroundResourceName, new MenuOption[] {})
         {
-            backGround = Content.Load<Texture2D>("MenuContent/nuke_symbol_Wallpaper_lnsps");
-            characters = new Characters(Content);
-            cube2 = Content.Load<Model>("MenuContent/cube2");
-            cube3 = Content.Load<Model>("MenuContent/cube3");
-            cube4 = Content.Load<Model>("MenuContent/cube4");
+            cube2 = content.Load<Model>("MenuContent/cube2");
+            cube3 = content.Load<Model>("MenuContent/cube3");
+            cube4 = content.Load<Model>("MenuContent/cube4");
             cubeRotationValue = rand.Next(70, 140);
             cubePosition = new Vector3(-700, 400, 0);
-            tank.Load(Content, Matrix.Identity * Matrix.CreateRotationY(MathHelper.ToRadians(90.0f)) * Matrix.CreateTranslation(-1500, -500, -1200));
+            tank.Load(content, Matrix.Identity * Matrix.CreateRotationY(MathHelper.ToRadians(90.0f)) * Matrix.CreateTranslation(-1500, -500, -1200));
             tank.which = 1;
         }
 
@@ -53,20 +44,13 @@ namespace Tanks3DFPP.Menu
         /// <param name="view">View matrix.</param>
         /// <param name="projection">Projection matrix.</param>
         /// <param name="GraphicsDevice">Graphics device.</param>
-        public void showLoadingPage(SpriteBatch spritebatch, Matrix view, Matrix projection, GraphicsDevice GraphicsDevice)
+        public override void Draw(Matrix view, Matrix projection)
         {
-            spritebatch.Begin();
-            spritebatch.Draw(backGround, new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height), Color.White);
-       
-            spritebatch.End();
-
-            GraphicsDevice.BlendState = BlendState.Opaque;
-            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
+            base.Draw(view,projection);
             tank.Draw(view, projection);
-            characters.Draw("LOADING : ", 1.0f, new Vector3(-600, 0, 0), view, projection);
+            this.DrawString("LOADING : ", 1.0f, new Vector2(-600, 0), view, projection);
             if (loadingPercent >= 100)
-                characters.Draw("PRESS ANY KEY TO CONTINUE...", 0.4f, new Vector3(-850, -500, 0), view, projection);
+                this.DrawString("PRESS ANY KEY TO CONTINUE...", 0.4f, new Vector2(-850, -500), view, projection);
             Model cube = cube2;
             if (playernumber == 3)
                 cube = cube3;

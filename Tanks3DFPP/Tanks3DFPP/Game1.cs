@@ -25,6 +25,7 @@ namespace Tanks3DFPP
                            roughness = 500,
                            maxHeight = 300,
                            scale = 1,
+                           //TODO: Wire this up.
                            lightChangeSpeed = 1;
 
         private readonly GraphicsDeviceManager graphics;
@@ -72,7 +73,7 @@ namespace Tanks3DFPP
         {
             Content.RootDirectory = "Content";
             graphics = new GraphicsDeviceManager(this);
-            quitting += (sender, e) => { Exit(); };
+            Quitting += (sender, e) => { Exit(); };
         }
 
         public static int MapScale
@@ -219,6 +220,12 @@ namespace Tanks3DFPP
                                                              FarClippingPlane);
             spriteBatch = new SpriteBatch(GraphicsDevice);
             menu = new Menu.Menu(graphics);
+            menu.GameStateReady += (sender, e) =>
+            {
+                heightMap = new FractalMap(mapSize, roughness, maxHeight);
+                ((FractalMap)heightMap).Initialize();
+            };
+
             AsyncHeightMap.Progressing += (sender, e) => { percent = e.Value; };
 
             AsyncHeightMap.Finished += (sender, e) =>
@@ -251,7 +258,7 @@ namespace Tanks3DFPP
 
         public static void Quit()
         {
-            quitting.Invoke(null, null);
+            Quitting.Invoke(null, null);
         }
 
         /// <summary>
@@ -306,22 +313,10 @@ namespace Tanks3DFPP
 
                 if ((int) listWithResults[0] == 2)
                 {
-                    //loading page is on 
-                    //start creating the terrain
-                    //getting percent variable which ranges from 0 to 100 , if it reaches 100(loading terrain process is over) menu will be no more... :D and the fun will begin
-
-                    //tu powinno byc zaczecie tworzenia terenu
-                    //loading jest teraz pokazowe jak chcesz zeby polaczyc go z kreowaniem terenu to  
-                    //zmienna percent(int) trzeba by zmieniac od 0 do 100 (wtedy wyjdzie z menu, czyli powinno zakonczyc tworzenie terenu
-
-                    //timesince += gameTime.ElapsedGameTime.Milliseconds;
-                    //if (timesince > timeperframe)
-                    //{
                     if (!(generatingHeightMap || firstGenerationDone))
                     {
                         generatingHeightMap = true;
-                        heightMap = new FractalMap(mapSize, roughness, maxHeight);
-                        ((FractalMap) heightMap).Initialize();
+    
                     }
 
                     if (listWithResults.Count > 1)
@@ -361,6 +356,6 @@ namespace Tanks3DFPP
             base.Update(gameTime);
         }
 
-        private static event EventHandler quitting;
+        private static event EventHandler Quitting;
     }
 }

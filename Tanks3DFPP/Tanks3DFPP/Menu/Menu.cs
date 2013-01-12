@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
+using Tanks3DFPP.Utilities;
 
 namespace Tanks3DFPP.Menu
 {
@@ -14,8 +16,7 @@ namespace Tanks3DFPP.Menu
     {
         public const string DefaultBackgroundResourceName = "MenuContent/xnuke.jpg.pagespeed.ic.XD9-0bi6PQ",
             AltBackgroundResourceName = "MenuContent/nuke_symbol_Wallpaper_lnsps";
-        private SpriteBatch spritebatch;
-        private bool menuON = true;
+        private bool enabled = true;
 
         private Song music;
 
@@ -25,12 +26,12 @@ namespace Tanks3DFPP.Menu
         List<string> playerNames;
 
         /// <summary>
-        /// method to get menuON.
+        /// method to get enabled.
         /// </summary>
-        /// <returns>if true then menuON is on.</returns>      
+        /// <returns>if true then enabled is on.</returns>      
         public bool Enabled
         {
-            get { return menuON; }
+            get { return enabled; }
         }
 
         private MainMenu mainMenu;
@@ -46,6 +47,8 @@ namespace Tanks3DFPP.Menu
 
         private SoundEffect menuChange;
 
+        public event EventHandler<GameStateReadyEventArgs> GameStateReady;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Menu" /> class.
         /// </summary>
@@ -53,7 +56,6 @@ namespace Tanks3DFPP.Menu
         /// <param name="graph">graphiscdevice reference</param>
         public Menu(GraphicsDeviceManager graph)
         {
-            spritebatch = new SpriteBatch(graph.GraphicsDevice);
             graphics = graph;
             view = Matrix.CreateLookAt(Vector3.UnitZ * 1500, Vector3.Zero, Vector3.Up);
             projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45),
@@ -76,29 +78,44 @@ namespace Tanks3DFPP.Menu
             mainMenu = new MainMenu(Content, graphics.GraphicsDevice);
             help = new HelpPage(Content, this.graphics.GraphicsDevice);
             play = new PlayPage(Content, this.graphics.GraphicsDevice, playerNames);
-            loading = new LoadingPage(Content);
+            loading = new LoadingPage(Content,this.graphics.GraphicsDevice);
 
             this.mainMenu.OptionChosen += (sender, e) =>
                 {
                     MainMenuPage targetPage = (MainMenuPage) e.Code;
                     switch (targetPage)
-                {
-                    case MainMenuPage.Play:
-                        this.SwitchPageTo(play);
-                        break;
-                    case MainMenuPage.Help:
-                        this.SwitchPageTo(help);
-                        break;
-                    case MainMenuPage.Quit:
-                        Game1.Quit();
-                        break;
-                }
-            };
+                    {
+                        case MainMenuPage.Play:
+                            this.SwitchPageTo(play);
+                            break;
+                        case MainMenuPage.Help:
+                            this.SwitchPageTo(help);
+                            break;
+                        case MainMenuPage.Quit:
+                            Game1.Quit();
+                            break;
+                    }
+                };
 
             this.help.OptionChosen += (sender, e) =>
             {
                 this.SwitchPageTo(mainMenu);
             };
+
+            this.play.OptionChosen += (sender, e) =>
+                {
+                    MenuNavigationOption option = (MenuNavigationOption) e.Code;
+                    switch (option)
+                    {
+                        case MenuNavigationOption.Back:
+                            this.SwitchPageTo(mainMenu);
+                            break;
+                        case MenuNavigationOption.Next:
+                            this.GameStateReady.Invoke(this, new GameStateReadyEventArgs(play.GameStateModel));
+                            this.SwitchPageTo(loading);
+                            break;
+                    }
+                };
 
             this.mainMenu.Cancelled += (sender, e) =>
                 {
@@ -108,6 +125,7 @@ namespace Tanks3DFPP.Menu
                 {
                     this.SwitchPageTo(mainMenu);
                 };
+
 
             this.SwitchPageTo(mainMenu);
             music = Content.Load<Song>("Summon the Rawk");
@@ -137,67 +155,6 @@ namespace Tanks3DFPP.Menu
             List<object> result = new List<object>();
             result.Add(0);
             currentPage.Update();
-            //if (mainPageON)
-            //{
-            //    mainMenu.Update();
-            //    switch (mainMenuResult)
-            //    {
-            //        case 0:
-            //            playPageON = true;
-            //            mainPageON = false;
-            //            menuChange.Play();
-            //            break;
-            //        case 1:
-            //            helpPageON = true;
-            //            mainPageON = false;
-            //            menuChange.Play();
-            //            break;
-            //        case 2:
-            //            menuChange.Play();
-            //            Game1.Quit();
-            //            break;
-            //    }
-            //}
-
-            //if (helpPageON)
-            //    {
-            //        result[0] = 0;
-            //        help.Update();
-            //    }
-
-            //    if (loadingPageON)
-            //    {
-            //        result[0] = 2;
-            //        if (loading.updateLoadingPage(graphics.GraphicsDevice, percent))
-            //        {
-            //            result.Add(loading.whichSideOfTheCube());
-            //            MediaPlayer.Stop();
-            //            menuON = false;
-            //        }
-            //    }
-
-            //    if (playPageON)
-            //    {
-            //        result[0] = 1;
-            //        result.AddRange(play.updateplayPage());
-            //        if ((int)result[1] == 1)
-            //        {
-            //            //next button pressed
-            //            playPageON = false;
-            //            loadingPageON = true;
-            //            loading.playernumber = result.Count - 5;
-            //            menuChange.Play();
-            //            setVariables(result);
-            //        }
-            //        if ((int)result[1] == -1)
-            //        {
-            //            //back button pressed
-            //            playPageON = false;
-            //            mainPageON = true;
-            //            menuChange.Play();
-            //        }
-            //    }
-
             return result;
         }
 

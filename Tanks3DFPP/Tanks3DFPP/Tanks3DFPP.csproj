@@ -152,6 +152,8 @@
     <Compile Include="Terrain\Basic\MultiTexturedTerrain.cs" />
     <Compile Include="Utilities\BoundingFrustumRenderer.cs" />
     <Compile Include="Utilities\CollisionSphere.cs" />
+    <Compile Include="Utilities\GameState.cs" />
+    <Compile Include="Utilities\GameStateReadyEventArgs.cs" />
     <Compile Include="Utilities\KeyboardHandler.cs" />
     <Compile Include="Utilities\MouseHandler.cs" />
     <Compile Include="Utilities\ProgressEventArgs.cs" />

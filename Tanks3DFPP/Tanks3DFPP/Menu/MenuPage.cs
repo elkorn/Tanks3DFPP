@@ -68,7 +68,6 @@ namespace Tanks3DFPP.Menu
             this.SelectOption(this.currentOptionIndex - 1);
         }
 
-
         protected void SwitchColumnRight()
         {
             int columnSize = this.options.Count / 2;
@@ -118,7 +117,6 @@ namespace Tanks3DFPP.Menu
             }
         }
 
-
         private void PlaySelectSound(object sender, EventArgs e)
         {
             this.select.Play(.3f, 0, 0);
@@ -130,9 +128,9 @@ namespace Tanks3DFPP.Menu
 
         public event EventHandler Cancelled;
 
-        protected void FireOptionChosen(MenuPage sender)
+        protected void FireOptionChosen(MenuPage sender, int? optionIndexOverride = null)
         {
-            this.OptionChosen.Invoke(sender, new OptionChosenEventArgs(this.currentOptionIndex));
+            this.OptionChosen.Invoke(sender, new OptionChosenEventArgs(optionIndexOverride ?? this.currentOptionIndex));
         }
 
         public virtual void Draw(Matrix view, Matrix projection)
@@ -153,10 +151,13 @@ namespace Tanks3DFPP.Menu
 
         public virtual void Update()
         {
-            KeyboardHandler.KeyAction(Keys.Escape, () =>
-                {
-                    this.Cancelled.Invoke(this, null);
-                });
+            if (this.Cancelled != null)
+            {
+                KeyboardHandler.KeyAction(Keys.Escape, () =>
+                    {
+                        this.Cancelled.Invoke(this, null);
+                    });
+            }
         }
 
         protected void DrawString(string text, float scale, Vector2 position, Matrix view, Matrix projection)

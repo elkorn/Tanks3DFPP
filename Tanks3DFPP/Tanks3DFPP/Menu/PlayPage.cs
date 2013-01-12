@@ -18,7 +18,11 @@ namespace Tanks3DFPP.Menu
         private bool nextButtonFocus;
         private bool backButtonFocus;
 
-        //private GraphicsDevice gd;
+        public GameState GameStateModel
+        {
+            get { return new GameState(); }
+        }
+
         /// <summary>
         /// Class constructor loads necessary elements.
         /// </summary>
@@ -232,10 +236,20 @@ namespace Tanks3DFPP.Menu
             KeyboardHandler.KeyAction(Keys.Left, this.SwitchColumnLeft);
             KeyboardHandler.KeyAction(Keys.Right, this.SwitchColumnRight);
             #endregion
+
             KeyboardHandler.KeyAction(Keys.Up, this.SelectPreviousOption);
             KeyboardHandler.KeyAction(Keys.Down, this.SelectNextOption);
+
+            KeyboardHandler.KeyAction(Keys.Enter, () =>
+                {
+                    if (!(CurrentOption is TextBox))
+                    {
+                        this.FireOptionChosen(this, this.CurrentOption.Index/5);
+                    }
+                });
+
+            this.CurrentOption.Update();
             base.Update();
         }
-
     }
 }
