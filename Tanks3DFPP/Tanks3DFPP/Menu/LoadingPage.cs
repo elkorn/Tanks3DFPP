@@ -35,7 +35,7 @@ namespace Tanks3DFPP.Menu
         /// <param name="num"></param>
         public LoadingPage(ContentManager Content)
         {
-            backGround = Content.Load<Texture2D>("MenuContent/TextureX steel texture shiney piece metal silver camo pattern Texture (1)");
+            backGround = Content.Load<Texture2D>("MenuContent/nuke_symbol_Wallpaper_lnsps");
             characters = new Characters(Content);
             cube2 = Content.Load<Model>("MenuContent/cube2");
             cube3 = Content.Load<Model>("MenuContent/cube3");

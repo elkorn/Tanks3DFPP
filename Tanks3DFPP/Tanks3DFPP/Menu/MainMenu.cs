@@ -16,7 +16,6 @@ namespace Tanks3DFPP.Menu
     /// </summary>
     class MainMenu
     {
-
         private MenuTank tank = new MenuTank();
         private Texture2D backGround;
         private Model a;

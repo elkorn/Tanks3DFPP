@@ -15,6 +15,7 @@ namespace Tanks3DFPP.Utilities
         float velocity = 2f;
         float turnSpeed = .025f;
         float radius = 12.0f;
+        KeyboardHandler keyboardHandler = new KeyboardHandler();
 
         public float FacingDirection { get; private set; }
 
@@ -51,12 +52,12 @@ namespace Tanks3DFPP.Utilities
         public void Update(GameTime gameTime)
         {
             float turnAmount = 0;
-            KeyboardHandler.TurboKeyAction(Keys.Left, () =>
+            keyboardHandler.TurboKeyAction(Keys.Left, () =>
             {
                 turnAmount += 1;
             });
 
-            KeyboardHandler.TurboKeyAction(Keys.Right, () =>
+            keyboardHandler.TurboKeyAction(Keys.Right, () =>
             {
                 turnAmount -= 1;
             });
@@ -64,12 +65,12 @@ namespace Tanks3DFPP.Utilities
             turnAmount = MathHelper.Clamp(turnAmount, -1, 1);
             this.FacingDirection += turnAmount *= this.turnSpeed;
 
-            KeyboardHandler.TurboKeyAction(Keys.Up, () =>
+            keyboardHandler.TurboKeyAction(Keys.Up, () =>
             {
                 movementQuant.Z -= .2f;
             });
 
-            KeyboardHandler.TurboKeyAction(Keys.Down, () =>
+            keyboardHandler.TurboKeyAction(Keys.Down, () =>
             {
                 movementQuant.Z += .2f;
             });

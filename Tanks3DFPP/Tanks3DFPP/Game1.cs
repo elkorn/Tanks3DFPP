@@ -3,10 +3,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Tanks3DFPP.Camera;
-using Tanks3DFPP.Camera.Interfaces;
 using Tanks3DFPP.Entities;
 using Tanks3DFPP.Tanks;
 using Tanks3DFPP.Terrain;
+using Tanks3DFPP.Terrain.Interfaces;
 using Tanks3DFPP.Terrain.Optimization.QuadTree;
 using Tanks3DFPP.Utilities;
 
@@ -24,6 +24,8 @@ namespace Tanks3DFPP
         private GraphicsDeviceManager graphics;
         private Texture2D bgTexture;
         private const float FarClippingPlane = 20000f;
+
+        KeyboardHandler mainKeyboardHandler = new KeyboardHandler();
 
         private int mapSize = 10,
                     roughness = 500,
@@ -62,8 +64,6 @@ namespace Tanks3DFPP
 
 
 
-        ////////////////////////////////////////////////////////////////////////////////////////
-        /////menu variables
         /// <summary>
         /// menu variable
         /// </summary>
@@ -87,10 +87,7 @@ namespace Tanks3DFPP
         //time for loading percent needed until backgroundworker for loading terrain is done :D
         private int timesince = 0;
         private int timeperframe = 400;
-
-        ////////////////////////////////////////////////////////////////////////////////////////
-
-
+        private bool generatingHeightMap, firstGenerationDone;
 
         public Game1()
         {
@@ -125,15 +122,18 @@ namespace Tanks3DFPP
             }
             else
             {
-                GraphicsDevice.Clear(Color.Black);
-                sky.Draw(camera);
-                GraphicsDevice.BlendState = BlendState.Opaque;
-                GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-                GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
-                GraphicsDevice.RasterizerState = rs;
-                sphere.Draw(world, camera.View, projection);
-                terrain.Draw(gameTime);
-                tankController.Draw(camera.View, projection);
+                if (!generatingHeightMap)
+                {
+                    GraphicsDevice.Clear(Color.Black);
+                    sky.Draw(camera);
+                    GraphicsDevice.BlendState = BlendState.Opaque;
+                    GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+                    GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
+                    GraphicsDevice.RasterizerState = rs;
+                    sphere.Draw(world, camera.View, projection);
+                    terrain.Draw(gameTime);
+                    tankController.Draw(camera.View, projection);
+                }
             }
             base.Draw(gameTime);
         }
@@ -182,7 +182,7 @@ namespace Tanks3DFPP
             terrain = new QuadTree(
                 this,
                 Vector3.Zero,
-                heightMap = new FractalMap(mapSize, Roughness, maxHeight),
+                heightMap, // = new FractalMap(mapSize, Roughness, maxHeight)
                 camera.View,
                 projection,
                 Scale);
@@ -199,25 +199,33 @@ namespace Tanks3DFPP
         protected override void Initialize()
         {
             world = Matrix.Identity;
-            QuadNode.limY = (Scale + 1) * maxHeight;
+            QuadNode.limY = (Scale + 1)*maxHeight;
             projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45),
                                                              GraphicsDevice.Viewport.AspectRatio,
                                                              1,
                                                              FarClippingPlane);
-
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            //////////////////////////////////////////////////////////
-            //
-            //initializing menu
-            //
             menu = new Menu.Menu(graphics);
-            /////////////////////////////////////////////////////////
+            AsyncHeightMap.Progressing += (sender, e) =>
+                {
+                    percent = e.Value;
+                };
 
-            base.Initialize();
-            //sphere = new CollisionSphere(this, heightMap, new Vector3(500, maxHeight * Scale, 500), Scale);
+            AsyncHeightMap.Finished += (sender, e) =>
+                {
+                    camera = new FPPCamera(GraphicsDevice,
+                        new Vector3(500, maxHeight * Scale, 500),
+                        0.3f,
+                        2.0f,
+                        projection);
+                    GenerateEverything();
+                    sky = new Sky(this.GraphicsDevice, this.Content, this.projection, heightMap.Width);
+                    percent = 100;
+                    generatingHeightMap = false;
+                    firstGenerationDone = true;
+                };
 
-
+    base.Initialize();
         }
 
         /// <summary>
@@ -281,18 +289,24 @@ namespace Tanks3DFPP
             this.Content.Unload();
         }
 
-        /// <summary>
-        ///     Allows the game to run logic such as updating the world,
-        ///     checking for collisions, gathering input, and playing audio.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+/// <summary>
+/// Allows the game to run logic such as updating the world,
+/// checking for collisions, gathering input, and playing audio.
+/// </summary>
+/// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            CurrentKeyboardState = Keyboard.GetState();
-            CurrentMouseState = Mouse.GetState();
+            //CurrentKeyboardState = Keyboard.GetState();
+            //CurrentMouseState = Mouse.GetState();
             //
             //for menu
             //
+
+            mainKeyboardHandler.KeyAction(Keys.Escape, () =>
+                {
+                    this.Exit();
+                });
+
             if (menu.GetmenuON())
             {
                 //
@@ -301,20 +315,20 @@ namespace Tanks3DFPP
                 List<object> listWithResults = menu.updateMenu(gameTime, percent);
 
                 //checking the state of menu, if 1 then play page is done which means we have necessary variables for creating terrain
-                if ((int)listWithResults[0] == 1)
+                if ((int) listWithResults[0] == 1)
                 {
-                    if ((int)listWithResults[1] == 1)
+                    if ((int) listWithResults[1] == 1)
                     {
                         //next button in play page pressed
                         //set variables
-                        mapSize = int.Parse((string)listWithResults[2]);
-                        maxHeight = int.Parse((string)listWithResults[3]);
-                        roughness = int.Parse((string)listWithResults[4]);
+                        mapSize = int.Parse((string) listWithResults[2]);
+                        maxHeight = int.Parse((string) listWithResults[3]);
+                        roughness = int.Parse((string) listWithResults[4]);
 
                         playerNames = new List<string>();
                         for (int i = 0; i < listWithResults.Count - 5; ++i)
                         {
-                            playerNames.Add((string)listWithResults[i + 5]);
+                            playerNames.Add((string) listWithResults[i + 5]);
                         }
                     }
                 }
@@ -332,60 +346,48 @@ namespace Tanks3DFPP
                     //timesince += gameTime.ElapsedGameTime.Milliseconds;
                     //if (timesince > timeperframe)
                     //{
-                        if (listWithResults.Count > 1)
-                            startingPlayerNumber = (int) listWithResults[1];
-                        else
-                        {
-                            percent++;
-                        }
-                    //}
-
-                    if (percent >= 100)
+                    if (!(generatingHeightMap || firstGenerationDone))
                     {
-                        camera = new FPPCamera(GraphicsDevice,
-                            new Vector3(500, maxHeight * Scale, 500),
-                            0.3f,
-                            2.0f,
-                            projection);
-                        GenerateEverything();
-                        sky = new Sky(this.GraphicsDevice, this.Content, this.projection, heightMap.Width);
+                        generatingHeightMap = true;
+                        heightMap = new FractalMap(mapSize, roughness, maxHeight);
+                        ((FractalMap)heightMap).Initialize();
                     }
-                
-            }
 
+                    if (listWithResults.Count > 1)
+                        startingPlayerNumber = (int) listWithResults[1];
+                    else
+                    {
+                        percent = (int)MathHelper.Clamp(++percent, 0, 99);
+                    }
+                }
 
                 if (menu.quit)
                     this.Exit();
             }
-
-
-            if (!menu.GetmenuON())
+            else
             {
-                Game1.CurrentKeyboardState = Keyboard.GetState();
-                Game1.CurrentMouseState = Mouse.GetState();
-                if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed
-                    || CurrentKeyboardState.IsKeyDown(Keys.Escape))
-                    this.Exit();
-
-                KeyboardHandler.KeyAction(Keys.G, GenerateEverything);
-                KeyboardHandler.KeyAction(Keys.F, () =>
+                if (firstGenerationDone)
                 {
-                    rs = new RasterizerState { FillMode = wireFrame ? FillMode.Solid : FillMode.WireFrame };
-                    wireFrame = !wireFrame;
-                });
+                    mainKeyboardHandler.KeyAction(Keys.G, GenerateEverything);
+                    mainKeyboardHandler.KeyAction(Keys.F, () =>
+                        {
+                            rs = new RasterizerState {FillMode = wireFrame ? FillMode.Solid : FillMode.WireFrame};
+                            wireFrame = !wireFrame;
+                        });
 
-                KeyboardHandler.KeyAction(Keys.L, terrain.SwitchLighting);
-                terrain.Update(camera);
-                sphere.Update(gameTime);
-                if (tankController.bShotFired)
-                {
-                    this.camera.Update(gameTime);
-                    camera.AttachAndUpdate(tankController.MissleInGame.Position);
+                    mainKeyboardHandler.KeyAction(Keys.L, terrain.SwitchLighting);
+                    //mainKeyboardHandler.KeyAction(Keys.L, terrain.);
+                    terrain.Update(camera);
+                    sphere.Update(gameTime);
+                    if (tankController.bShotFired)
+                    {
+                        this.camera.Update(gameTime);
+                        camera.AttachAndUpdate(tankController.MissleInGame.Position);
+                    }
 
+                    camera.Update(gameTime);
+                    tankController.Update(gameTime);
                 }
-
-                camera.Update(gameTime);
-                tankController.Update(gameTime);
             }
 
             base.Update(gameTime);

@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework.Input;
 
 namespace Tanks3DFPP.Utilities
 {
-    public static class KeyboardHandler
+    public class KeyboardHandler
     {
-        private static Dictionary<Action, bool> actionSafeGuards = new Dictionary<Action, bool>();
+        private Dictionary<Action, bool> actionSafeGuards = new Dictionary<Action, bool>();
 
-        public static void KeyAction(Keys key, Action action)
+        public void KeyAction(Keys key, Action action)
         {
             var ks = Game1.CurrentKeyboardState;
             if (ks.IsKeyDown(key))
@@ -35,13 +33,12 @@ namespace Tanks3DFPP.Utilities
             }
         }
 
-        public static void TurboKeyAction(Keys key, Action action)
+        public void TurboKeyAction(Keys key, Action action)
         {
             if (Game1.CurrentKeyboardState.IsKeyDown(key))
             {
                 action.Invoke();
             }
         }
-
     }
 }

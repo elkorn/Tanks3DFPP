@@ -203,11 +203,6 @@ namespace Tanks3DFPP.Terrain
                 buffers.SwapBuffer();
             }
 
-            KeyboardHandler.KeyAction(Keys.C, () =>
-            {
-                this.CullingEnabled = !this.CullingEnabled;
-            });
-
             this.RotateLight(.2f);
         }
 

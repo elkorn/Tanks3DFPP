@@ -17,6 +17,8 @@ namespace Tanks3DFPP.Camera
         private float pitchAngle;
         private MouseState referenceMouseState;
 
+        private KeyboardHandler keyboardHandler = new KeyboardHandler();
+
         private Vector3 up;
         private float yawAngle;
 
@@ -81,14 +83,13 @@ namespace Tanks3DFPP.Camera
         public void Update(GameTime gameTime)
         {
             Vector3 velocity = Vector3.Zero;
-            KeyboardHandler.TurboKeyAction(Keys.W, () => { velocity += -Vector3.UnitZ; });
-            KeyboardHandler.TurboKeyAction(Keys.S, () => { velocity += Vector3.UnitZ; });
-            KeyboardHandler.TurboKeyAction(Keys.A, () => { velocity += -Vector3.UnitX; });
-            KeyboardHandler.TurboKeyAction(Keys.D, () => { velocity += Vector3.UnitX; });
+            keyboardHandler.TurboKeyAction(Keys.W, () => { velocity += -Vector3.UnitZ; });
+            keyboardHandler.TurboKeyAction(Keys.S, () => { velocity += Vector3.UnitZ; });
+            keyboardHandler.TurboKeyAction(Keys.A, () => { velocity += -Vector3.UnitX; });
+            keyboardHandler.TurboKeyAction(Keys.D, () => { velocity += Vector3.UnitX; });
 
-            KeyboardHandler.TurboKeyAction(Keys.OemPlus, () => { moveSpeed++; });
-
-            KeyboardHandler.TurboKeyAction(Keys.OemMinus, () => { moveSpeed--; });
+            keyboardHandler.TurboKeyAction(Keys.OemPlus, () => { moveSpeed++; });
+            keyboardHandler.TurboKeyAction(Keys.OemMinus, () => { moveSpeed--; });
 
             Move(velocity);
             Rotate((float) (gameTime.ElapsedGameTime.TotalMilliseconds/1000));

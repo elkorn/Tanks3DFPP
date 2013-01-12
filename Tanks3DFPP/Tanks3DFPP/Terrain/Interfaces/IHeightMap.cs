@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Tanks3DFPP.Terrain.Interfaces;
 
 namespace Tanks3DFPP.Terrain
 {

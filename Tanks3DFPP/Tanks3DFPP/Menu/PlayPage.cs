@@ -34,7 +34,7 @@ namespace Tanks3DFPP.Menu
         /// <param name="Content">Content manager.</param>
         public PlayPage(ContentManager Content,List<string> playerNames,int mapSize,int roughness,int maxHeight)
         {
-            backGround = Content.Load<Texture2D>("MenuContent/TextureX steel texture shiney piece metal silver camo pattern Texture (1)");
+            backGround = Content.Load<Texture2D>("MenuContent/nuke_symbol_Wallpaper_lnsps");
             menuSelect = Content.Load<SoundEffect>("MenuContent/menu_select");
             characters = new Characters(Content);
             //

@@ -1,16 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.Xna.Framework;
 using System.IO;
+using System.Text;
+using System.Threading;
+using Microsoft.Xna.Framework;
+using Tanks3DFPP.Terrain.Interfaces;
+using Tanks3DFPP.Utilities;
 
 namespace Tanks3DFPP.Terrain
 {
     /// <summary>
     /// Fractal height map, using the midpoint displacement algorithm, see http://www.lighthouse3d.com/opengl/terrain/index.php?mpd2.
     /// </summary>
-    public class FractalMap : IHeightMap
+    public class FractalMap : AsyncHeightMap, IHeightMap
     {
         private Random rand;
         //private int roughness;
@@ -91,18 +92,33 @@ namespace Tanks3DFPP.Terrain
                 }
             }
 
-            this.HeightOffset = (int)maxHeight;
+            //AsyncHeightMap.Progressing += (sender, e) =>
+            //    {
+            //        ++TotalProgress;
+            //    };
+
+    this.HeightOffset = (int)maxHeight;
             rand = new Random();
             this.mapDimension = (1 << size);
             this.maxHeight = maxHeight;
             this.steps = size;
             numericFormat = string.Format("D{0}", maxHeight.ToString().Length);
             this.displacement = roughness;
-            this.GenerateHeightData();
-            if (afterSmoothingLevel > 0)
-            {
-                this.SmoothTerrain(afterSmoothingLevel);
-            }
+
+        }
+
+        public void Initialize()
+        {
+            Thread t = new Thread(() =>
+                {
+                    GenerateHeightData();
+                    this.FireFinished(this);
+                });
+            t.Start();
+            //if (afterSmoothingLevel > 0)
+            //{
+            //    this.SmoothTerrain(afterSmoothingLevel);
+            //}
         }
 
         private void GenerateHeightData()
@@ -134,6 +150,8 @@ namespace Tanks3DFPP.Terrain
                         topRightArea = new Rectangle(area.Center.X, area.Top, area.Width / 2, area.Height / 2),
                         bottomLeftArea = new Rectangle(area.Left, area.Center.Y, area.Width / 2, area.Height / 2),
                         bottomRightArea = new Rectangle(area.Center.X, area.Center.Y, area.Width / 2, area.Height / 2);
+
+            ++TotalProgress;
             IterateMPD(topLeftArea, roughness / 2);
             IterateMPD(topRightArea, roughness / 2);
             IterateMPD(bottomLeftArea, roughness / 2);
@@ -316,5 +334,8 @@ namespace Tanks3DFPP.Terrain
             return sb.ToString();
         }
 
+        public static event EventHandler<ProgressEventArgs> Progressing;
+        
+        public static int TotalProgress { get; private set; }
     }
 }
