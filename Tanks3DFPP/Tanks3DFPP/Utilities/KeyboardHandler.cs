@@ -8,6 +8,8 @@ namespace Tanks3DFPP.Utilities
     {
         private static Dictionary<Action, bool> actionSafeGuards = new Dictionary<Action, bool>();
 
+        private static bool anyKeySafeGuard;
+
         public static void KeyAction(Keys key, Action action)
         {
             var ks = Game1.CurrentKeyboardState;
@@ -38,6 +40,22 @@ namespace Tanks3DFPP.Utilities
             if (Game1.CurrentKeyboardState.IsKeyDown(key))
             {
                 action.Invoke();
+            }
+        }
+
+        public static void AnyKey(Action action)
+        {
+            if (Game1.CurrentKeyboardState.GetPressedKeys().Length > 0)
+            {
+                anyKeySafeGuard = true;
+            }
+            else
+            {
+                if (anyKeySafeGuard)
+                {
+                    action.Invoke();
+                    anyKeySafeGuard = false;
+                }
             }
         }
     }

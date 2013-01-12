@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -17,6 +18,7 @@ namespace Tanks3DFPP
     /// </summary>
     public class Game1 : Game
     {
+        
         public static IHeightMap heightMap;
         public static int Scale = 15;
         private FPPCamera camera;
@@ -60,7 +62,7 @@ namespace Tanks3DFPP
 
         private Color bgColor = new Color(69, 125, 200);
 
-
+        private static event EventHandler quitting;
 
         /// <summary>
         /// menu variable
@@ -91,6 +93,10 @@ namespace Tanks3DFPP
         {
             Content.RootDirectory = "Content";
             graphics = new GraphicsDeviceManager(this);
+            quitting += (sender, e) =>
+                {
+                    this.Exit();
+                };
         }
 
         public static KeyboardState CurrentKeyboardState { get; private set; }
@@ -116,7 +122,7 @@ namespace Tanks3DFPP
         {
             if (menu.Enabled)
             {
-                menu.showMenu();
+                menu.Draw();
             }
             else
             {
@@ -133,6 +139,7 @@ namespace Tanks3DFPP
                     tankController.Draw(camera.View, projection);
                 }
             }
+
             base.Draw(gameTime);
         }
 
@@ -251,7 +258,7 @@ namespace Tanks3DFPP
             this.Content.Unload();
         }
 
-/// <summary>
+        /// <summary>
 /// Allows the game to run logic such as updating the world,
 /// checking for collisions, gathering input, and playing audio.
 /// </summary>
@@ -260,10 +267,6 @@ namespace Tanks3DFPP
         {
             CurrentKeyboardState = Keyboard.GetState();
             CurrentMouseState = Mouse.GetState();
-            KeyboardHandler.KeyAction(Keys.Escape, () =>
-                {
-                    this.Exit();
-                });
 
             if (menu.Enabled)
             {
@@ -349,6 +352,11 @@ namespace Tanks3DFPP
             }
 
             base.Update(gameTime);
+        }
+
+        public static void Quit()
+        {
+            quitting.Invoke(null,null);
         }
     }
 }

@@ -68,14 +68,14 @@ namespace Tanks3DFPP.Menu
 
         public event EventHandler OptionChanged;
 
-        public event EventHandler OptionChosen;
+        public event EventHandler<OptionChosenEventArgs> OptionChosen;
 
         protected void FireOptionChosen(MenuPage sender)
         {
-            this.OptionChosen.Invoke(sender, null);
+            this.OptionChosen.Invoke(sender, new OptionChosenEventArgs(this.currentOptionIndex));
         }
 
-        protected void Draw(Matrix view, Matrix projection)
+        public virtual void Draw(Matrix view, Matrix projection)
         {
             spriteBatch.Begin();
             spriteBatch.Draw(backGround, new Rectangle(0, 0, this.graphicsDevice.Viewport.Width, this.graphicsDevice.Viewport.Height), Color.White);
@@ -85,11 +85,19 @@ namespace Tanks3DFPP.Menu
             this.graphicsDevice.DepthStencilState = DepthStencilState.Default;
             this.graphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
 
-            characters.Draw("TANKS 3D FPP", 1f, new Vector3(-900, 350, 0), view, projection);
             foreach (MenuOption option in this.options)
             {
                 option.Draw(characters, view, projection);
             }
+        }
+
+        public virtual void Update()
+        {
+        }
+
+        protected void DrawString(string text, float scale, Vector2 position, Matrix view, Matrix projection)
+        {
+            characters.Draw(text, scale, new Vector3(position, 0), view, projection);
         }
 
         private void CreateOptions(string[] names)

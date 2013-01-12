@@ -32,18 +32,16 @@ namespace Tanks3DFPP.Menu
         /// Method used to update mainmenu page.
         /// </summary>
         /// <returns></returns>
-        public int updateMainMenu()
+        public override void Update()
         {
-            int result = -1;
             KeyboardHandler.KeyAction(Keys.Enter, () =>
                 {
-                    
+                    this.FireOptionChosen(this);
                 });
 
+            KeyboardHandler.KeyAction(Keys.Escape, Game1.Quit);
             KeyboardHandler.KeyAction(Keys.Up, this.SelectPreviousOption);
             KeyboardHandler.KeyAction(Keys.Down, this.SelectNextOption);
-
-            return result;
         }
 
         /// <summary>
@@ -52,11 +50,11 @@ namespace Tanks3DFPP.Menu
         /// <param name="view"></param>
         /// <param name="projection"></param>
         /// <param name="GD"></param>
-        public void showMainMenu(Matrix view, Matrix projection, GraphicsDevice GD)
+        public override void Draw(Matrix view, Matrix projection)
         {
             base.Draw(view, projection);
+            this.DrawString("TANKS 3D FPP", 1f, new Vector2(-900, 350), view, projection);
             tank.Draw(view, projection);
         }
-
     }
 }
