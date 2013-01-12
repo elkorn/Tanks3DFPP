@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Tanks3DFPP.Camera.Interfaces;
 using Tanks3DFPP.Utilities;
+using Tanks3DFPP.Tanks;
 
 namespace Tanks3DFPP.Camera
 {
@@ -133,6 +134,19 @@ namespace Tanks3DFPP.Camera
             Vector3 rotatedTarget = Vector3.Transform(originalTarget, cameraOrientation);
             this.LookAt = cameraOrientation.Translation + rotatedTarget;
             this.up = Vector3.Transform(Vector3.Up, cameraOrientation);
+        }
+
+        public void AttachAndUpdate(Tank tank)
+        {
+            // get difference in positions
+            // compute yawangle and pitchangle
+            pitchAngle = -tank.PreviousCannonDirectionAngle;
+            yawAngle = tank.PreviousTurretDirectionAngle;
+            pitchAngle -= tank.CannonDirectionAngle - tank.PreviousCannonDirectionAngle;
+            yawAngle += tank.TurretDirectionAngle - tank.PreviousTurretDirectionAngle;
+
+            Position = tank.CannonPosition;
+            UpdateView();
         }
 
         public void AttachAndUpdate(Vector3 missilePos)
