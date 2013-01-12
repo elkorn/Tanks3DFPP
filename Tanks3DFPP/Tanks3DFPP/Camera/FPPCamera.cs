@@ -21,6 +21,8 @@ namespace Tanks3DFPP.Camera
         private Vector3 up;
         private float yawAngle;
 
+        bool once;
+
         public FPPCamera(GraphicsDevice device, Vector3 startingPosition, float rotationSpeed, float moveSpeed,
                          Matrix projection)
         {
@@ -140,17 +142,29 @@ namespace Tanks3DFPP.Camera
         {
             // get difference in positions
             // compute yawangle and pitchangle
-            pitchAngle = -tank.PreviousCannonDirectionAngle;
+            pitchAngle = tank.PreviousCannonDirectionAngle;
             yawAngle = tank.PreviousTurretDirectionAngle;
             pitchAngle -= tank.CannonDirectionAngle - tank.PreviousCannonDirectionAngle;
             yawAngle += tank.TurretDirectionAngle - tank.PreviousTurretDirectionAngle;
 
             Position = tank.CannonPosition;
-            UpdateView();
+            //UpdateView();
+            Matrix rotation = Rotation;
+            Vector3 originalTarget = Vector3.UnitZ,
+                    rotatedTarget = Vector3.Transform(originalTarget, rotation);
+            LookAt = Position + rotatedTarget;
+            up = Vector3.Transform(Vector3.Up, rotation);
+            once = true;
         }
 
         public void AttachAndUpdate(Vector3 missilePos)
         {
+            if (once) // ustawiac stan poczatkowy kamery fpp na wstepie tego, nadpisac zmiany wprowadzone podczas kierowania w tanku
+            {
+                once = false;
+                pitchAngle = 0;
+                yawAngle = 0;
+            }
             this.Position = missilePos;
             LookAt = -this.up;
         }

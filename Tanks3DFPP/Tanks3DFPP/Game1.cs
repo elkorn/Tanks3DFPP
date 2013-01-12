@@ -385,9 +385,9 @@ namespace Tanks3DFPP
                 }
                 else
                 {
-                    camera.AttachAndUpdate(tankController.TanksInGame[tankController.TurnToken]);
+                    //camera.AttachAndUpdate(tankController.TanksInGame[tankController.TurnToken]);
                 }
-                //camera.Update(gameTime);
+                camera.Update(gameTime);
                 tankController.Update(gameTime);
             }
 
