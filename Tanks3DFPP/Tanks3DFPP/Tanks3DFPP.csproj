@@ -113,6 +113,8 @@
     <Compile Include="Camera\OrbitingCamera.cs" />
     <Compile Include="Entities\CollidingEntity.cs" />
     <Compile Include="Entities\Sky.cs" />
+    <Compile Include="Menu\MenuPage.cs" />
+    <Compile Include="Menu\MenuOption.cs" />
     <Compile Include="Terrain\Basic\ColoredTerrain.cs" />
     <Compile Include="Tanks\ExplosionSystem.cs" />
     <Compile Include="Menu\Characters.cs" />

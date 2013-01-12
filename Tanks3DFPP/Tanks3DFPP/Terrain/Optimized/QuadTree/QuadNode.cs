@@ -124,7 +124,6 @@ namespace Tanks3DFPP.Terrain.Optimization.QuadTree
             get { return isActive; }
             internal set
             {
-                Game1.SetNodeAsRendered(this, value);
                 isActive = value;
             }
         }

@@ -25,8 +25,6 @@ namespace Tanks3DFPP
         private Texture2D bgTexture;
         private const float FarClippingPlane = 20000f;
 
-        KeyboardHandler mainKeyboardHandler = new KeyboardHandler();
-
         private int mapSize = 10,
                     roughness = 500,
                     maxHeight = 300;
@@ -116,7 +114,7 @@ namespace Tanks3DFPP
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            if (menu.GetmenuON())
+            if (menu.Enabled)
             {
                 menu.showMenu();
             }
@@ -239,42 +237,6 @@ namespace Tanks3DFPP
             menu.LoadMenu(Content, mapSize, roughness, maxHeight);
         }
 
-        public static void SetNodeAsRendered(QuadNode node, bool rendered)
-        {
-            //if (rendered)
-            //{
-            //    if (!nodes.Contains(node))
-            //    {
-            //        nodes.Add(node);
-            //    }
-            //}
-            //else
-            //{
-            //    if (nodes.Contains(node))
-            //    {
-            //        nodes.Remove(node);
-            //    }
-            //}
-
-            //nodeText = string.Join(" : ", nodes.Select(x => x.Depth.ToString()));
-            //if (rendered)
-            //{
-            //    if (!nodes.Contains(node))
-            //    {
-            //        nodes.Add(node);
-            //        nodesCount++;
-            //    }
-            //}
-            //else
-            //{
-            //    if (nodes.Contains(node))
-            //    {
-            //        nodes.Remove(node);
-            //        nodesCount--;
-            //    }
-            //}
-        }
-
         /// <summary>
         ///     UnloadContent will be called once per game and is the place to unload
         ///     all content.
@@ -296,18 +258,14 @@ namespace Tanks3DFPP
 /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            //CurrentKeyboardState = Keyboard.GetState();
-            //CurrentMouseState = Mouse.GetState();
-            //
-            //for menu
-            //
-
-            mainKeyboardHandler.KeyAction(Keys.Escape, () =>
+            CurrentKeyboardState = Keyboard.GetState();
+            CurrentMouseState = Mouse.GetState();
+            KeyboardHandler.KeyAction(Keys.Escape, () =>
                 {
                     this.Exit();
                 });
 
-            if (menu.GetmenuON())
+            if (menu.Enabled)
             {
                 //
                 //this list contains menu results depending on its state.
@@ -368,15 +326,15 @@ namespace Tanks3DFPP
             {
                 if (firstGenerationDone)
                 {
-                    mainKeyboardHandler.KeyAction(Keys.G, GenerateEverything);
-                    mainKeyboardHandler.KeyAction(Keys.F, () =>
+                    KeyboardHandler.KeyAction(Keys.G, GenerateEverything);
+                    KeyboardHandler.KeyAction(Keys.F, () =>
                         {
                             rs = new RasterizerState {FillMode = wireFrame ? FillMode.Solid : FillMode.WireFrame};
                             wireFrame = !wireFrame;
                         });
 
-                    mainKeyboardHandler.KeyAction(Keys.L, terrain.SwitchLighting);
-                    //mainKeyboardHandler.KeyAction(Keys.L, terrain.);
+                    KeyboardHandler.KeyAction(Keys.L, terrain.SwitchLighting);
+                    //KeyboardHandler.KeyAction(Keys.L, terrain.);
                     terrain.Update(camera);
                     sphere.Update(gameTime);
                     if (tankController.bShotFired)

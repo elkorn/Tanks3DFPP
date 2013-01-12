@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
 namespace Tanks3DFPP.Menu
@@ -23,6 +19,7 @@ namespace Tanks3DFPP.Menu
         private bool menuON = true;
 
         private Song music;
+
         /// <summary>
         /// list of player names , size of it is player count(menu adjusted from 2 to 4 players)
         /// </summary>
@@ -35,7 +32,10 @@ namespace Tanks3DFPP.Menu
         /// method to get menuON.
         /// </summary>
         /// <returns>if true then menuON is on.</returns>      
-        public bool GetmenuON() { return menuON; }
+        public bool Enabled
+        {
+            get { return menuON; }
+        }
 
         public bool quit = false;
 
@@ -139,12 +139,13 @@ namespace Tanks3DFPP.Menu
         {
             List<object> result = new List<object>();
             result.Add(0);
-            timesince += gameTime.ElapsedGameTime.Milliseconds;
-            if (timesince > timeper)
-            {
+            //timesince += gameTime.ElapsedGameTime.Milliseconds;
+            //if (timesince > timeper)
+            //{
                 if (mainPageON)
                 {
-                    switch (mainMenuObj.updateMainMenu())
+                    int test = mainMenuObj.updateMainMenu();
+                    switch (test)
                     {
                         case 0:
                             playPageON = true;
@@ -163,8 +164,10 @@ namespace Tanks3DFPP.Menu
                             menuChange.Play();
                             timesince = 0;
                             break;
+                        default:
+                            break;
                     }
-                }
+                //}
 
                 if (helpPageON)
                 {

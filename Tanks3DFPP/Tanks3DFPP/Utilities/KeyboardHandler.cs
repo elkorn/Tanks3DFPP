@@ -4,11 +4,11 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Tanks3DFPP.Utilities
 {
-    public class KeyboardHandler
+    public static class KeyboardHandler
     {
-        private Dictionary<Action, bool> actionSafeGuards = new Dictionary<Action, bool>();
+        private static Dictionary<Action, bool> actionSafeGuards = new Dictionary<Action, bool>();
 
-        public void KeyAction(Keys key, Action action)
+        public static void KeyAction(Keys key, Action action)
         {
             var ks = Game1.CurrentKeyboardState;
             if (ks.IsKeyDown(key))
@@ -33,7 +33,7 @@ namespace Tanks3DFPP.Utilities
             }
         }
 
-        public void TurboKeyAction(Keys key, Action action)
+        public static void TurboKeyAction(Keys key, Action action)
         {
             if (Game1.CurrentKeyboardState.IsKeyDown(key))
             {
