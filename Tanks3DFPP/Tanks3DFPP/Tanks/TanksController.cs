@@ -84,7 +84,7 @@ namespace Tanks3DFPP.Tanks
                     bNotSpawnedCorrectly = false;
                     do
                     {
-                        TanksInGame[i].SpawnAt(new Vector3(rand.Next(0, (Game1.heightMap.Width - 1) * Game1.Scale), 0, rand.Next(0, (Game1.heightMap.Height - 1) * Game1.Scale))); // Y should be calculated
+                        TanksInGame[i].SpawnAt(new Vector3(rand.Next(0, (Game1.heightMap.Width - 1) * Game1.MapScale), 0, rand.Next(0, (Game1.heightMap.Height - 1) * Game1.MapScale))); // Y should be calculated
                     } while (!TanksInGame[i].IsOnMap);
                     for (int j = 0; j < TanksInGame.Count; ++j)
                     {

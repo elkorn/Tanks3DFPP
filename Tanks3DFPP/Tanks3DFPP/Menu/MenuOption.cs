@@ -8,15 +8,18 @@ namespace Tanks3DFPP.Menu
 
         public readonly int Index;
 
-        public bool IsSelected { get; private set; }
+        public bool IsSelected { get; protected set; }
 
-        private readonly Vector3 position;
+        protected readonly Vector3 position;
 
-        public MenuOption(string text, int index)
+        protected readonly float baseScale;
+
+        public MenuOption(string text, int index, Vector2 position, float baseScale = .7f)
         {
             this.Text = text;
             this.Index = index;
-            this.position = new Vector3(200, 100 - 330*this.Index, 0);
+            this.position = new Vector3(position, 0);
+            this.baseScale = baseScale;
         }
 
         public void Select()
@@ -29,9 +32,9 @@ namespace Tanks3DFPP.Menu
             this.IsSelected = false;
         }
 
-        public void Draw(Characters characters, Matrix view, Matrix projection)
+        public virtual void Draw(Characters characters, Matrix view, Matrix projection)
         {
-            characters.Draw(this.Text, this.IsSelected ? .9f : .7f, this.position, view, projection);
+            characters.Draw(this.Text, this.IsSelected ? baseScale + .2f : baseScale, this.position, view, projection);
         }
     }
 }

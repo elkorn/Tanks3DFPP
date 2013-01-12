@@ -1,67 +1,57 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
+using Tanks3DFPP.Utilities;
 
 namespace Tanks3DFPP.Menu
 {
     /// <summary>
     /// Class used to handle play page.
     /// </summary>
-    public class PlayPage
+    internal class PlayPage : MenuPage
     {
-
-        private Characters characters;
-        private Texture2D backGround;
         private List<TextBox> listOfTextBoxes = new List<TextBox>();
-        private bool buttonUpOn = false;
-        private bool buttonDownOn = false;
-        private bool buttonLeftOn = false;
-        private bool buttonRightOn = false;
+        private bool buttonUpOn;
+        private bool buttonDownOn;
+        private bool buttonLeftOn;
+        private bool buttonRightOn;
         private SoundEffect menuSelect;
-        private bool nextButtonFocus = false;
-        private bool backButtonFocus = false;
+        private bool nextButtonFocus;
+        private bool backButtonFocus;
 
+        private GraphicsDevice gd;
         /// <summary>
         /// Class constructor loads necessary elements.
         /// </summary>
-        /// <param name="Content">Content manager.</param>
-        public PlayPage(ContentManager Content,List<string> playerNames,int mapSize,int roughness,int maxHeight)
+        /// <param name="content">content manager.</param>
+        public PlayPage(ContentManager content, GraphicsDevice graphicsDevice, List<string> playerNames)
+            : base(content, graphicsDevice, Menu.AltBackgroundResourceName, new[]
+                {
+                    new TextBox(content, "FIRST PLAYER NAME", 0, "PLAYER1", false, 0, 0, new Vector2(-900, 400), 0.2f),
+                    new TextBox(content, "THIRD PLAYER NAME", 1, string.Empty, false, 0, 0, new Vector2(-900, 200), 0.2f),
+                    new TextBox(content, "MAP SIZE", 2, Game1.MapScale.ToString(), true, 0, 100, new Vector2(-900, 0), 0.2f),
+                    new TextBox(content, "MAP HEIGHT", 3, Game1.MaxHeight.ToString(), true, 0, 500, new Vector2(-900, -200), 0.2f),
+                    new MenuOption("BACK", 4, new Vector2(-700, -550), 1.1f),
+                    new TextBox(content, "SECOND PLAYER NAME", 5, "PLAYER2", false, 0, 0, new Vector2(100, 400), 0.2f),
+                    new TextBox(content, "FOURTH PLAYER NAME", 6, string.Empty, false, 0, 0, new Vector2(100, 200), 0.2f),
+                    new TextBox(content, "ROUGHNESS", 7, Game1.Roughness.ToString(), true, 0, 1000, new Vector2(100, 0), 0.2f),
+                    new MenuOption("NEXT", 8, new Vector2(200, -550), 1.1f)
+                })
         {
-            backGround = Content.Load<Texture2D>("MenuContent/nuke_symbol_Wallpaper_lnsps");
-            menuSelect = Content.Load<SoundEffect>("MenuContent/menu_select");
-            characters = new Characters(Content);
             //
             //Creating textboxes in loading page.
             //
-            if (playerNames ==null)
+            if (playerNames == null)
             {
                 playerNames = new List<string>();
                 playerNames.Add("PLAYER1");
                 playerNames.Add("PLAYER2");
             }
-            //
-            //first column in menu
-            //
-            listOfTextBoxes.Add(new TextBox(Content, "FIRST PLAYER NAME", playerNames[0], false, 0, 0, new Vector3(-900, 400, 0), 0.2f));
-            listOfTextBoxes.Add(new TextBox(Content, "THIRD PLAYER NAME", playerNames.Count>2 ? playerNames[2]:"", false, 0, 0, new Vector3(-900, 200, 0), 0.2f));
-            listOfTextBoxes.Add(new TextBox(Content, "MAP SIZE", mapSize.ToString(), true, 0, 100, new Vector3(-900, 0, 0), 0.2f));
-            listOfTextBoxes.Add(new TextBox(Content, "MAP HEIGHT", maxHeight.ToString(), true, 0, 500, new Vector3(-900, -200, 0), 0.2f));
 
-            //
-            //second column in menu
-            //
-            listOfTextBoxes.Add(new TextBox(Content, "SECOND PLAYER NAME", playerNames[1], false, 0, 0, new Vector3(100, 400, 0), 0.2f));
-            listOfTextBoxes.Add(new TextBox(Content, "FOURTH PLAYER NAME", playerNames.Count > 3 ? playerNames[3] : "", false, 0, 0, new Vector3(100, 200, 0), 0.2f));
-            listOfTextBoxes.Add(new TextBox(Content, "ROUGHNESS", roughness.ToString(), true, 0, 1000, new Vector3(100, 0, 0), 0.2f));
-
-            listOfTextBoxes[0].SetFocus(true);
+            gd = graphicsDevice;
         }
 
         /// <summary>
@@ -71,33 +61,26 @@ namespace Tanks3DFPP.Menu
         /// <param name="GraphicsDevice">Graphics device</param>
         /// <param name="view">View matrix.</param>
         /// <param name="projection">Projection matrix.</param>
-        public void showPlayPage(SpriteBatch spritebatch, GraphicsDevice GraphicsDevice, Matrix view, Matrix projection)
+        public override void Draw(Matrix view, Matrix projection)
         {
-            spritebatch.Begin();
-            spritebatch.Draw(backGround, new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height), Color.White);
-            spritebatch.End();
+            base.Draw(view, projection);
+            this.DrawString("IF YOU WANT TO PLAY YOU NEED TO HAVE A NAME.", 0.2f, new Vector2(-900, 550), view, projection);
+            this.DrawString("THE GAME NEEDS AT LEAST TWO PLAYERS.", 0.2f, new Vector2(-900, 500), view, projection);
 
-            GraphicsDevice.BlendState = BlendState.Opaque;
-            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
+            //if (nextButtonFocus == false)
+            //    characters.Draw("NEXT", 1.1f, new Vector3(200, -550, 0), view, projection);
+            //else
+            //    characters.Draw("NEXT", 1.3f, new Vector3(200, -550, 0), view, projection);
 
-            characters.Draw("IF YOU WANT TO PLAY YOU NEED TO HAVE A NAME.", 0.2f, new Vector3(-900, 550, 0), view, projection);
-            characters.Draw("THE GAME NEEDS AT LEAST TWO PLAYERS.", 0.2f, new Vector3(-900, 500, 0), view, projection);
+            //if (backButtonFocus == false)
+            //    characters.Draw("BACK", 1.1f, new Vector3(-700, -550, 0), view, projection);
+            //else
+            //    characters.Draw("BACK", 1.3f, new Vector3(-700, -550, 0), view, projection);
 
-            if (nextButtonFocus == false)
-                characters.Draw("NEXT", 1.1f, new Vector3(200, -550, 0), view, projection);
-            else
-                characters.Draw("NEXT", 1.3f, new Vector3(200, -550, 0), view, projection);
-
-            if (backButtonFocus == false)
-                characters.Draw("BACK", 1.1f, new Vector3(-700, -550, 0), view, projection);
-            else
-                characters.Draw("BACK", 1.3f, new Vector3(-700, -550, 0), view, projection);
-
-            for (int i = 0; i < listOfTextBoxes.Count; ++i)
-            {
-                listOfTextBoxes[i].drawTextBox(spritebatch, GraphicsDevice, view, projection);
-            }
+            //for (int i = 0; i < listOfTextBoxes.Count; ++i)
+            //{
+            //    listOfTextBoxes[i].Draw(view, projection);
+            //}
         }
 
         /// <summary>
@@ -113,42 +96,17 @@ namespace Tanks3DFPP.Menu
             result.Add(0);
             for (int i = 0; i < listOfTextBoxes.Count; ++i)
             {
-                if (listOfTextBoxes[i].GetFocus())
+                if (listOfTextBoxes[i].HasFocus)
                 {
-                    listOfTextBoxes[i].updateTextBox();
+                    listOfTextBoxes[i].Update();
                     break;
                 }
             }
 
-            KeyboardState keyboardState = Keyboard.GetState();
-
-
-            if (keyboardState.IsKeyDown(Keys.Up))
-            {
-                buttonUpOn = true;
-            }
-            if (keyboardState.IsKeyDown(Keys.Down))
-            {
-                buttonDownOn = true;
-            }
-
-            if (keyboardState.IsKeyDown(Keys.Left))
-            {
-                buttonLeftOn = true;
-            }
-            if (keyboardState.IsKeyDown(Keys.Right))
-            {
-                buttonRightOn = true;
-            }
-
             #region right button
 
-            if (keyboardState.IsKeyUp(Keys.Right))
-            {
-                if (buttonRightOn)
+            KeyboardHandler.KeyAction(Keys.Right, () =>
                 {
-                    buttonRightOn = false;
-
                     int num = 0;
                     if (listOfTextBoxes.Count % 2 == 0)
                         num = listOfTextBoxes.Count / 2;
@@ -163,7 +121,7 @@ namespace Tanks3DFPP.Menu
                     }
 
                     for (int i = 0; i < listOfTextBoxes.Count; ++i)
-                        if (listOfTextBoxes[i].GetFocus())
+                        if (listOfTextBoxes[i].HasFocus)
                         {
                             if (i <= num)
                                 if (!backButtonFocus)
@@ -171,31 +129,26 @@ namespace Tanks3DFPP.Menu
                                     if (i + num + 1 <= listOfTextBoxes.Count - 1)
                                     {
                                         menuSelect.Play(0.5f, 0, 0);
-                                        listOfTextBoxes[i].SetFocus(false);
-                                        listOfTextBoxes[i + num + 1].SetFocus(true);
+                                        listOfTextBoxes[i].HasFocus = false;
+                                        listOfTextBoxes[i + num + 1].HasFocus = true;
                                     }
                                     break;
                                 }
                                 else
                                 {
                                     menuSelect.Play(0.5f, 0, 0);
-                                    listOfTextBoxes[i].SetFocus(false);
+                                    listOfTextBoxes[i].HasFocus = false;
                                     nextButtonFocus = true;
                                 }
                         }
-                }
-            }
+                });
 
             #endregion
 
             #region down button
 
-            if (keyboardState.IsKeyUp(Keys.Down))
-            {
-                if (buttonDownOn)
+            KeyboardHandler.KeyAction(Keys.Down, () =>
                 {
-                    buttonDownOn = false;
-
                     int num = 0;
                     if (listOfTextBoxes.Count % 2 == 0)
                         num = listOfTextBoxes.Count / 2;
@@ -203,12 +156,12 @@ namespace Tanks3DFPP.Menu
                         num = (listOfTextBoxes.Count - 1) / 2;
 
                     for (int i = 0; i < listOfTextBoxes.Count; ++i)
-                        if (listOfTextBoxes[i].GetFocus())
+                        if (listOfTextBoxes[i].HasFocus)
                         {
                             if (i == num || i == listOfTextBoxes.Count - 1)
                             {
                                 menuSelect.Play(0.5f, 0, 0);
-                                listOfTextBoxes[i].SetFocus(false);
+                                listOfTextBoxes[i].HasFocus = false;
                                 if (i == listOfTextBoxes.Count - 1)
                                 {
                                     nextButtonFocus = true;
@@ -221,165 +174,162 @@ namespace Tanks3DFPP.Menu
                             else
                             {
                                 menuSelect.Play(0.5f, 0, 0);
-                                listOfTextBoxes[i].SetFocus(false);
-                                listOfTextBoxes[i + 1].SetFocus(true);
+                                listOfTextBoxes[i].HasFocus = false;
+                                listOfTextBoxes[i + 1].HasFocus = true;
                                 break;
                             }
                         }
-                }
-            }
+                });
 
             #endregion
 
             #region up button
 
-            if (keyboardState.IsKeyUp(Keys.Up))
-            {
-                if (buttonUpOn)
+            KeyboardHandler.KeyAction(Keys.Up, () =>
                 {
-                    buttonUpOn = false;
-                    int num = 0;
-                    if (listOfTextBoxes.Count % 2 == 0)
-                        num = listOfTextBoxes.Count / 2;
-                    else
-                        num = (listOfTextBoxes.Count - 1) / 2;
+                        int num = 0;
+                        if (listOfTextBoxes.Count%2 == 0)
+                            num = listOfTextBoxes.Count/2;
+                        else
+                            num = (listOfTextBoxes.Count - 1)/2;
 
-                    for (int i = 0; i < listOfTextBoxes.Count; ++i)
-                        if (i > 0 && i != num + 1)
-                            if (listOfTextBoxes[i].GetFocus())
-                            {
-                                menuSelect.Play(0.5f, 0, 0);
-                                listOfTextBoxes[i].SetFocus(false);
-                                listOfTextBoxes[i - 1].SetFocus(true);
-                                break;
-                            }
+                        for (int i = 0; i < listOfTextBoxes.Count; ++i)
+                            if (i > 0 && i != num + 1)
+                                if (listOfTextBoxes[i].HasFocus)
+                                {
+                                    menuSelect.Play(0.5f, 0, 0);
+                                    listOfTextBoxes[i].HasFocus = false;
+                                    listOfTextBoxes[i - 1].HasFocus = true;
+                                    break;
+                                }
 
-                    if (backButtonFocus)
-                    {
-                        menuSelect.Play(0.5f, 0, 0);
-                        backButtonFocus = false;
-                        listOfTextBoxes[num].SetFocus(true);
-                    }
-                    if (nextButtonFocus)
-                    {
-                        menuSelect.Play(0.5f, 0, 0);
-                        nextButtonFocus = false;
-                        listOfTextBoxes[listOfTextBoxes.Count - 1].SetFocus(true);
-                    }
-                }
-            }
+                        if (backButtonFocus)
+                        {
+                            menuSelect.Play(0.5f, 0, 0);
+                            backButtonFocus = false;
+                            listOfTextBoxes[num].HasFocus = true;
+                        }
+                        if (nextButtonFocus)
+                        {
+                            menuSelect.Play(0.5f, 0, 0);
+                            nextButtonFocus = false;
+                            listOfTextBoxes[listOfTextBoxes.Count - 1].HasFocus = true;
+                        }
+                });
 
             #endregion
 
             #region left button
 
-            if (keyboardState.IsKeyUp(Keys.Left))
-            {
-                if (buttonLeftOn)
+            KeyboardHandler.KeyAction(Keys.Left, () =>
                 {
-                    buttonLeftOn = false;
+                        int num = 0;
+                        if (listOfTextBoxes.Count%2 == 0)
+                            num = listOfTextBoxes.Count/2;
+                        else
+                            num = (listOfTextBoxes.Count - 1)/2;
 
-                    int num = 0;
-                    if (listOfTextBoxes.Count % 2 == 0)
-                        num = listOfTextBoxes.Count / 2;
-                    else
-                        num = (listOfTextBoxes.Count - 1) / 2;
-
-                    if (nextButtonFocus)
-                    {
-                        menuSelect.Play(0.5f, 0, 0);
-                        nextButtonFocus = false;
-                        backButtonFocus = true;
-                    }
-                    else
-                        for (int i = 0; i < listOfTextBoxes.Count; ++i)
-                            if (i > num)
-                                if (listOfTextBoxes[i].GetFocus())
-                                {
-                                    menuSelect.Play(0.5f, 0, 0);
-                                    listOfTextBoxes[i].SetFocus(false);
-                                    listOfTextBoxes[i - num - 1].SetFocus(true);
-                                    break;
-                                }
-
-
-                }
-            }
+                        if (nextButtonFocus)
+                        {
+                            menuSelect.Play(0.5f, 0, 0);
+                            nextButtonFocus = false;
+                            backButtonFocus = true;
+                        }
+                        else
+                            for (int i = 0; i < listOfTextBoxes.Count; ++i)
+                                if (i > num)
+                                    if (listOfTextBoxes[i].HasFocus)
+                                    {
+                                        menuSelect.Play(0.5f, 0, 0);
+                                        listOfTextBoxes[i].HasFocus = false;
+                                        listOfTextBoxes[i - num - 1].HasFocus = true;
+                                        break;
+                                    }
+                });
 
             #endregion
 
             #region escape button
 
-            if (keyboardState.IsKeyDown(Keys.Escape))
-            {
-                result[0] = -1;
-                backButtonFocus = false;
-                nextButtonFocus = false;
-                listOfTextBoxes[0].SetFocus(true);
-            }
+            KeyboardHandler.KeyAction(Keys.Escape, () =>
+                {
+                    result[0] = -1;
+                    backButtonFocus = false;
+                    nextButtonFocus = false;
+                    listOfTextBoxes[0].HasFocus = true;
+                });
 
             #endregion
 
             #region enter button
 
-            if (keyboardState.IsKeyDown(Keys.Enter))
-            {
-                if (nextButtonFocus)
+            KeyboardHandler.KeyAction(Keys.Enter, () =>
                 {
-                    int numberOfPlayers = 0;
-                    if (listOfTextBoxes[0].GetValue() != "")
-                        numberOfPlayers++;
-                    if (listOfTextBoxes[4].GetValue() != "")
-                        numberOfPlayers++;
-                    if (listOfTextBoxes[1].GetValue() != "")
-                        numberOfPlayers++;
-                    if (listOfTextBoxes[5].GetValue() != "")
-                        numberOfPlayers++;
-
-                    // there must be minimum 2 players
-                    if (numberOfPlayers >= 2)
+                    if (nextButtonFocus)
                     {
-                        result[0] = 1;
-                        nextButtonFocus = false;
-
-                        //adding map creation variables
-                        //map size
-                        result.Add(listOfTextBoxes[2].GetValue());
-                        //map height
-                        result.Add(listOfTextBoxes[3].GetValue());
-                        //map roughness
-                        result.Add(listOfTextBoxes[6].GetValue());
-
-                        //
-                        //adding player names in result
-                        //
-                        //first player name
+                        int numberOfPlayers = 0;
                         if (listOfTextBoxes[0].GetValue() != "")
-                            result.Add(listOfTextBoxes[0].GetValue());
-                        //second player name
+                            numberOfPlayers++;
                         if (listOfTextBoxes[4].GetValue() != "")
-                            result.Add(listOfTextBoxes[4].GetValue());
-                        //third player name
+                            numberOfPlayers++;
                         if (listOfTextBoxes[1].GetValue() != "")
-                            result.Add(listOfTextBoxes[0].GetValue());
-                        //fourth player name
+                            numberOfPlayers++;
                         if (listOfTextBoxes[5].GetValue() != "")
-                            result.Add(listOfTextBoxes[5].GetValue());
+                            numberOfPlayers++;
 
-                        listOfTextBoxes[0].SetFocus(true);
+                        // there must be minimum 2 players
+                        if (numberOfPlayers >= 2)
+                        {
+                            result[0] = 1;
+                            nextButtonFocus = false;
+
+                            //adding map creation variables
+                            //map size
+                            result.Add(listOfTextBoxes[2].GetValue());
+                            //map height
+                            result.Add(listOfTextBoxes[3].GetValue());
+                            //map roughness
+                            result.Add(listOfTextBoxes[6].GetValue());
+
+                            //
+                            //adding player names in result
+                            //
+                            //first player name
+                            if (listOfTextBoxes[0].GetValue() != "")
+                                result.Add(listOfTextBoxes[0].GetValue());
+                            //second player name
+                            if (listOfTextBoxes[4].GetValue() != "")
+                                result.Add(listOfTextBoxes[4].GetValue());
+                            //third player name
+                            if (listOfTextBoxes[1].GetValue() != "")
+                                result.Add(listOfTextBoxes[0].GetValue());
+                            //fourth player name
+                            if (listOfTextBoxes[5].GetValue() != "")
+                                result.Add(listOfTextBoxes[5].GetValue());
+
+                            listOfTextBoxes[0].HasFocus = true;
+                        }
                     }
-                }
-                if (backButtonFocus)
-                {
-                    result[0] = -1;
-                    backButtonFocus = false;
-                    listOfTextBoxes[0].SetFocus(true);
-                }
-            }
+                    if (backButtonFocus)
+                    {
+                        result[0] = -1;
+                        backButtonFocus = false;
+                        listOfTextBoxes[0].HasFocus = true;
+                    }
+                });
 
             #endregion
 
             return result;
+        }
+
+        /// <summary>
+        /// Updates this instance.
+        /// </summary>
+        public override void Update()
+        {
+            base.Update();
+
         }
 
     }

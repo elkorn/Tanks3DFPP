@@ -23,7 +23,7 @@ namespace Tanks3DFPP.Entities
             effect.Projection = projection;
             dome.Meshes[0].MeshParts[0].Effect = effect;
             modelTransforms = new Matrix[dome.Bones.Count];
-            this.baseTransform = Matrix.CreateTranslation(0, -.3f, 0) * Matrix.CreateScale(width * Game1.Scale);
+            this.baseTransform = Matrix.CreateTranslation(0, -.3f, 0) * Matrix.CreateScale(width * Game1.MapScale);
         }
 
         public void Draw(ICamera camera)

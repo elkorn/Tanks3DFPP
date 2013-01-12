@@ -5,27 +5,48 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Tanks3DFPP.Utilities;
 
 namespace Tanks3DFPP.Menu
 {
     internal class MenuPage
     {
         private Texture2D backGround;
-        private SpriteBatch spriteBatch;
+        private static SpriteBatch spriteBatch;
+
+        internal static SpriteBatch SpriteBatch
+        {
+            get { return spriteBatch; }
+        }
+
         private SoundEffect select;
         private static Characters characters;
         private int currentOptionIndex;
         private List<MenuOption> options;
         private GraphicsDevice graphicsDevice;
 
-        public MenuPage(ContentManager content, GraphicsDevice graphicsDevice, string backgroundResourcePath, string[] options)
+        public MenuPage(ContentManager content, GraphicsDevice graphicsDevice, string backgroundResourcePath, IEnumerable<MenuOption> options)
         {
             characters = new Characters(content);
             backGround = content.Load<Texture2D>(backgroundResourcePath);
             select = content.Load<SoundEffect>("MenuContent/menu_select");
+            if (spriteBatch == null)
+            {
+                spriteBatch = new SpriteBatch(graphicsDevice);
+            }
+
             this.graphicsDevice = graphicsDevice;
-            spriteBatch = new SpriteBatch(this.graphicsDevice);
-            this.CreateOptions(options);
+            if (options.Count() > 0)
+            {
+                this.CreateOptions(options);
+                this.SelectPreviousOption();
+            }
+            else
+            {
+                this.options = new List<MenuOption>();
+            }
+
             this.OptionChanged += this.PlaySelectSound;
         }
 
@@ -70,6 +91,8 @@ namespace Tanks3DFPP.Menu
 
         public event EventHandler<OptionChosenEventArgs> OptionChosen;
 
+        public event EventHandler Cancelled;
+
         protected void FireOptionChosen(MenuPage sender)
         {
             this.OptionChosen.Invoke(sender, new OptionChosenEventArgs(this.currentOptionIndex));
@@ -93,6 +116,10 @@ namespace Tanks3DFPP.Menu
 
         public virtual void Update()
         {
+            KeyboardHandler.KeyAction(Keys.Escape, () =>
+                {
+                    this.Cancelled.Invoke(this,null);
+                });
         }
 
         protected void DrawString(string text, float scale, Vector2 position, Matrix view, Matrix projection)
@@ -100,12 +127,21 @@ namespace Tanks3DFPP.Menu
             characters.Draw(text, scale, new Vector3(position, 0), view, projection);
         }
 
-        private void CreateOptions(string[] names)
+        //protected void CreateOptions(string[] names)
+        //{
+        //    this.options = new List<MenuOption>();
+        //    for (int i = 0; i < names.Length; ++i)
+        //    {
+        //        this.options.Add(new MenuOption(names[i], i, new Vector2(200, 100 - 330 * i)));
+        //    }
+        //}
+
+        protected void CreateOptions(IEnumerable<MenuOption> options)
         {
             this.options = new List<MenuOption>();
-            for (int i = 0; i < names.Length; ++i)
+            foreach (MenuOption option in options)
             {
-                this.options.Add(new MenuOption(names[i],i));
+                this.options.Add(option);
             }
         }
     }

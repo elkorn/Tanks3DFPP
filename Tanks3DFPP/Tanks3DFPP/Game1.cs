@@ -18,30 +18,45 @@ namespace Tanks3DFPP
     /// </summary>
     public class Game1 : Game
     {
-        
+
         public static IHeightMap heightMap;
-        public static int Scale = 15;
+        public static int MapScale
+        {
+            get
+            {
+                return scale;
+            }
+
+            set
+            {
+                if (value > 0 && value < 16)
+                {
+                    scale = value;
+                }
+            }
+        }
         private FPPCamera camera;
         private SpriteFont font;
         private GraphicsDeviceManager graphics;
         private Texture2D bgTexture;
         private const float FarClippingPlane = 20000f;
 
-        private int mapSize = 10,
+        private static int mapSize = 10,
                     roughness = 500,
-                    maxHeight = 300;
-        public int MaxHeight
+                    maxHeight = 300,
+                    scale = 1;
+        public static int MaxHeight
         {
             get
             {
-                return this.maxHeight;
+                return maxHeight;
             }
 
             set
             {
                 if (value >= 100 && value <= 1000)
                 {
-                    this.maxHeight = value;
+                    maxHeight = value;
                 }
             }
         }
@@ -84,9 +99,6 @@ namespace Tanks3DFPP
         /// </summary>
         private int percent;
 
-        //time for loading percent needed until backgroundworker for loading terrain is done :D
-        private int timesince = 0;
-        private int timeperframe = 400;
         private bool generatingHeightMap, firstGenerationDone;
 
         public Game1()
@@ -102,7 +114,7 @@ namespace Tanks3DFPP
         public static KeyboardState CurrentKeyboardState { get; private set; }
         public static MouseState CurrentMouseState { get; private set; }
 
-        public int Roughness
+        public static int Roughness
         {
             get { return roughness; }
             set
@@ -190,8 +202,8 @@ namespace Tanks3DFPP
                 heightMap, // = new FractalMap(mapSize, Roughness, maxHeight)
                 camera.View,
                 projection,
-                Scale);
-            sphere = new CollisionSphere(this, heightMap, new Vector3(50, 0, 150), Scale);
+                MapScale);
+            sphere = new CollisionSphere(this, heightMap, new Vector3(50, 0, 150), MapScale);
             tankController = new TankController(this, 2);
         }
 
@@ -204,7 +216,7 @@ namespace Tanks3DFPP
         protected override void Initialize()
         {
             world = Matrix.Identity;
-            QuadNode.limY = (Scale + 1)*maxHeight;
+            QuadNode.limY = (MapScale + 1) * maxHeight;
             projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45),
                                                              GraphicsDevice.Viewport.AspectRatio,
                                                              1,
@@ -219,7 +231,7 @@ namespace Tanks3DFPP
             AsyncHeightMap.Finished += (sender, e) =>
                 {
                     camera = new FPPCamera(GraphicsDevice,
-                        new Vector3(500, maxHeight * Scale, 500),
+                        new Vector3(500, maxHeight * MapScale, 500),
                         0.3f,
                         2.0f,
                         projection);
@@ -230,7 +242,7 @@ namespace Tanks3DFPP
                     firstGenerationDone = true;
                 };
 
-    base.Initialize();
+            base.Initialize();
         }
 
         /// <summary>
@@ -241,7 +253,7 @@ namespace Tanks3DFPP
         {
             font = Content.Load<SpriteFont>("SpriteFont1");
             this.bgTexture = Content.Load<Texture2D>("TRON__grid_only_by_hardwayjackson");
-            menu.LoadMenu(Content, mapSize, roughness, maxHeight);
+            menu.LoadMenu(Content);
         }
 
         /// <summary>
@@ -259,10 +271,10 @@ namespace Tanks3DFPP
         }
 
         /// <summary>
-/// Allows the game to run logic such as updating the world,
-/// checking for collisions, gathering input, and playing audio.
-/// </summary>
-/// <param name="gameTime">Provides a snapshot of timing values.</param>
+        /// Allows the game to run logic such as updating the world,
+        /// checking for collisions, gathering input, and playing audio.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
             CurrentKeyboardState = Keyboard.GetState();
@@ -273,28 +285,28 @@ namespace Tanks3DFPP
                 //
                 //this list contains menu results depending on its state.
                 //
-                List<object> listWithResults = menu.updateMenu(gameTime, percent);
+                List<object> listWithResults = menu.Update(gameTime, percent);
 
                 //checking the state of menu, if 1 then play page is done which means we have necessary variables for creating terrain
-                if ((int) listWithResults[0] == 1)
+                if ((int)listWithResults[0] == 1)
                 {
-                    if ((int) listWithResults[1] == 1)
+                    if ((int)listWithResults[1] == 1)
                     {
                         //next button in play page pressed
                         //set variables
-                        mapSize = int.Parse((string) listWithResults[2]);
-                        maxHeight = int.Parse((string) listWithResults[3]);
-                        roughness = int.Parse((string) listWithResults[4]);
+                        mapSize = int.Parse((string)listWithResults[2]);
+                        maxHeight = int.Parse((string)listWithResults[3]);
+                        roughness = int.Parse((string)listWithResults[4]);
 
                         playerNames = new List<string>();
                         for (int i = 0; i < listWithResults.Count - 5; ++i)
                         {
-                            playerNames.Add((string) listWithResults[i + 5]);
+                            playerNames.Add((string)listWithResults[i + 5]);
                         }
                     }
                 }
 
-                if ((int) listWithResults[0] == 2)
+                if ((int)listWithResults[0] == 2)
                 {
                     //loading page is on 
                     //start creating the terrain
@@ -315,15 +327,12 @@ namespace Tanks3DFPP
                     }
 
                     if (listWithResults.Count > 1)
-                        startingPlayerNumber = (int) listWithResults[1];
+                        startingPlayerNumber = (int)listWithResults[1];
                     else
                     {
                         percent = (int)MathHelper.Clamp(++percent, 0, 99);
                     }
                 }
-
-                if (menu.quit)
-                    this.Exit();
             }
             else
             {
@@ -332,7 +341,7 @@ namespace Tanks3DFPP
                     KeyboardHandler.KeyAction(Keys.G, GenerateEverything);
                     KeyboardHandler.KeyAction(Keys.F, () =>
                         {
-                            rs = new RasterizerState {FillMode = wireFrame ? FillMode.Solid : FillMode.WireFrame};
+                            rs = new RasterizerState { FillMode = wireFrame ? FillMode.Solid : FillMode.WireFrame };
                             wireFrame = !wireFrame;
                         });
 
@@ -356,7 +365,7 @@ namespace Tanks3DFPP
 
         public static void Quit()
         {
-            quitting.Invoke(null,null);
+            quitting.Invoke(null, null);
         }
     }
 }

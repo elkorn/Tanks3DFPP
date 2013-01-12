@@ -12,8 +12,8 @@ namespace Tanks3DFPP.Menu
     /// </summary>
     public class Menu
     {
-
-        public const string DefaultBackgroundResourceName = "MenuContent/xnuke.jpg.pagespeed.ic.XD9-0bi6PQ";
+        public const string DefaultBackgroundResourceName = "MenuContent/xnuke.jpg.pagespeed.ic.XD9-0bi6PQ",
+            AltBackgroundResourceName = "MenuContent/nuke_symbol_Wallpaper_lnsps";
         private SpriteBatch spritebatch;
         private bool menuON = true;
 
@@ -23,9 +23,6 @@ namespace Tanks3DFPP.Menu
         /// list of player names , size of it is player count(menu adjusted from 2 to 4 players)
         /// </summary>
         List<string> playerNames;
-        int mapSize = 10,
-            roughness = 500,
-            maxHeight = 300;
 
         /// <summary>
         /// method to get menuON.
@@ -35,14 +32,6 @@ namespace Tanks3DFPP.Menu
         {
             get { return menuON; }
         }
-
-        public bool quit = false;
-
-        /// <summary>
-        /// Method to get quit.
-        /// </summary>
-        /// <returns>If true then quit is on.</returns>      
-        public bool Getquit() { return quit; }
 
         private bool mainPageON = true;
         private bool playPageON = false;
@@ -60,10 +49,7 @@ namespace Tanks3DFPP.Menu
         private Matrix view;
         private Matrix projection;
 
-        private SoundEffect menuCancel;
         private SoundEffect menuChange;
-
-        private int mainMenuResult = -1;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Menu" /> class.
@@ -89,17 +75,12 @@ namespace Tanks3DFPP.Menu
         /// Method used to load models and create necessary objects.
         /// </summary>
         /// <param name="Content"></param>
-        public void LoadMenu(ContentManager Content, int siz, int rough, int maxh)
+        public void LoadMenu(ContentManager Content)
         {
-            mapSize = siz;
-            roughness = rough;
-            maxHeight = maxh;
-
-            menuCancel = Content.Load<SoundEffect>("MenuContent/menu_cancel");
             menuChange = Content.Load<SoundEffect>("MenuContent/menu_change");
             mainMenu = new MainMenu(Content, graphics.GraphicsDevice);
             help = new HelpPage(Content, this.graphics.GraphicsDevice);
-            play = new PlayPage(Content, playerNames, mapSize, roughness, maxHeight);
+            play = new PlayPage(Content, this.graphics.GraphicsDevice, playerNames);
             loading = new LoadingPage(Content);
 
             this.mainMenu.OptionChosen += (sender, e) =>
@@ -108,8 +89,7 @@ namespace Tanks3DFPP.Menu
                     switch (targetPage)
                 {
                     case MainMenuPage.Play:
-                        //playPageON = true;
-                        //mainPageON = false;
+                        this.SwitchPageTo(play);
                         break;
                     case MainMenuPage.Help:
                         this.SwitchPageTo(help);
@@ -125,6 +105,14 @@ namespace Tanks3DFPP.Menu
                 this.SwitchPageTo(mainMenu);
             };
 
+            this.mainMenu.Cancelled += (sender, e) =>
+                {
+                    Game1.Quit();
+                };
+            this.play.Cancelled += (sender, e) =>
+                {
+                    this.SwitchPageTo(mainMenu);
+                };
 
             this.SwitchPageTo(mainMenu);
             music = Content.Load<Song>("Summon the Rawk");
@@ -138,24 +126,6 @@ namespace Tanks3DFPP.Menu
         public void Draw()
         {
             currentPage.Draw(view, projection);
-            //if (mainPageON)
-            //{
-            //    mainMenu.showMainMenu(view, projection, graphics.GraphicsDevice);
-            //}
-
-            //if (helpPageON)
-            //{
-            //    help.Draw(view, projection);
-            //}
-
-            //if (playPageON)
-            //{
-            //    play.showPlayPage(spritebatch, graphics.GraphicsDevice, view, projection);
-            //}
-            //if (loadingPageON)
-            //{
-            //    loading.showLoadingPage(spritebatch, view, projection, graphics.GraphicsDevice);
-            //}
         }
 
         /// <summary>
@@ -167,7 +137,7 @@ namespace Tanks3DFPP.Menu
         /// Menu state in int, 0-not done , 1 - play page is done , 2 - loading page is done,
         /// Depending on the state the rest is either from play page or loading page. 
         /// </returns>
-        public List<object> updateMenu(GameTime gameTime, int percent)
+        public List<object> Update(GameTime gameTime, int percent)
         {
             List<object> result = new List<object>();
             result.Add(0);
@@ -246,9 +216,9 @@ namespace Tanks3DFPP.Menu
             {
                 //next button in play page pressed
                 //set variables
-                mapSize = int.Parse((string)listWithResults[2]);
-                maxHeight = int.Parse((string)listWithResults[3]);
-                roughness = int.Parse((string)listWithResults[4]);
+                Game1.MapScale = int.Parse((string)listWithResults[2]);
+                Game1.MaxHeight = int.Parse((string)listWithResults[3]);
+                Game1.Roughness = int.Parse((string)listWithResults[4]);
 
                 playerNames = new List<string>();
                 for (int i = 0; i < listWithResults.Count - 5; ++i)
@@ -256,7 +226,6 @@ namespace Tanks3DFPP.Menu
                     playerNames.Add((string)listWithResults[i + 5]);
                 }
             }
-
         }
     }
 }

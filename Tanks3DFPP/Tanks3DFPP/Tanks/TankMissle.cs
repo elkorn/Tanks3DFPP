@@ -185,10 +185,10 @@ namespace Tanks3DFPP.Tanks
                     mesh.ParentBone.Transform
                     * this.orientation
                     * Matrix.CreateTranslation(position));   // probably needs fixing.
-                if (sphere.Center.X + sphere.Radius > floor.Width * Game1.Scale
+                if (sphere.Center.X + sphere.Radius > floor.Width * Game1.MapScale
                     || sphere.Center.X - sphere.Radius < 0
                     || sphere.Center.Z - sphere.Radius < 0
-                    || sphere.Center.Z + sphere.Radius > floor.Height * Game1.Scale)
+                    || sphere.Center.Z + sphere.Radius > floor.Height * Game1.MapScale)
                 {
                     return false;
                 }
@@ -211,8 +211,8 @@ namespace Tanks3DFPP.Tanks
             //}
             return new Vector3(
                     position.X,
-                    floor.Data[(int)(position.Z / Game1.Scale), (int)(position.X / Game1.Scale)]
-                    * Game1.Scale - floor.HeightOffset,
+                    floor.Data[(int)(position.Z / Game1.MapScale), (int)(position.X / Game1.MapScale)]
+                    * Game1.MapScale - floor.HeightOffset,
                     position.Z);
         }
     }

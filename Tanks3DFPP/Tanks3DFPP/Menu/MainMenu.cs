@@ -19,7 +19,12 @@ namespace Tanks3DFPP.Menu
         /// <param name="Content"></param>
         /// <param name="GD"></param>
         public MainMenu(ContentManager content, GraphicsDevice graphicsDevice)
-            : base(content, graphicsDevice, "MenuContent/xnuke.jpg.pagespeed.ic.XD9-0bi6PQ", new[] {"PLAY", "HELP", "QUIT"})
+            : base(content, graphicsDevice, Menu.DefaultBackgroundResourceName, new[]
+                {
+                    new MenuOption("PLAY", 0, new Vector2(200, 100)), 
+                    new MenuOption("HELP", 1, new Vector2(200, 100 - 330)),
+                    new MenuOption("QUIT", 2, new Vector2(200, 100 - 660))
+                })
         {
             tank.Load(content, Matrix.Identity * Matrix.CreateScale(0.8f) * Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(90.0f), MathHelper.ToRadians(0.0f), MathHelper.ToRadians(45.0f)) * Matrix.CreateTranslation(-300, -200, 0));
             this.OptionChanged += (sender, e) =>
@@ -34,12 +39,12 @@ namespace Tanks3DFPP.Menu
         /// <returns></returns>
         public override void Update()
         {
+            base.Update();
             KeyboardHandler.KeyAction(Keys.Enter, () =>
                 {
                     this.FireOptionChosen(this);
                 });
 
-            KeyboardHandler.KeyAction(Keys.Escape, Game1.Quit);
             KeyboardHandler.KeyAction(Keys.Up, this.SelectPreviousOption);
             KeyboardHandler.KeyAction(Keys.Down, this.SelectNextOption);
         }
@@ -49,7 +54,6 @@ namespace Tanks3DFPP.Menu
         /// </summary>
         /// <param name="view"></param>
         /// <param name="projection"></param>
-        /// <param name="GD"></param>
         public override void Draw(Matrix view, Matrix projection)
         {
             base.Draw(view, projection);

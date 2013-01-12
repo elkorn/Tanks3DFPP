@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
 using Tanks3DFPP.Utilities;
 
 namespace Tanks3DFPP.Menu
@@ -17,8 +10,6 @@ namespace Tanks3DFPP.Menu
     /// </summary>
     internal class HelpPage: MenuPage
     {
-
-        private bool waitOn = false;
         private Texture2D controls;
 
         /// <summary>
@@ -26,7 +17,7 @@ namespace Tanks3DFPP.Menu
         /// </summary>
         /// <param name="Content"></param>
         public HelpPage(ContentManager Content, GraphicsDevice graphicsDevice):
-            base(Content,graphicsDevice, Menu.DefaultBackgroundResourceName, new string[] {})
+            base(Content,graphicsDevice, Menu.DefaultBackgroundResourceName, new MenuOption[] {})
         {
             controls = Content.Load<Texture2D>("MenuContent/controls");
         }
