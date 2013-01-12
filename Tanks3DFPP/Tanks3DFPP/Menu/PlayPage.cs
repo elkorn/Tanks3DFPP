@@ -14,10 +14,6 @@ namespace Tanks3DFPP.Menu
     internal class PlayPage : MenuPage
     {
         private List<TextBox> listOfTextBoxes = new List<TextBox>();
-        private bool buttonUpOn;
-        private bool buttonDownOn;
-        private bool buttonLeftOn;
-        private bool buttonRightOn;
         private SoundEffect menuSelect;
         private bool nextButtonFocus;
         private bool backButtonFocus;
@@ -33,7 +29,7 @@ namespace Tanks3DFPP.Menu
                     new TextBox(content, "FIRST PLAYER NAME", 0, "PLAYER1", false, 0, 0, new Vector2(-900, 400), 0.2f),
                     new TextBox(content, "THIRD PLAYER NAME", 1, string.Empty, false, 0, 0, new Vector2(-900, 200), 0.2f),
                     new TextBox(content, "MAP SIZE", 2, Game1.MapScale.ToString(), true, 0, 100, new Vector2(-900, 0), 0.2f),
-                    new TextBox(content, "MAP HEIGHT", 3, Game1.MaxHeight.ToString(), true, 0, 500, new Vector2(-900, -200), 0.2f),
+                    new TextBox(content, "MAX HEIGHT", 3, Game1.MaxHeight.ToString(), true, 0, 500, new Vector2(-900, -200), 0.2f),
                     new MenuOption("BACK", 4, new Vector2(-700, -550), 1.1f),
                     new TextBox(content, "SECOND PLAYER NAME", 5, "PLAYER2", false, 0, 0, new Vector2(100, 400), 0.2f),
                     new TextBox(content, "FOURTH PLAYER NAME", 6, string.Empty, false, 0, 0, new Vector2(100, 200), 0.2f),
@@ -66,21 +62,6 @@ namespace Tanks3DFPP.Menu
             base.Draw(view, projection);
             this.DrawString("IF YOU WANT TO PLAY YOU NEED TO HAVE A NAME.", 0.2f, new Vector2(-900, 550), view, projection);
             this.DrawString("THE GAME NEEDS AT LEAST TWO PLAYERS.", 0.2f, new Vector2(-900, 500), view, projection);
-
-            //if (nextButtonFocus == false)
-            //    characters.Draw("NEXT", 1.1f, new Vector3(200, -550, 0), view, projection);
-            //else
-            //    characters.Draw("NEXT", 1.3f, new Vector3(200, -550, 0), view, projection);
-
-            //if (backButtonFocus == false)
-            //    characters.Draw("BACK", 1.1f, new Vector3(-700, -550, 0), view, projection);
-            //else
-            //    characters.Draw("BACK", 1.3f, new Vector3(-700, -550, 0), view, projection);
-
-            //for (int i = 0; i < listOfTextBoxes.Count; ++i)
-            //{
-            //    listOfTextBoxes[i].Draw(view, projection);
-            //}
         }
 
         /// <summary>
