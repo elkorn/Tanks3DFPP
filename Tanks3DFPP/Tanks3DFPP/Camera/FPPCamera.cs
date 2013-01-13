@@ -120,7 +120,7 @@ namespace Tanks3DFPP.Camera
 
         private Vector2 GetMousePositionDifference()
         {
-            MouseState currentState = Mouse.GetState();
+            MouseState currentState = this.ControlledByMouse ? Mouse.GetState() : this.originalMouseState;
             return new Vector2(currentState.X - originalMouseState.X, currentState.Y - originalMouseState.Y);
         }
 
@@ -172,7 +172,7 @@ namespace Tanks3DFPP.Camera
             }
 
             this.Position = missilePos;
-            LookAt = -this.up;
+            LookAt = this.up;
         }
     }
 }

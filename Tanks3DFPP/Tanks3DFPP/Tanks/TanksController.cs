@@ -221,11 +221,11 @@ namespace Tanks3DFPP.Tanks
                     }
                     if (explosionSound != null)
                         explosionSound.Play();
-                    this.MissileExploded.Invoke(this, null);
                     // next turn
                     ++TurnToken;
                     TurnToken %= TanksInGame.Count;
                     bShotFired = false;
+                    this.MissileExploded.Invoke(this, null);
                     MissleInGame.SetPreShotValues(TanksInGame[TurnToken].TurretDirectionAngle,
                     TanksInGame[TurnToken].CannonDirectionAngle,
                     TanksInGame[TurnToken].Position,

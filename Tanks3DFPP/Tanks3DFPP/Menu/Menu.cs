@@ -137,7 +137,7 @@ namespace Tanks3DFPP.Menu
         private void LoadingOnReady(object sender, EventArgs eventArgs)
         {
             MediaPlayer.Stop();
-            //this.content.Unload();    // may wanna go back to the menu
+            this.content.Unload();    // may wanna go back to the menu
             this.GameComponentsReady.Invoke(this, null);
             this.enabled = false;
         }
