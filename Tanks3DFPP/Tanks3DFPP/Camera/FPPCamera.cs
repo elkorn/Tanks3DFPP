@@ -172,7 +172,7 @@ namespace Tanks3DFPP.Camera
             }
 
             this.Position = missilePos;
-            LookAt = this.up;
+            LookAt = -this.up;
         }
     }
 }
