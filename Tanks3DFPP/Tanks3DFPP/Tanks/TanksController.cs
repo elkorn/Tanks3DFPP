@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -8,6 +9,8 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using Tanks3DFPP.Terrain.Interfaces;
+using Tanks3DFPP.Utilities;
 
 
 namespace Tanks3DFPP.Tanks
@@ -15,7 +18,7 @@ namespace Tanks3DFPP.Tanks
     /// <summary>
     /// This is a game component that implements IUpdateable.
     /// </summary>
-    public class TankController : Microsoft.Xna.Framework.GameComponent
+    public class TankController : AsyncLoadingElement
     {
 
         public List<Tank> TanksInGame
@@ -57,7 +60,7 @@ namespace Tanks3DFPP.Tanks
 
         SoundEffect explosionSound;
         SoundEffect shotSound;
-        
+
         SoundEffectInstance turretMoveSound;
         SoundEffectInstance cannonMoveSound;
         SoundEffectInstance morePowerSound;
@@ -66,40 +69,25 @@ namespace Tanks3DFPP.Tanks
         Song ambience;
         private SoundEffectInstance missileFlight;
 
-        //ExplosionSystem Explosion;
+        public event EventHandler ShotFired;
 
-        public TankController(Game game, int numOfPlayers)
-            : base(game)
+        public event EventHandler MissileExploded;
+
+        public TankController(Game game)
         {
             GD = game.GraphicsDevice;
             spriteBatch = new SpriteBatch(GD);
             rand = new Random();
-            bool bNotSpawnedCorrectly;
 
             //Create instances and load their content
             tanksInGame = new List<Tank>();
-            for (int i = 0; i < numOfPlayers; ++i)
+            for (int i = 0; i < Game1.GameParameters.NumberOfPlayers; ++i)
             {
                 TanksInGame.Add(new Tank());
                 TanksInGame[i].LoadContent(game.Content);
-                tanksInGame[i].PlayerName = "Player " + i.ToString();
-                do
-                {
-                    bNotSpawnedCorrectly = false;
-                    do
-                    {
-                        TanksInGame[i].SpawnAt(new Vector3(rand.Next(0, (Game1.heightMap.Width - 1) * Game1.MapScale), 0, rand.Next(0, (Game1.heightMap.Height - 1) * Game1.MapScale))); // Y should be calculated
-                    } while (!TanksInGame[i].IsOnMap);
-                    for (int j = 0; j < TanksInGame.Count; ++j)
-                    {
-                        // make sure the tanks don't intersect with themselves at the beginning
-                        if (i != j && TanksInGame[i].CollisionCheckWith(TanksInGame[j]))
-                        {
-                            bNotSpawnedCorrectly = true;
-                        }
-                    }
-                } while (bNotSpawnedCorrectly);
+                tanksInGame[i].PlayerName = Game1.GameParameters.PlayerNames[i];
             }
+
             missleInGame = new TankMissle();
             MissleInGame.LoadContent(game.Content);
 
@@ -114,32 +102,55 @@ namespace Tanks3DFPP.Tanks
             missileFlight = game.Content.Load<SoundEffect>("151914__carroll27__rocket-taking-off").CreateInstance();
             missileFlight.IsLooped = true;
             ambience = game.Content.Load<Song>("nosferatu ambience_96");
-
-            //Explosion = new ExplosionSystem();
-            //Explosion.LoadContent(game.Content, GD);
-
-            this.Initialize();
         }
 
         /// <summary>
         /// Allows the game component to perform any initialization it needs to before starting
         /// to run.  This is where it can query for any required services and load content.
         /// </summary>
-        public override void Initialize()
+        public void Initialize()
         {
             TurnToken = 0;
             PlayerInfoString = "Player: [{0}], Health {1}%";
             ShotInfoString = "Strength: {0} \nTurret angle: {1} \nCannon angle: {2} ";
             SphereHit = new BoundingSphere(Vector3.Zero, 0);
             playersOrderedByScore = new List<string>();
-            base.Initialize();
+            Thread t = new Thread(() =>
+                {
+                    for (int i = 0; i < TanksInGame.Count; ++i)
+                    {
+                        bool bNotSpawnedCorrectly;
+                        do
+                        {
+                            bNotSpawnedCorrectly = false;
+                            do
+                            {
+                                TanksInGame[i].SpawnAt(
+                                    new Vector3(rand.Next(0, (Game1.heightMap.Width - 1) * Game1.GameParameters.MapScale), 0,
+                                                rand.Next(0, (Game1.heightMap.Height - 1) * Game1.GameParameters.MapScale)));
+                                // Y should be calculated
+                            } while (!TanksInGame[i].IsOnMap);
+                            for (int j = 0; j < TanksInGame.Count; ++j)
+                            {
+                                // make sure the tanks don't intersect with themselves at the beginning
+                                if (i != j && TanksInGame[i].CollisionCheckWith(TanksInGame[j]))
+                                {
+                                    bNotSpawnedCorrectly = true;
+                                }
+                            }
+                        } while (bNotSpawnedCorrectly);
+                    }
+
+                    this.FireReady(this);
+                });
+            t.Start();
         }
 
         /// <summary>
         /// Allows the game component to update itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        public override void Update(GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
             KeyboardState KS = Keyboard.GetState();
 
@@ -167,6 +178,7 @@ namespace Tanks3DFPP.Tanks
                     TanksInGame[TurnToken].InitialVelocityPower);
                 bShotFired = true;
                 shotSound.Play();
+                this.ShotFired.Invoke(this, null);
             }
 
             HandleMovementSound();
@@ -209,6 +221,7 @@ namespace Tanks3DFPP.Tanks
                     }
                     if (explosionSound != null)
                         explosionSound.Play();
+                    this.MissileExploded.Invoke(this, null);
                     // next turn
                     ++TurnToken;
                     TurnToken %= TanksInGame.Count;
@@ -232,7 +245,7 @@ namespace Tanks3DFPP.Tanks
                 if (KS.IsKeyDown(Keys.Enter) && danseMacabre.State != SoundState.Playing)
                 {
                     bDisplayScores = false;
-                    this.Game.Exit();
+                    Game1.Quit();
                 }
             }
             else
@@ -240,11 +253,10 @@ namespace Tanks3DFPP.Tanks
                 if (ambience != null && MediaPlayer.State != MediaState.Playing)
                 {
                     MediaPlayer.IsRepeating = true;
+                    MediaPlayer.Volume = 1f;
                     MediaPlayer.Play(ambience);
                 }
             }
-
-            base.Update(gameTime);
         }
 
         private void HandleMovementSound()

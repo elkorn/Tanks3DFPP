@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Tanks3DFPP.Entities;
+using Tanks3DFPP.Utilities;
 
 namespace Tanks3DFPP.Tanks
 {
@@ -192,10 +193,10 @@ namespace Tanks3DFPP.Tanks
                     mesh.ParentBone.Transform
                     * this.orientation
                     * Matrix.CreateTranslation(position));   // probably needs fixing.
-                if (sphere.Center.X + sphere.Radius > floor.Width * Game1.MapScale
+                if (sphere.Center.X + sphere.Radius > floor.Width * Game1.GameParameters.MapScale
                     || sphere.Center.X - sphere.Radius < 0
                     || sphere.Center.Z - sphere.Radius < 0
-                    || sphere.Center.Z + sphere.Radius > floor.Height * Game1.MapScale)
+                    || sphere.Center.Z + sphere.Radius > floor.Height * Game1.GameParameters.MapScale)
                 {
                     return false;
                 }
@@ -218,8 +219,8 @@ namespace Tanks3DFPP.Tanks
             //}
             return new Vector3(
                     position.X,
-                    floor.Data[(int)(position.Z / Game1.MapScale), (int)(position.X / Game1.MapScale)]
-                    * Game1.MapScale - floor.HeightOffset,
+                    floor.Data[(int)(position.Z / Game1.GameParameters.MapScale), (int)(position.X / Game1.GameParameters.MapScale)]
+                    * Game1.GameParameters.MapScale - floor.HeightOffset,
                     position.Z);
         }
     }

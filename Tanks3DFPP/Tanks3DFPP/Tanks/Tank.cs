@@ -13,7 +13,7 @@ namespace Tanks3DFPP.Tanks
         const float TurretTurnSpeed = 0.015f;
         const float CannonDegMax = -90;
         const float CannonDegMin = 0;
-        const float ScaleFactor = 0.05f;
+        const float ScaleFactor = 0.5f;
         const float MaxPower = 10.0f;
         const float MinPower = 1.5f;
         readonly Matrix ScaleMatrix = Matrix.CreateScale(ScaleFactor);
@@ -148,15 +148,15 @@ namespace Tanks3DFPP.Tanks
             previousCannonDirectionAngle = cannonDirectionAngle;
             previousTurretDirectionAngle = turretDirectionAngle;
 
-            Model.CopyAbsoluteBoneTransformsTo(boneTransforms);
-            worldMatrix = tankOrientation * Matrix.CreateTranslation(Position);
+            //Model.CopyAbsoluteBoneTransformsTo(boneTransforms);
+            //worldMatrix = tankOrientation * Matrix.CreateTranslation(Position);
+            this.InitializeTransforms();
 
             for (int i = 0; i < Model.Meshes.Count; ++i)
             {
                 ModelMesh mesh = Model.Meshes[i];
                 boundingSpheres[i] = new BoundingSphere(mesh.BoundingSphere.Transform(boneTransforms[mesh.ParentBone.Index] * ScaleMatrix * worldMatrix).Center,
                     mesh.BoundingSphere.Radius * ScaleFactor);
-                mesh.Draw();
             }
         }
 
@@ -253,7 +253,7 @@ namespace Tanks3DFPP.Tanks
             return false;
         }
 
-        public void Draw(Matrix viewMatrix, Matrix projectionMatrix)
+        private void InitializeTransforms()
         {
             turretBone.Transform = turretOrientation * turretTransform;
             cannonBone.Transform = cannonOrientation * cannonTransform;
@@ -265,7 +265,11 @@ namespace Tanks3DFPP.Tanks
             cameraOrientation = turretBone.Transform * cannonBone.Transform * ScaleMatrix * worldMatrix;
             cannonPosition = (turretBone.Transform * cannonBone.Transform * ScaleMatrix * worldMatrix).Translation;
             //cannonPosition.Y += 2 * (cannonPosition.Y - Position.Y);
+        }
 
+        public void Draw(Matrix viewMatrix, Matrix projectionMatrix)
+        {
+            this.InitializeTransforms();
             for (int i = 0; i < Model.Meshes.Count; ++i)
             {
                 ModelMesh mesh = Model.Meshes[i];
@@ -306,10 +310,10 @@ namespace Tanks3DFPP.Tanks
             //        mesh.ParentBone.Transform 
             //        * this.tankOrientation 
             //        * Matrix.CreateTranslation(position));   // probably needs fixing.
-            //    if (sphere.Center.X + sphere.Radius > floor.Width * Game1.MapScale
+            //    if (sphere.Center.X + sphere.Radius > floor.Width * Game1.GameParameters.MapScale
             //        || sphere.Center.X - sphere.Radius < 0
             //        || sphere.Center.Z + sphere.Radius > 0
-            //        || sphere.Center.Z - sphere.Radius < -floor.Height * Game1.MapScale)
+            //        || sphere.Center.Z - sphere.Radius < -floor.Height * Game1.GameParameters.MapScale)
             //    {
             //        return false;
             //    }
@@ -317,10 +321,10 @@ namespace Tanks3DFPP.Tanks
 
             foreach (BoundingSphere sphere in boundingSpheres)
             {
-                if (sphere.Center.X + sphere.Radius > floor.Width * Game1.MapScale
+                if (sphere.Center.X + sphere.Radius > floor.Width * Game1.GameParameters.MapScale
                     || sphere.Center.X - sphere.Radius < 0
                     || sphere.Center.Z - sphere.Radius < 0
-                    || sphere.Center.Z + sphere.Radius > floor.Height * Game1.MapScale)
+                    || sphere.Center.Z + sphere.Radius > floor.Height * Game1.GameParameters.MapScale)
                 {
                     return false;
                 }
@@ -344,8 +348,8 @@ namespace Tanks3DFPP.Tanks
 
             return new Vector3(
                     position.X,
-                    floor.Data[(int)(position.Z / Game1.MapScale), (int)(position.X / Game1.MapScale)]
-                    * Game1.MapScale - floor.HeightOffset,
+                    floor.Data[(int)(position.Z / Game1.GameParameters.MapScale), (int)(position.X / Game1.GameParameters.MapScale)]
+                    * Game1.GameParameters.MapScale - floor.HeightOffset,
                     position.Z);
         }
 

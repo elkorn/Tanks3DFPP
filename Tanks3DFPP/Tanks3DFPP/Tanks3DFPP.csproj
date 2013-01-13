@@ -132,7 +132,7 @@
     <Compile Include="Tanks\TanksController.cs" />
     <Compile Include="Terrain\FractalMap.cs" />
     <Compile Include="Terrain\GreenYellowRed.cs" />
-    <Compile Include="Terrain\Interfaces\AsyncHeightmap.cs" />
+    <Compile Include="Terrain\Interfaces\AsyncLoadingElement.cs" />
     <Compile Include="Terrain\Interfaces\IAsyncLoadingElement.cs" />
     <Compile Include="Terrain\Interfaces\IHeightMap.cs" />
     <Compile Include="Terrain\Interfaces\IHeightToColorTranslationMethod.cs" />

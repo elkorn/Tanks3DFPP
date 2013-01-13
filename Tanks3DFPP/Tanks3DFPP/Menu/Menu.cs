@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -21,11 +20,6 @@ namespace Tanks3DFPP.Menu
         private Song music;
 
         /// <summary>
-        /// list of player names , size of it is player count(menu adjusted from 2 to 4 players)
-        /// </summary>
-        List<string> playerNames;
-
-        /// <summary>
         /// method to get enabled.
         /// </summary>
         /// <returns>if true then enabled is on.</returns>      
@@ -41,25 +35,30 @@ namespace Tanks3DFPP.Menu
 
         private MenuPage currentPage;
 
-        private GraphicsDeviceManager graphics;
+        private GraphicsDevice graphicsDevice;
         private Matrix view;
         private Matrix projection;
 
         private SoundEffect menuChange;
 
-        public event EventHandler<GameParametersReadyEventArgs> GameStateReady;
+        public event EventHandler<GameParametersReadyEventArgs> GameParametersReady;
+        public event EventHandler GameComponentsReady;
+
+        private ContentManager content;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Menu" /> class.
         /// </summary>
-        /// <param name="Content">content manager reference</param>
+        /// <param name="content">content manager reference</param>
         /// <param name="graph">graphiscdevice reference</param>
-        public Menu(GraphicsDeviceManager graph)
+        public Menu(Game game)
         {
-            graphics = graph;
+            this.content = new ContentManager(game.Content.ServiceProvider);
+            content.RootDirectory = "Content";
+            graphicsDevice = game.GraphicsDevice;
             view = Matrix.CreateLookAt(Vector3.UnitZ * 1500, Vector3.Zero, Vector3.Up);
             projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45),
-                graphics.GraphicsDevice.Viewport.AspectRatio, 0.1f, 1000000.0f);
+                graphicsDevice.Viewport.AspectRatio, 0.1f, 1000000.0f);
         }
 
         private void SwitchPageTo(MenuPage page)
@@ -71,14 +70,14 @@ namespace Tanks3DFPP.Menu
         /// <summary>
         /// Method used to load models and create necessary objects.
         /// </summary>
-        /// <param name="Content"></param>
-        public void LoadMenu(ContentManager Content)
+        /// <param name="content"></param>
+        public void LoadContent()
         {
-            menuChange = Content.Load<SoundEffect>("MenuContent/150219__killkhan__reload-4");
-            mainMenu = new MainMenu(Content, graphics.GraphicsDevice);
-            help = new HelpPage(Content, this.graphics.GraphicsDevice);
-            play = new PlayPage(Content, this.graphics.GraphicsDevice);
-            loading = new LoadingPage(Content,this.graphics.GraphicsDevice);
+            menuChange = content.Load<SoundEffect>("MenuContent/150219__killkhan__reload-4");
+            mainMenu = new MainMenu(content, graphicsDevice);
+            help = new HelpPage(content, this.graphicsDevice);
+            play = new PlayPage(content, this.graphicsDevice, Game1.GameParameters);
+            loading = new LoadingPage(content,this.graphicsDevice);
 
             this.mainMenu.OptionChosen += (sender, e) =>
                 {
@@ -111,7 +110,7 @@ namespace Tanks3DFPP.Menu
                             this.SwitchPageTo(mainMenu);
                             break;
                         case MenuNavigationOption.Next:
-                            this.GameStateReady.Invoke(this, new GameParametersReadyEventArgs(play.GameStateModel));
+                            this.GameParametersReady.Invoke(this, new GameParametersReadyEventArgs(play.GameParametersModel));
                             this.SwitchPageTo(loading);
                             break;
                     }
@@ -126,12 +125,33 @@ namespace Tanks3DFPP.Menu
                     this.SwitchPageTo(mainMenu);
                 };
 
+            this.loading.Ready += LoadingOnReady;
 
             this.currentPage = mainMenu;
-            music = Content.Load<Song>("MenuContent/Summon the Rawk");
+            music = content.Load<Song>("MenuContent/Summon the Rawk");
             MediaPlayer.IsRepeating = true;
             MediaPlayer.Volume = .6f;
             MediaPlayer.Play(music);
+        }
+
+        private void LoadingOnReady(object sender, EventArgs eventArgs)
+        {
+            MediaPlayer.Stop();
+            //this.content.Unload();    // may wanna go back to the menu
+            this.GameComponentsReady.Invoke(this, null);
+            this.enabled = false;
+        }
+
+        public void AddProgress(int howMuch)
+        {
+            if (this.currentPage == this.loading)
+            {
+                this.loading.AddProgress(howMuch);
+            }
+            else
+            {
+                throw new InvalidOperationException("Cannot add progress in this state.");
+            }
         }
 
         /// <summary>
@@ -145,40 +165,32 @@ namespace Tanks3DFPP.Menu
         /// <summary>
         /// Method used to update menu elements.
         /// </summary>
-        /// <param name="gameTime">Gametime.</param>
-        /// <param name="percent">loading terrain percent value</param>
-        /// <returns>Method returns list including: 
-        /// Menu state in int, 0-not done , 1 - play page is done , 2 - loading page is done,
-        /// Depending on the state the rest is either from play page or loading page. 
-        /// </returns>
-        public List<object> Update(GameTime gameTime, int percent)
+        public void Update()
         {
-            List<object> result = new List<object>();
-            result.Add(0);
             currentPage.Update();
-            return result;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="listWithResults"></param>
-        public void setVariables(List<object> listWithResults)
-        {
-            if ((int)listWithResults[1] == 1)
-            {
-                //next button in play page pressed
-                //set variables
-                Game1.MapScale = int.Parse((string)listWithResults[2]);
-                Game1.MaxHeight = int.Parse((string)listWithResults[3]);
-                Game1.Roughness = int.Parse((string)listWithResults[4]);
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="listWithResults"></param>
+        //public void setVariables(List<object> listWithResults)
+        //{
+        //    if ((int)listWithResults[1] == 1)
+        //    {
+        //        //next button in play page pressed
+        //        //set variables
+        //        Game1.GameParameters.MapScale = int.Parse((string)listWithResults[2]);
+        //        Game1.MaxHeight = int.Parse((string)listWithResults[3]);
+        //        Game1.Roughness = int.Parse((string)listWithResults[4]);
 
-                playerNames = new List<string>();
-                for (int i = 0; i < listWithResults.Count - 5; ++i)
-                {
-                    playerNames.Add((string)listWithResults[i + 5]);
-                }
-            }
-        }
+        //        playerNames = new List<string>();
+        //        for (int i = 0; i < listWithResults.Count - 5; ++i)
+        //        {
+        //            playerNames.Add((string)listWithResults[i + 5]);
+        //        }
+        //    }
+        //}
     }
 }
+

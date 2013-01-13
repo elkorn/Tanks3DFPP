@@ -22,6 +22,8 @@ namespace Tanks3DFPP.Camera
         private float yawAngle;
         private bool bNeedsToResetPitchAngle;
 
+        public bool ControlledByMouse { get; set; }
+
         public FPPCamera(GraphicsDevice device, Vector3 startingPosition, float rotationSpeed, float moveSpeed,
                          Matrix projection)
         {
@@ -82,33 +84,36 @@ namespace Tanks3DFPP.Camera
 
         public void Update(GameTime gameTime)
         {
-            Vector3 velocity = Vector3.Zero;
-            KeyboardHandler.TurboKeyAction(Keys.W, () =>
-                {
-                    velocity += -Vector3.UnitZ;
-                });
-            KeyboardHandler.TurboKeyAction(Keys.S, () =>
-                {
-                    velocity += Vector3.UnitZ;
-                });
-            KeyboardHandler.TurboKeyAction(Keys.A, () =>
-                {
-                    velocity += -Vector3.UnitX;
-                });
-            KeyboardHandler.TurboKeyAction(Keys.D, () =>
-                {
-                    velocity += Vector3.UnitX;
-                });
+            //Vector3 velocity = Vector3.Zero;
+            //KeyboardHandler.TurboKeyAction(Keys.W, () =>
+            //    {
+            //        velocity += -Vector3.UnitZ;
+            //    });
+            //KeyboardHandler.TurboKeyAction(Keys.S, () =>
+            //    {
+            //        velocity += Vector3.UnitZ;
+            //    });
+            //KeyboardHandler.TurboKeyAction(Keys.A, () =>
+            //    {
+            //        velocity += -Vector3.UnitX;
+            //    });
+            //KeyboardHandler.TurboKeyAction(Keys.D, () =>
+            //    {
+            //        velocity += Vector3.UnitX;
+            //    });
 
-            KeyboardHandler.TurboKeyAction(Keys.OemPlus, () => { moveSpeed++; });
-            KeyboardHandler.TurboKeyAction(Keys.OemMinus, () => { moveSpeed--; });
+            //KeyboardHandler.TurboKeyAction(Keys.OemPlus, () => { moveSpeed++; });
+            //KeyboardHandler.TurboKeyAction(Keys.OemMinus, () => { moveSpeed--; });
 
-            if (velocity != Vector3.Zero)
+            //if (velocity != Vector3.Zero)
+            //{
+            //    Move(velocity);
+            //}
+
+            if (this.ControlledByMouse)
             {
-                Move(velocity);
+                Rotate((float) (gameTime.ElapsedGameTime.TotalMilliseconds/1000));
             }
-
-            Rotate((float) (gameTime.ElapsedGameTime.TotalMilliseconds/1000));
         }
 
         #endregion
@@ -165,6 +170,7 @@ namespace Tanks3DFPP.Camera
                 pitchAngle = 0;
                 bNeedsToResetPitchAngle = false;
             }
+
             this.Position = missilePos;
             LookAt = -this.up;
         }

@@ -19,13 +19,13 @@ namespace Tanks3DFPP.Menu
         private bool nextButtonFocus;
         private bool backButtonFocus;
 
-        public GameParameters GameStateModel
+        public GameParameters GameParametersModel
         {
             get
             {
                 IDictionary<string, string> state = this.CurrentOptionsDataState;
                 string[] playerNames = state.Where(kvp => kvp.Key.Contains("PLAYER NAME")).Select(kvp => kvp.Value).ToArray();
-                return new GameParameters(int.Parse(state["MAP SIZE"]), int.Parse(state["ROUGHNESS"]), int.Parse(state["MAX HEIGHT"]), playerNames);
+                return new GameParameters(int.Parse(state["MAP SIZE"]), int.Parse(state["ROUGHNESS"]), int.Parse(state["MAX HEIGHT"]), int.Parse(state["LIGHT CHANGE SPEED"]), playerNames);
             }
         }
 
@@ -33,18 +33,18 @@ namespace Tanks3DFPP.Menu
         /// Class constructor loads necessary elements.
         /// </summary>
         /// <param name="content">content manager.</param>
-        public PlayPage(ContentManager content, GraphicsDevice graphicsDevice)
+        public PlayPage(ContentManager content, GraphicsDevice graphicsDevice, GameParameters defaultGameParams)
             : base(content, graphicsDevice, Menu.AltBackgroundResourceName, new[]
                 {
                     new TextBox(content, "FIRST PLAYER NAME", 0, "PLAYER1", false, 0, 0, new Vector2(-900, 400), 0.2f),
                     new TextBox(content, "THIRD PLAYER NAME", 1, string.Empty, false, 0, 0, new Vector2(-900, 200), 0.2f),
-                    new TextBox(content, "MAP SIZE", 2, Game1.MapScale.ToString(), true, 0, 100, new Vector2(-900, 0), 0.2f),
-                    new TextBox(content, "MAX HEIGHT", 3, Game1.MaxHeight.ToString(), true, 0, 500, new Vector2(-900, -200), 0.2f),
+                    new TextBox(content, "MAP SIZE", 2, defaultGameParams.MapScale.ToString(), true, 0, 100, new Vector2(-900, 0), 0.2f),
+                    new TextBox(content, "MAX HEIGHT", 3, defaultGameParams.MaxMapHeight.ToString(), true, 0, 500, new Vector2(-900, -200), 0.2f),
                     new MenuOption("BACK", 4, new Vector2(-700, -550), 1.1f),
                     new TextBox(content, "SECOND PLAYER NAME", 5, "PLAYER2", false, 0, 0, new Vector2(100, 400), 0.2f),
                     new TextBox(content, "FOURTH PLAYER NAME", 6, string.Empty, false, 0, 0, new Vector2(100, 200), 0.2f),
-                    new TextBox(content, "ROUGHNESS", 7, Game1.Roughness.ToString(), true, 0, 1000, new Vector2(100, 0), 0.2f),
-                    new TextBox(content, "LIGHT CHANGE SPEED", 8, Game1.LightChangeSpeed.ToString(), true, 0, 1000, new Vector2(100, -200), 0.2f),
+                    new TextBox(content, "ROUGHNESS", 7, defaultGameParams.Roughness.ToString(), true, 0, 1000, new Vector2(100, 0), 0.2f),
+                    new TextBox(content, "LIGHT CHANGE SPEED", 8, defaultGameParams.LightChangeSpeed.ToString(), true, 0, 1000, new Vector2(100, -200), 0.2f),
                     new MenuOption("NEXT", 9, new Vector2(200, -550), 1.1f)
                 })
         {

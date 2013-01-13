@@ -11,7 +11,7 @@ namespace Tanks3DFPP.Terrain
     /// <summary>
     /// Fractal height map, using the midpoint displacement algorithm, see http://www.lighthouse3d.com/opengl/terrain/index.php?mpd2.
     /// </summary>
-    public class FractalMap : AsyncHeightMap, IHeightMap
+    public class FractalMap : AsyncLoadingElement, IHeightMap
     {
         private Random rand;
         //private int roughness;
@@ -92,7 +92,7 @@ namespace Tanks3DFPP.Terrain
                 }
             }
 
-            //AsyncHeightMap.Progressing += (sender, e) =>
+            //AsyncLoadingElement.Progress += (sender, e) =>
             //    {
             //        ++TotalProgress;
             //    };
@@ -112,7 +112,7 @@ namespace Tanks3DFPP.Terrain
             Thread t = new Thread(() =>
                 {
                     GenerateHeightData();
-                    this.FireFinished(this);
+                    this.FireReady(this);
                 });
             t.Start();
             //if (afterSmoothingLevel > 0)
