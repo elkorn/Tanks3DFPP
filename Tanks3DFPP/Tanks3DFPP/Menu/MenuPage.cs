@@ -26,11 +26,29 @@ namespace Tanks3DFPP.Menu
         private List<MenuOption> options;
         private GraphicsDevice graphicsDevice;
 
+        protected IDictionary<string, string> CurrentOptionsDataState
+        {
+            get
+            {
+                Dictionary<string, string> value = new Dictionary<string, string>();
+                foreach (TextBox tb in this.options.Where(x => x is TextBox))
+                {
+                    string data = tb.GetValue();
+                    if (!string.IsNullOrEmpty(data))
+                    {
+                        value[tb.Text] = data;
+                    }
+                }
+
+                return value;
+            }
+        }
+
         public MenuPage(ContentManager content, GraphicsDevice graphicsDevice, string backgroundResourcePath, IEnumerable<MenuOption> options)
         {
             characters = new Characters(content);
             backGround = content.Load<Texture2D>(backgroundResourcePath);
-            select = content.Load<SoundEffect>("MenuContent/menu_select");
+            select = content.Load<SoundEffect>("MenuContent/150220__killkhan__reload-1");
             if (spriteBatch == null)
             {
                 spriteBatch = new SpriteBatch(graphicsDevice);
@@ -119,7 +137,7 @@ namespace Tanks3DFPP.Menu
 
         private void PlaySelectSound(object sender, EventArgs e)
         {
-            this.select.Play(.3f, 0, 0);
+            this.select.Play();
         }
 
         public event EventHandler OptionChanged;

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -18,19 +19,23 @@ namespace Tanks3DFPP.Menu
         private bool nextButtonFocus;
         private bool backButtonFocus;
 
-        public GameState GameStateModel
+        public GameParameters GameStateModel
         {
-            get { return new GameState(); }
+            get
+            {
+                IDictionary<string, string> state = this.CurrentOptionsDataState;
+                string[] playerNames = state.Where(kvp => kvp.Key.Contains("PLAYER NAME")).Select(kvp => kvp.Value).ToArray();
+                return new GameParameters(int.Parse(state["MAP SIZE"]), int.Parse(state["ROUGHNESS"]), int.Parse(state["MAX HEIGHT"]), playerNames);
+            }
         }
 
         /// <summary>
         /// Class constructor loads necessary elements.
         /// </summary>
         /// <param name="content">content manager.</param>
-        public PlayPage(ContentManager content, GraphicsDevice graphicsDevice, List<string> playerNames)
+        public PlayPage(ContentManager content, GraphicsDevice graphicsDevice)
             : base(content, graphicsDevice, Menu.AltBackgroundResourceName, new[]
                 {
-                    // TODO: use playerNames.
                     new TextBox(content, "FIRST PLAYER NAME", 0, "PLAYER1", false, 0, 0, new Vector2(-900, 400), 0.2f),
                     new TextBox(content, "THIRD PLAYER NAME", 1, string.Empty, false, 0, 0, new Vector2(-900, 200), 0.2f),
                     new TextBox(content, "MAP SIZE", 2, Game1.MapScale.ToString(), true, 0, 100, new Vector2(-900, 0), 0.2f),

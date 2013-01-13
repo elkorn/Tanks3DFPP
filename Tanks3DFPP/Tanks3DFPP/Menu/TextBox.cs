@@ -84,47 +84,47 @@ namespace Tanks3DFPP.Menu
                         {
                             case Keys.Back:
                                 if (value.Length > 0) value = value.Substring(0, value.Length - 1);
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.D0:
                                 value += "0";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.D1:
                                 value += "1";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.D2:
                                 value += "2";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.D3:
                                 value += "3";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.D4:
                                 value += "4";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.D5:
                                 value += "5";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.D6:
                                 value += "6";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.D7:
                                 value += "7";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.D8:
                                 value += "8";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.D9:
                                 value += "9";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                         }
                         #endregion
@@ -153,151 +153,151 @@ namespace Tanks3DFPP.Menu
                                 break;
                             case Keys.D0:
                                 value += "0";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.D1:
                                 value += "1";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.D2:
                                 value += "2";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.D3:
                                 value += "3";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.D4:
                                 value += "4";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.D5:
                                 value += "5";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.D6:
                                 value += "6";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.D7:
                                 value += "7";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.D8:
                                 value += "8";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.D9:
                                 value += "9";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.OemPeriod:
                                 value += ".";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.Q:
                                 value += "Q";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.W:
                                 value += "W";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.E:
                                 value += "E";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.R:
                                 value += "R";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.T:
                                 value += "T";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.Y:
                                 value += "Y";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.U:
                                 value += "U";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.I:
                                 value += "I";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.O:
                                 value += "O";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.P:
                                 value += "P";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.A:
                                 value += "A";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.S:
                                 value += "S";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.D:
                                 value += "D";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.F:
                                 value += "F";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.G:
                                 value += "G";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.H:
                                 value += "H";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.J:
                                 value += "J";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.K:
                                 value += "K";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.L:
                                 value += "L";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.Z:
                                 value += "Z";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.X:
                                 value += "X";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.C:
                                 value += "C";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.V:
                                 value += "V";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.B:
                                 value += "B";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.N:
                                 value += "N";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                             case Keys.M:
                                 value += "M";
-                                typeWriter.Play();
+                                typeWriter.Play(.5f,0,0);
                                 break;
                         }
                         #endregion

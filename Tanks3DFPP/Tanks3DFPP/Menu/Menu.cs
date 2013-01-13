@@ -15,7 +15,7 @@ namespace Tanks3DFPP.Menu
     public class Menu
     {
         public const string DefaultBackgroundResourceName = "MenuContent/xnuke.jpg.pagespeed.ic.XD9-0bi6PQ",
-            AltBackgroundResourceName = "MenuContent/nuke_symbol_Wallpaper_lnsps";
+            AltBackgroundResourceName = "MenuContent/18627-33959";
         private bool enabled = true;
 
         private Song music;
@@ -47,7 +47,7 @@ namespace Tanks3DFPP.Menu
 
         private SoundEffect menuChange;
 
-        public event EventHandler<GameStateReadyEventArgs> GameStateReady;
+        public event EventHandler<GameParametersReadyEventArgs> GameStateReady;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Menu" /> class.
@@ -74,10 +74,10 @@ namespace Tanks3DFPP.Menu
         /// <param name="Content"></param>
         public void LoadMenu(ContentManager Content)
         {
-            menuChange = Content.Load<SoundEffect>("MenuContent/menu_change");
+            menuChange = Content.Load<SoundEffect>("MenuContent/150219__killkhan__reload-4");
             mainMenu = new MainMenu(Content, graphics.GraphicsDevice);
             help = new HelpPage(Content, this.graphics.GraphicsDevice);
-            play = new PlayPage(Content, this.graphics.GraphicsDevice, playerNames);
+            play = new PlayPage(Content, this.graphics.GraphicsDevice);
             loading = new LoadingPage(Content,this.graphics.GraphicsDevice);
 
             this.mainMenu.OptionChosen += (sender, e) =>
@@ -111,7 +111,7 @@ namespace Tanks3DFPP.Menu
                             this.SwitchPageTo(mainMenu);
                             break;
                         case MenuNavigationOption.Next:
-                            this.GameStateReady.Invoke(this, new GameStateReadyEventArgs(play.GameStateModel));
+                            this.GameStateReady.Invoke(this, new GameParametersReadyEventArgs(play.GameStateModel));
                             this.SwitchPageTo(loading);
                             break;
                     }
@@ -127,9 +127,10 @@ namespace Tanks3DFPP.Menu
                 };
 
 
-            this.SwitchPageTo(mainMenu);
-            music = Content.Load<Song>("Summon the Rawk");
+            this.currentPage = mainMenu;
+            music = Content.Load<Song>("MenuContent/Summon the Rawk");
             MediaPlayer.IsRepeating = true;
+            MediaPlayer.Volume = .6f;
             MediaPlayer.Play(music);
         }
 
