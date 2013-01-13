@@ -34,6 +34,10 @@ namespace Tanks3DFPP.Tanks
         }
         public List<String> playersOrderedByScore;
 
+        public Tank TankWithToken
+        {
+            get { return tanksInGame[TurnToken]; }
+        }
 
         BoundingSphere SphereHit;
         int HitIndex;
@@ -287,15 +291,15 @@ namespace Tanks3DFPP.Tanks
 
         public void Draw(Matrix viewMatrix, Matrix projectionMatrix)
         {
-            foreach (Tank tank in TanksInGame)
-            {
-                tank.Draw(viewMatrix, projectionMatrix);
-            }
-            //for (int i = 0; i < tanksInGame.Count; ++i)
+            //foreach (Tank tank in TanksInGame)
             //{
-            //    if (i != TurnToken)
-            //        tanksInGame[i].Draw(viewMatrix, projectionMatrix);
+            //    tank.Draw(viewMatrix, projectionMatrix);
             //}
+            for (int i = 0; i < tanksInGame.Count; ++i)
+            {
+                if (i != TurnToken)
+                    tanksInGame[i].Draw(viewMatrix, projectionMatrix);
+            }
             if (!bShotFired)
             {
                 MissleInGame.Draw(viewMatrix, projectionMatrix);

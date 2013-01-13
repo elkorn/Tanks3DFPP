@@ -117,6 +117,7 @@ namespace Tanks3DFPP.Tanks
                         except = -1;
                     }
 
+                    // slower falling increase
                     if ((previousPosition.Y - position.Y > 14))
                     {
                         gravityFactor = 1.008f;

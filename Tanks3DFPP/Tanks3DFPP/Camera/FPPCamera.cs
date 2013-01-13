@@ -21,7 +21,7 @@ namespace Tanks3DFPP.Camera
         private Vector3 up;
         private float yawAngle;
 
-        bool once;
+        bool bNeedsToResetPitchAngle;
 
         public FPPCamera(GraphicsDevice device, Vector3 startingPosition, float rotationSpeed, float moveSpeed,
                          Matrix projection)
@@ -130,18 +130,8 @@ namespace Tanks3DFPP.Camera
             up = Vector3.Transform(Vector3.Up, rotation);
         }
 
-        //public void AttachAndUpdate(Matrix cameraOrientation)
-        //{
-        //    Vector3 originalTarget = -Vector3.UnitZ;
-        //    Vector3 rotatedTarget = Vector3.Transform(originalTarget, cameraOrientation);
-        //    this.LookAt = cameraOrientation.Translation + rotatedTarget;
-        //    this.up = Vector3.Transform(Vector3.Up, cameraOrientation);
-        //}
-
         public void AttachAndUpdate(Tank tank)
         {
-            // get difference in positions
-            // compute yawangle and pitchangle
             pitchAngle = tank.PreviousCannonDirectionAngle;
             yawAngle = tank.PreviousTurretDirectionAngle;
             pitchAngle -= tank.CannonDirectionAngle - tank.PreviousCannonDirectionAngle;
@@ -149,28 +139,17 @@ namespace Tanks3DFPP.Camera
             yawAngle += MathHelper.ToRadians(180);
             pitchAngle = -pitchAngle;
             Position = tank.CannonPosition;
-            //UpdateView();
-            Matrix rotation = Rotation;
-            Vector3 originalTarget = -Vector3.UnitZ,
-                    rotatedTarget = Vector3.Transform(originalTarget, rotation);
-            LookAt = Position + rotatedTarget;
-            up = Vector3.Transform(Vector3.Up, rotation);
-            once = true;
+            UpdateView();
+            bNeedsToResetPitchAngle = true;
         }
 
         public void AttachAndUpdate(Vector3 missilePos, GraphicsDevice device)
         {
-            if (once) // forces to face the shooting direction
+            if (bNeedsToResetPitchAngle)
             {
-                //pitchAngle = -pitchAngle;
-                //yawAngle -= MathHelper.ToRadians(180);
                 pitchAngle = 0;
-                once = false;
+                bNeedsToResetPitchAngle = false;
             }
-            //Matrix rotation = Rotation;
-            //Vector3 originalTarget = -Vector3.UnitZ,
-            //        rotatedTarget = Vector3.Transform(originalTarget, rotation);
-            //LookAt = Position + rotatedTarget;
             this.Position = missilePos;
             LookAt = -this.up;
         }
