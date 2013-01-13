@@ -130,13 +130,13 @@ namespace Tanks3DFPP.Camera
             up = Vector3.Transform(Vector3.Up, rotation);
         }
 
-        public void AttachAndUpdate(Matrix cameraOrientation)
-        {
-            Vector3 originalTarget = -Vector3.UnitZ;
-            Vector3 rotatedTarget = Vector3.Transform(originalTarget, cameraOrientation);
-            this.LookAt = cameraOrientation.Translation + rotatedTarget;
-            this.up = Vector3.Transform(Vector3.Up, cameraOrientation);
-        }
+        //public void AttachAndUpdate(Matrix cameraOrientation)
+        //{
+        //    Vector3 originalTarget = -Vector3.UnitZ;
+        //    Vector3 rotatedTarget = Vector3.Transform(originalTarget, cameraOrientation);
+        //    this.LookAt = cameraOrientation.Translation + rotatedTarget;
+        //    this.up = Vector3.Transform(Vector3.Up, cameraOrientation);
+        //}
 
         public void AttachAndUpdate(Tank tank)
         {
@@ -145,26 +145,32 @@ namespace Tanks3DFPP.Camera
             pitchAngle = tank.PreviousCannonDirectionAngle;
             yawAngle = tank.PreviousTurretDirectionAngle;
             pitchAngle -= tank.CannonDirectionAngle - tank.PreviousCannonDirectionAngle;
-            yawAngle += tank.TurretDirectionAngle - tank.PreviousTurretDirectionAngle;
-
+            yawAngle -= tank.TurretDirectionAngle - tank.PreviousTurretDirectionAngle;
+            yawAngle += MathHelper.ToRadians(180);
+            pitchAngle = -pitchAngle;
             Position = tank.CannonPosition;
             //UpdateView();
             Matrix rotation = Rotation;
-            Vector3 originalTarget = Vector3.UnitZ,
+            Vector3 originalTarget = -Vector3.UnitZ,
                     rotatedTarget = Vector3.Transform(originalTarget, rotation);
             LookAt = Position + rotatedTarget;
             up = Vector3.Transform(Vector3.Up, rotation);
             once = true;
         }
 
-        public void AttachAndUpdate(Vector3 missilePos)
+        public void AttachAndUpdate(Vector3 missilePos, GraphicsDevice device)
         {
-            if (once) // ustawiac stan poczatkowy kamery fpp na wstepie tego, nadpisac zmiany wprowadzone podczas kierowania w tanku
+            if (once) // forces to face the shooting direction
             {
-                once = false;
+                //pitchAngle = -pitchAngle;
+                //yawAngle -= MathHelper.ToRadians(180);
                 pitchAngle = 0;
-                yawAngle = 0;
+                once = false;
             }
+            //Matrix rotation = Rotation;
+            //Vector3 originalTarget = -Vector3.UnitZ,
+            //        rotatedTarget = Vector3.Transform(originalTarget, rotation);
+            //LookAt = Position + rotatedTarget;
             this.Position = missilePos;
             LookAt = -this.up;
         }

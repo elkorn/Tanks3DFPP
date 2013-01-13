@@ -291,6 +291,11 @@ namespace Tanks3DFPP.Tanks
             {
                 tank.Draw(viewMatrix, projectionMatrix);
             }
+            //for (int i = 0; i < tanksInGame.Count; ++i)
+            //{
+            //    if (i != TurnToken)
+            //        tanksInGame[i].Draw(viewMatrix, projectionMatrix);
+            //}
             if (!bShotFired)
             {
                 MissleInGame.Draw(viewMatrix, projectionMatrix);
