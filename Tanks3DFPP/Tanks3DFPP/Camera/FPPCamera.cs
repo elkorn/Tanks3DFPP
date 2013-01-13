@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Tanks3DFPP.Camera.Interfaces;
 using Tanks3DFPP.Utilities;
+using Tanks3DFPP.Tanks;
 
 namespace Tanks3DFPP.Camera
 {
@@ -21,6 +22,7 @@ namespace Tanks3DFPP.Camera
 
         private Vector3 up;
         private float yawAngle;
+        private bool bNeedsToResetPitchAngle;
 
         public FPPCamera(GraphicsDevice device, Vector3 startingPosition, float rotationSpeed, float moveSpeed,
                          Matrix projection)
@@ -128,16 +130,27 @@ namespace Tanks3DFPP.Camera
             up = Vector3.Transform(Vector3.Up, rotation);
         }
 
-        public void AttachAndUpdate(Matrix cameraOrientation)
+        public void AttachAndUpdate(Tank tank)
         {
-            Vector3 originalTarget = -Vector3.UnitZ;
-            Vector3 rotatedTarget = Vector3.Transform(originalTarget, cameraOrientation);
-            this.LookAt = cameraOrientation.Translation + rotatedTarget;
-            this.up = Vector3.Transform(Vector3.Up, cameraOrientation);
+            // get difference in positions
+            // compute yawangle and pitchangle
+            pitchAngle = -tank.PreviousCannonDirectionAngle;
+            yawAngle = tank.PreviousTurretDirectionAngle;
+            pitchAngle -= tank.CannonDirectionAngle - tank.PreviousCannonDirectionAngle;
+            yawAngle += tank.TurretDirectionAngle - tank.PreviousTurretDirectionAngle;
+
+            Position = tank.CannonPosition;
+            UpdateView();
+            bNeedsToResetPitchAngle = true;
         }
 
         public void AttachAndUpdate(Vector3 missilePos)
         {
+            if (bNeedsToResetPitchAngle)
+            {
+                pitchAngle = 0;
+                bNeedsToResetPitchAngle = false;
+            }
             this.Position = missilePos;
             LookAt = -this.up;
         }

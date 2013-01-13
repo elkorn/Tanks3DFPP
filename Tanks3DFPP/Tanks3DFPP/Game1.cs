@@ -18,7 +18,7 @@ namespace Tanks3DFPP
     public class Game1 : Game
     {
         public static IHeightMap heightMap;
-        public static int Scale = 15;
+        public static int Scale = 5;
         private FPPCamera camera;
         private SpriteFont font;
         private GraphicsDeviceManager graphics;
@@ -384,7 +384,10 @@ namespace Tanks3DFPP
                         this.camera.Update(gameTime);
                         camera.AttachAndUpdate(tankController.MissleInGame.Position);
                     }
-
+                    else
+                    {
+                        camera.AttachAndUpdate(tankController.TankWithToken);
+                    }
                     camera.Update(gameTime);
                     tankController.Update(gameTime);
                 }
