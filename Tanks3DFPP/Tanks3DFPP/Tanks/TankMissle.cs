@@ -89,6 +89,7 @@ namespace Tanks3DFPP.Tanks
 
             gravityForce = -Vector3.UnitY * initialGravityFactor;
             velocity = Vector3.Transform(Vector3.UnitZ * -initialVelocityPower, orientation);
+            gravityFactor = 1.02f;
         }
 
         // CollisionPoint to change
@@ -110,6 +111,12 @@ namespace Tanks3DFPP.Tanks
                     if ((position.Y < previousPosition.Y) && (-gravityForce.Y > gravityFactor * 5))
                     {
                         except = -1;
+                    }
+
+                    // slower falling increase
+                    if (previousPosition.Y - position.Y > 14)
+                    {
+                        gravityFactor = 1.008f;
                     }
 
                     FacingDirectionNorm = position - previousPosition;

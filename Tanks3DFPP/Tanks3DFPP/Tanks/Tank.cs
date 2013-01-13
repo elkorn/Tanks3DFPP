@@ -51,6 +51,18 @@ namespace Tanks3DFPP.Tanks
         }
         private float cannonDirectionAngle;
 
+        public float PreviousTurretDirectionAngle
+        {
+            get { return previousTurretDirectionAngle; }
+        }
+        private float previousTurretDirectionAngle;
+
+        public float PreviousCannonDirectionAngle
+        {
+            get { return previousCannonDirectionAngle; }
+        }
+        private float previousCannonDirectionAngle;
+
         public float InitialVelocityPower
         {
             get { return initialVelocityPower; }
@@ -101,7 +113,6 @@ namespace Tanks3DFPP.Tanks
         float turretTurnAmount;
         float cannonTurnAmount;
         float previousInitialVelocityPower;
-        float previousCannonDirectionAngle;
 
         #endregion
 
@@ -134,6 +145,8 @@ namespace Tanks3DFPP.Tanks
             Health = 100;
             initialVelocityPower = 1.5f;
             previousInitialVelocityPower = initialVelocityPower;
+            previousCannonDirectionAngle = cannonDirectionAngle;
+            previousTurretDirectionAngle = turretDirectionAngle;
 
             Model.CopyAbsoluteBoneTransformsTo(boneTransforms);
             worldMatrix = tankOrientation * Matrix.CreateTranslation(Position);
@@ -188,6 +201,7 @@ namespace Tanks3DFPP.Tanks
                 initialVelocityPower -= 0.01f;
             }
 
+            previousTurretDirectionAngle = turretDirectionAngle;
             turretTurnAmount = MathHelper.Clamp(turretTurnAmount, -1, +1);
             turretDirectionAngle += turretTurnAmount * TurretTurnSpeed;
             turretDirectionAngle = turretDirectionAngle % MathHelper.ToRadians(360);
