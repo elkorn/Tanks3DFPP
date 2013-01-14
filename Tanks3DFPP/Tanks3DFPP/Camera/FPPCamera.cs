@@ -156,8 +156,7 @@ namespace Tanks3DFPP.Camera
             pitchAngle = -tank.PreviousCannonDirectionAngle;
             yawAngle = tank.PreviousTurretDirectionAngle;
             pitchAngle -= tank.CannonDirectionAngle - tank.PreviousCannonDirectionAngle;
-            yawAngle += tank.TurretDirectionAngle - tank.PreviousTurretDirectionAngle;
-
+            yawAngle += tank.TurretDirectionAngle - tank.PreviousTurretDirectionAngle + MathHelper.ToRadians(180);
             Position = tank.CannonPosition;
             UpdateView();
             bNeedsToResetPitchAngle = true;
