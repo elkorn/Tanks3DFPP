@@ -115,6 +115,16 @@ namespace Tanks3DFPP
         public static MouseState CurrentMouseState { get; private set; }
 
         /// <summary>
+        /// Resets the game to the first state.
+        /// </summary>
+        public void Reset()
+        {
+            GameParameters = new GameParameters();
+            this.menu.Reset();
+            terrain.Dispose();
+        }
+
+        /// <summary>
         ///     This is called when the game should draw itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>

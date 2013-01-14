@@ -57,6 +57,7 @@ namespace Tanks3DFPP.Tanks
         String ShotInfoString;
         Random rand;
 
+        private Game1 game;
 
         SoundEffect explosionSound;
         SoundEffect shotSound;
@@ -73,12 +74,13 @@ namespace Tanks3DFPP.Tanks
 
         public event EventHandler MissileExploded;
 
-        public TankController(Game game)
+        public TankController(Game1 game)
         {
             GD = game.GraphicsDevice;
             spriteBatch = new SpriteBatch(GD);
             rand = new Random();
 
+            this.game = game;
             //Create instances and load their content
             tanksInGame = new List<Tank>();
             for (int i = 0; i < Game1.GameParameters.NumberOfPlayers; ++i)
@@ -154,14 +156,23 @@ namespace Tanks3DFPP.Tanks
         {
             KeyboardState KS = Keyboard.GetState();
 
-            PlayerInfoString = String.Format("Player: [{0}], Health {1}%",
-                TurnToken,
+            PlayerInfoString = String.Format("{0}, Health {1}%",
+                TanksInGame[TurnToken].PlayerName,
                 TanksInGame[TurnToken].Health);
             ShotInfoString = String.Format("Strength: {0} \nTurret angle: {1} \nCannon angle: {2} ",
                 TanksInGame[TurnToken].InitialVelocityPower,
                 MathHelper.ToDegrees(TanksInGame[TurnToken].TurretDirectionAngle),
                 MathHelper.ToDegrees(TanksInGame[TurnToken].CannonDirectionAngle));
 
+            KeyboardHandler.KeyAction(Keys.Z, () =>
+                {
+                    playersOrderedByScore.Add(TanksInGame[0].PlayerName);
+                    bDisplayScores = true;
+                    if (ambience != null)
+                        MediaPlayer.Stop();
+                    danseMacabre.Play();
+                    tanksInGame.RemoveAt(1);
+                });
             // freeze handle input while missle in air
             // update missle position after bshotfired (make is false when it hit sth)
 
@@ -199,7 +210,7 @@ namespace Tanks3DFPP.Tanks
                         // fire the particle system explosion anim at missle pos and hide the missle
                         // reduce health of TanksInGame[HitIndex];
                         TanksInGame[HitIndex].Health -= rand.Next(33, 51);
-                        if (TanksInGame[HitIndex].Health < 0)
+                        if (TanksInGame[HitIndex].Health <= 0)
                         {
                             // animation of tank shattering in loop and camera zoomout to see the animation
                             // fire the particle system huge explosion anim
@@ -245,7 +256,7 @@ namespace Tanks3DFPP.Tanks
                 if (KS.IsKeyDown(Keys.Enter) && danseMacabre.State != SoundState.Playing)
                 {
                     bDisplayScores = false;
-                    Game1.Quit();
+                    game.Reset();
                 }
             }
             else

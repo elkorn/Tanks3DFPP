@@ -74,64 +74,8 @@ namespace Tanks3DFPP.Menu
         public void LoadContent()
         {
             menuChange = content.Load<SoundEffect>("MenuContent/150219__killkhan__reload-4");
-            mainMenu = new MainMenu(content, graphicsDevice);
-            help = new HelpPage(content, this.graphicsDevice);
-            play = new PlayPage(content, this.graphicsDevice, Game1.GameParameters);
-            loading = new LoadingPage(content,this.graphicsDevice);
-
-            this.mainMenu.OptionChosen += (sender, e) =>
-                {
-                    MainMenuPage targetPage = (MainMenuPage) e.Code;
-                    switch (targetPage)
-                    {
-                        case MainMenuPage.Play:
-                            this.SwitchPageTo(play);
-                            break;
-                        case MainMenuPage.Help:
-                            this.SwitchPageTo(help);
-                            break;
-                        case MainMenuPage.Quit:
-                            Game1.Quit();
-                            break;
-                    }
-                };
-
-            this.help.OptionChosen += (sender, e) =>
-            {
-                this.SwitchPageTo(mainMenu);
-            };
-
-            this.play.OptionChosen += (sender, e) =>
-                {
-                    MenuNavigationOption option = (MenuNavigationOption) e.Code;
-                    switch (option)
-                    {
-                        case MenuNavigationOption.Back:
-                            this.SwitchPageTo(mainMenu);
-                            break;
-                        case MenuNavigationOption.Next:
-                            this.GameParametersReady.Invoke(this, new GameParametersReadyEventArgs(play.GameParametersModel));
-                            this.SwitchPageTo(loading);
-                            break;
-                    }
-                };
-
-            this.mainMenu.Cancelled += (sender, e) =>
-                {
-                    Game1.Quit();
-                };
-            this.play.Cancelled += (sender, e) =>
-                {
-                    this.SwitchPageTo(mainMenu);
-                };
-
-            this.loading.Ready += LoadingOnReady;
-
-            this.currentPage = mainMenu;
             music = content.Load<Song>("MenuContent/Summon the Rawk");
-            MediaPlayer.IsRepeating = true;
-            MediaPlayer.Volume = .6f;
-            MediaPlayer.Play(music);
+            this.LoadPages();
         }
 
         private void LoadingOnReady(object sender, EventArgs eventArgs)
@@ -154,7 +98,7 @@ namespace Tanks3DFPP.Menu
             }
         }
 
-        /// <summary>
+        /// <summary> 
         /// Method used to draw appropriate page of the menu.
         /// </summary>
         public void Draw()
@@ -170,27 +114,72 @@ namespace Tanks3DFPP.Menu
             currentPage.Update();
         }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="listWithResults"></param>
-        //public void setVariables(List<object> listWithResults)
-        //{
-        //    if ((int)listWithResults[1] == 1)
-        //    {
-        //        //next button in play page pressed
-        //        //set variables
-        //        Game1.GameParameters.MapScale = int.Parse((string)listWithResults[2]);
-        //        Game1.MaxHeight = int.Parse((string)listWithResults[3]);
-        //        Game1.Roughness = int.Parse((string)listWithResults[4]);
+        private void LoadPages()
+        {
+            mainMenu = new MainMenu(content, graphicsDevice);
+            help = new HelpPage(content, this.graphicsDevice);
+            play = new PlayPage(content, this.graphicsDevice, Game1.GameParameters);
+            loading = new LoadingPage(content, this.graphicsDevice);
 
-        //        playerNames = new List<string>();
-        //        for (int i = 0; i < listWithResults.Count - 5; ++i)
-        //        {
-        //            playerNames.Add((string)listWithResults[i + 5]);
-        //        }
-        //    }
-        //}
+            this.mainMenu.OptionChosen += (sender, e) =>
+            {
+                MainMenuPage targetPage = (MainMenuPage)e.Code;
+                switch (targetPage)
+                {
+                    case MainMenuPage.Play:
+                        this.SwitchPageTo(play);
+                        break;
+                    case MainMenuPage.Help:
+                        this.SwitchPageTo(help);
+                        break;
+                    case MainMenuPage.Quit:
+                        Game1.Quit();
+                        break;
+                }
+            };
+
+            this.help.OptionChosen += (sender, e) =>
+            {
+                this.SwitchPageTo(mainMenu);
+            };
+
+            this.play.OptionChosen += (sender, e) =>
+            {
+                MenuNavigationOption option = (MenuNavigationOption)e.Code;
+                switch (option)
+                {
+                    case MenuNavigationOption.Back:
+                        this.SwitchPageTo(mainMenu);
+                        break;
+                    case MenuNavigationOption.Next:
+                        this.GameParametersReady.Invoke(this, new GameParametersReadyEventArgs(play.GameParametersModel));
+                        this.SwitchPageTo(loading);
+                        break;
+                }
+            };
+
+            this.mainMenu.Cancelled += (sender, e) =>
+            {
+                Game1.Quit();
+            };
+            this.play.Cancelled += (sender, e) =>
+            {
+                this.SwitchPageTo(mainMenu);
+            };
+
+            this.loading.Ready += LoadingOnReady;
+
+            this.currentPage = mainMenu;
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Volume = .6f;
+            MediaPlayer.Play(music);
+        }
+
+        public void Reset()
+        {
+            this.LoadContent();
+            this.enabled = true;
+        }
     }
 }
 

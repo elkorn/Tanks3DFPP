@@ -13,7 +13,7 @@ namespace Tanks3DFPP.Tanks
         const float TurretTurnSpeed = 0.015f;
         const float CannonDegMax = -90;
         const float CannonDegMin = 0;
-        const float ScaleFactor = 0.05f;
+        const float ScaleFactor = 0.1f;
         const float MaxPower = 10.0f;
         const float MinPower = 1.5f;
         readonly Matrix ScaleMatrix = Matrix.CreateScale(ScaleFactor);
