@@ -33,6 +33,8 @@ namespace Tanks3DFPP
         private FPPCamera camera;
         private SpriteFont font;
 
+
+        private bool debug;
         /// <summary>
         ///     menu variable
         /// </summary>
@@ -150,6 +152,10 @@ namespace Tanks3DFPP
                 GraphicsDevice.RasterizerState = rs;
                 terrain.Draw(gameTime);
                 tankController.Draw(camera.View, projection);
+                if (debug)
+                {
+                    this.DrawDebugInfo();
+                }
             }
 
             base.Draw(gameTime);
@@ -175,30 +181,11 @@ namespace Tanks3DFPP
         {
             spriteBatch.Begin();
             spriteBatch.DrawString(font,
-                                   string.Format("Near: {0}, Far: {1}, rs: {2}", camera.Frustum.Near.D,
-                                                 camera.Frustum.Far.D,
-                                                 GraphicsDevice.RasterizerState.FillMode.ToString()), Vector2.Zero,
-                                   Color.Wheat);
-            spriteBatch.DrawString(font, string.Format("pos: {0}", camera.Position), Vector2.UnitY * 20, Color.Wheat);
-            spriteBatch.DrawString(font, string.Format("lookat: {0}", camera.LookAt), Vector2.UnitY * 40, Color.Wheat);
-            spriteBatch.DrawString(font, string.Format("vec: {0}", (camera).Direction), Vector2.UnitY * 60,
-                                   Color.Wheat);
-            spriteBatch.DrawString(font,
                                    string.Format("tris: {0}, culling: {1}", terrain.IndexCount / 3, terrain.CullingEnabled),
-                                   Vector2.UnitY * 80, Color.Wheat);
+                                  (Vector2.UnitX * GraphicsDevice.Viewport.Width * 0.6f), Color.Wheat);
             spriteBatch.End();
         }
         #endregion
-
-        //private void GenerateEverything()
-        //{
-        //    if (terrain != null)
-        //    {
-        //        terrain.Dispose();
-        //    }
-
-        //    tankController = new TankController(this);
-        //}
 
         /// <summary>
         ///     Allows the game to perform any initialization it needs to before starting to run.
@@ -341,6 +328,16 @@ namespace Tanks3DFPP
                     {
                         rs = new RasterizerState { FillMode = wireFrame ? FillMode.Solid : FillMode.WireFrame };
                         wireFrame = !wireFrame;
+                    });
+
+                KeyboardHandler.KeyAction(Keys.C, () =>
+                    {
+                        terrain.CullingEnabled = !terrain.CullingEnabled;
+                    });
+
+                KeyboardHandler.KeyAction(Keys.D, () =>
+                    {
+                        debug = !debug;
                     });
 
                 terrain.Update(camera);
