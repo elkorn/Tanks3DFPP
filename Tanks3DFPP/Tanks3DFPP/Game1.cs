@@ -124,6 +124,12 @@ namespace Tanks3DFPP
             terrain.Dispose();
         }
 
+        public void StartNew()
+        {
+            terrain.Dispose();
+            this.menu.ShowLoadingPage();
+        }
+
         /// <summary>
         ///     This is called when the game should draw itself.
         /// </summary>
@@ -184,15 +190,15 @@ namespace Tanks3DFPP
         }
         #endregion
 
-        private void GenerateEverything()
-        {
-            if (terrain != null)
-            {
-                terrain.Dispose();
-            }
+        //private void GenerateEverything()
+        //{
+        //    if (terrain != null)
+        //    {
+        //        terrain.Dispose();
+        //    }
 
-            tankController = new TankController(this);
-        }
+        //    tankController = new TankController(this);
+        //}
 
         /// <summary>
         ///     Allows the game to perform any initialization it needs to before starting to run.
@@ -211,7 +217,7 @@ namespace Tanks3DFPP
             menu = new Menu.Menu(this);
 
             menu.GameComponentsReady += MenuOnGameComponentsReady;
-            this.WireUpLoadingHandlers();
+            this.StartLoading();
             base.Initialize();
         }
 
@@ -225,8 +231,13 @@ namespace Tanks3DFPP
             this.menu.AddProgress(34);
         }
 
-        private void WireUpLoadingHandlers()
+        private void StartLoading()
         {
+            if (terrain != null)
+            {
+                terrain.Dispose();
+            }
+
             menu.GameParametersReady += (sender, e) =>
             {
                 GameParameters = e.Parameters;
@@ -326,7 +337,6 @@ namespace Tanks3DFPP
             }
             else
             {
-                KeyboardHandler.KeyAction(Keys.G, GenerateEverything);
                 KeyboardHandler.KeyAction(Keys.F, () =>
                     {
                         rs = new RasterizerState { FillMode = wireFrame ? FillMode.Solid : FillMode.WireFrame };

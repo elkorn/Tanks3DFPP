@@ -31,8 +31,6 @@ namespace Tanks3DFPP.Menu
             }
         }
 
-        private readonly int dCubeMovement, dTankMovement;
-
         public event EventHandler Ready;
 
         /// <summary>
@@ -43,8 +41,6 @@ namespace Tanks3DFPP.Menu
         public LoadingPage(ContentManager content, GraphicsDevice graphicsDevice)
             : base(content, graphicsDevice, Menu.AltBackgroundResourceName, new MenuOption[] { })
         {
-            dCubeMovement = (int)Math.Ceiling((12 / (float)graphicsDevice.Viewport.Width) * 100);
-            dTankMovement = (int)Math.Ceiling((27 / (float)graphicsDevice.Viewport.Width) * 100);
             cube = content.Load<Model>(string.Format("MenuContent/cube{0}", Game1.GameParameters.NumberOfPlayers));
             cubeRotationValue = rand.Next(70, 140);
             cubePosition = new Vector3(-700, 400, 0);
@@ -64,20 +60,24 @@ namespace Tanks3DFPP.Menu
             base.Draw(view, projection);
             tank.Draw(view, projection);
             this.DrawString("LOADING : ", 1.0f, new Vector2(-600, 0), view, projection);
-            //if (loadingPercent >= 100)
-            //    this.DrawString("PRESS ANY KEY TO CONTINUE...", 0.4f, new Vector2(-850, -500), view, projection);
             foreach (ModelMesh mesh in cube.Meshes)
             {
                 Matrix[] transforms = new Matrix[cube.Bones.Count];
                 cube.CopyAbsoluteBoneTransformsTo(transforms);
                 foreach (BasicEffect effect in mesh.Effects)
                 {
-                    Matrix transform = Matrix.Identity * Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(cubeRotationValue), MathHelper.ToRadians(cubeRotationValue / 2), MathHelper.ToRadians(cubeRotationValue / 3)) * Matrix.CreateScale(100) * Matrix.CreateTranslation(cubePosition);
-                    effect.World = effect.World = transforms[mesh.ParentBone.Index] * transform;
+                    effect.World = effect.World = transforms[mesh.ParentBone.Index] 
+                        * Matrix.CreateFromYawPitchRoll(
+                        MathHelper.ToRadians(cubeRotationValue),
+                        MathHelper.ToRadians(cubeRotationValue / 2),
+                        MathHelper.ToRadians(cubeRotationValue / 3)) 
+                        * Matrix.CreateScale(100)
+                        * Matrix.CreateTranslation(cubePosition);
                     effect.View = view;
                     effect.Projection = projection;
                     effect.EnableDefaultLighting();
                 }
+
                 mesh.Draw();
             }
         }

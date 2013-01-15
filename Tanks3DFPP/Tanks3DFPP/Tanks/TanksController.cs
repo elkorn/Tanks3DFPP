@@ -42,6 +42,9 @@ namespace Tanks3DFPP.Tanks
             get { return tanksInGame[TurnToken]; }
         }
 
+        private string pleaseWait = "PLEASE WAIT...";
+        private bool pleaseWaitVisible = false;
+
         BoundingSphere SphereHit;
         int HitIndex;
 
@@ -154,110 +157,20 @@ namespace Tanks3DFPP.Tanks
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public void Update(GameTime gameTime)
         {
-            KeyboardState KS = Keyboard.GetState();
-
-            PlayerInfoString = String.Format("{0}, Health {1}%",
-                TanksInGame[TurnToken].PlayerName,
-                TanksInGame[TurnToken].Health);
-            ShotInfoString = String.Format("Strength: {0} \nTurret angle: {1} \nCannon angle: {2} ",
-                TanksInGame[TurnToken].InitialVelocityPower,
-                MathHelper.ToDegrees(TanksInGame[TurnToken].TurretDirectionAngle),
-                MathHelper.ToDegrees(TanksInGame[TurnToken].CannonDirectionAngle));
-
-            KeyboardHandler.KeyAction(Keys.Z, () =>
+            if (TanksInGame.Count <= 1)
+            {
+                KeyboardHandler.KeyAction(Keys.Enter, () =>
                 {
-                    playersOrderedByScore.Add(TanksInGame[0].PlayerName);
-                    bDisplayScores = true;
-                    if (ambience != null)
-                        MediaPlayer.Stop();
-                    danseMacabre.Play();
-                    tanksInGame.RemoveAt(1);
-                });
-            // freeze handle input while missle in air
-            // update missle position after bshotfired (make is false when it hit sth)
-
-            if (!bShotFired)
-            {
-                TanksInGame[TurnToken].HandleInput(KS);
-            }
-
-            if (KeyPressed(Keys.Space) && !bShotFired) //(KS.IsKeyDown(Keys.Space))
-            {
-                MissleInGame.SetPreShotValues(TanksInGame[TurnToken].TurretDirectionAngle,
-                    TanksInGame[TurnToken].CannonDirectionAngle,
-                    TanksInGame[TurnToken].CannonPosition, //new Vector3(TanksInGame[TurnToken].CannonPosition.X, TanksInGame[TurnToken].CannonPosition.Y, TanksInGame[TurnToken].CannonPosition.Z), 
-                    TanksInGame[TurnToken].InitialVelocityPower);
-                bShotFired = true;
-                shotSound.Play();
-                this.ShotFired.Invoke(this, null);
-            }
-
-            HandleMovementSound();
-
-            if (bShotFired)
-            {
-                if (missileFlight.State != SoundState.Playing)
-                {
-                    missileFlight.Play();
-                }
-
-                //sound 
-                if (MissleInGame.UpdatePositionAfterShot(TanksInGame, TurnToken, out SphereHit, out HitIndex)) //0, 
-                {
-                    //Explosion.AddExplosion(new Vector2(GD.Viewport.X / 2, GD.Viewport.Y / 2), 4, 30.0f, 1000.0f, gameTime);
-                    if (HitIndex != -1)
-                    {
-                        // fire the particle system explosion anim at missle pos and hide the missle
-                        // reduce health of TanksInGame[HitIndex];
-                        TanksInGame[HitIndex].Health -= rand.Next(33, 51);
-                        if (TanksInGame[HitIndex].Health <= 0)
-                        {
-                            // animation of tank shattering in loop and camera zoomout to see the animation
-                            // fire the particle system huge explosion anim
-                            //tanksInGame[HitIndex].BrakeDown();
-                            playersOrderedByScore.Add(TanksInGame[HitIndex].PlayerName);
-                            tanksInGame.RemoveAt(HitIndex);
-
-                            // display scores
-                            if (TanksInGame.Count == 1)
-                            {
-                                playersOrderedByScore.Add(TanksInGame[0].PlayerName);
-                                bDisplayScores = true;
-                                if (ambience != null)
-                                    MediaPlayer.Stop();
-                                //ambience.Stop();
-                                danseMacabre.Play();
-                            }
-                        }
-                    }
-                    if (explosionSound != null)
-                        explosionSound.Play();
-                    // next turn
-                    ++TurnToken;
-                    TurnToken %= TanksInGame.Count;
-                    bShotFired = false;
-                    this.MissileExploded.Invoke(this, null);
-                    MissleInGame.SetPreShotValues(TanksInGame[TurnToken].TurretDirectionAngle,
-                    TanksInGame[TurnToken].CannonDirectionAngle,
-                    TanksInGame[TurnToken].Position,
-                    TanksInGame[TurnToken].InitialVelocityPower);
-                }
-                //allow free camera to look around
-            }
-            else if (missileFlight.State == SoundState.Playing)
-            {
-                missileFlight.Stop();
-            }
-
-            if (TanksInGame.Count == 1)
-            {
-                // go back to menu?
-
-                if (KS.IsKeyDown(Keys.Enter) && danseMacabre.State != SoundState.Playing)
-                {
+                    pleaseWaitVisible = true;
                     bDisplayScores = false;
                     game.Reset();
-                }
+                });
+                KeyboardHandler.KeyAction(Keys.G, () =>
+                {
+                    pleaseWaitVisible = true;
+                    bDisplayScores = false;
+                    this.game.StartNew();
+                });
             }
             else
             {
@@ -267,6 +180,105 @@ namespace Tanks3DFPP.Tanks
                     MediaPlayer.Volume = 1f;
                     MediaPlayer.Play(ambience);
                 }
+
+                KeyboardState KS = Keyboard.GetState();
+
+                PlayerInfoString = String.Format("{0}, Health {1}%",
+                                                 TanksInGame[TurnToken].PlayerName,
+                                                 TanksInGame[TurnToken].Health);
+                ShotInfoString = String.Format("Strength: {0} \nTurret angle: {1} \nCannon angle: {2} ",
+                                               TanksInGame[TurnToken].InitialVelocityPower,
+                                               MathHelper.ToDegrees(TanksInGame[TurnToken].TurretDirectionAngle),
+                                               MathHelper.ToDegrees(TanksInGame[TurnToken].CannonDirectionAngle));
+
+                KeyboardHandler.KeyAction(Keys.Z, () =>
+                {
+                    playersOrderedByScore.Add(TanksInGame[0].PlayerName);
+                    bDisplayScores = true;
+                    if (ambience != null)
+                        MediaPlayer.Stop();
+                    danseMacabre.Play();
+                    tanksInGame.RemoveAt(1);
+                });
+
+                KeyboardHandler.KeyAction(Keys.Escape, () =>
+                {
+                    game.Reset();
+                });
+
+                if (bShotFired)
+                {
+                    if (missileFlight.State != SoundState.Playing)
+                    {
+                        missileFlight.Play();
+                    }
+
+                    //sound 
+                    if (MissleInGame.UpdatePositionAfterShot(TanksInGame, TurnToken, out SphereHit, out HitIndex)) //0, 
+                    {
+                        //Explosion.AddExplosion(new Vector2(GD.Viewport.X / 2, GD.Viewport.Y / 2), 4, 30.0f, 1000.0f, gameTime);
+                        if (HitIndex != -1)
+                        {
+                            // fire the particle system explosion anim at missle pos and hide the missle
+                            // reduce health of TanksInGame[HitIndex];
+                            TanksInGame[HitIndex].Health -= rand.Next(33, 51);
+                            if (TanksInGame[HitIndex].Health <= 0)
+                            {
+                                // animation of tank shattering in loop and camera zoomout to see the animation
+                                // fire the particle system huge explosion anim
+                                //tanksInGame[HitIndex].BrakeDown();
+                                playersOrderedByScore.Add(TanksInGame[HitIndex].PlayerName);
+                                tanksInGame.RemoveAt(HitIndex);
+
+                                // display scores
+                                if (TanksInGame.Count == 1)
+                                {
+                                    playersOrderedByScore.Add(TanksInGame[0].PlayerName);
+                                    bDisplayScores = true;
+                                    if (ambience != null)
+                                        MediaPlayer.Stop();
+                                    //ambience.Stop();
+                                    danseMacabre.Play();
+                                }
+                            }
+                        }
+                        if (explosionSound != null)
+                            explosionSound.Play();
+                        // next turn
+                        ++TurnToken;
+                        TurnToken %= TanksInGame.Count;
+                        bShotFired = false;
+                        this.MissileExploded.Invoke(this, null);
+                        MissleInGame.SetPreShotValues(TanksInGame[TurnToken].TurretDirectionAngle,
+                        TanksInGame[TurnToken].CannonDirectionAngle,
+                        TanksInGame[TurnToken].Position,
+                        TanksInGame[TurnToken].InitialVelocityPower);
+                    }
+                    //allow free camera to look around
+                }
+                else
+                {
+                    TanksInGame[TurnToken].HandleInput(KS);
+
+                    KeyboardHandler.KeyAction(Keys.Space, () =>
+                    {
+                        MissleInGame.SetPreShotValues(TanksInGame[TurnToken].TurretDirectionAngle,
+                                                      TanksInGame[TurnToken].CannonDirectionAngle,
+                                                      TanksInGame[TurnToken].CannonPosition,
+                            //new Vector3(TanksInGame[TurnToken].CannonPosition.X, TanksInGame[TurnToken].CannonPosition.Y, TanksInGame[TurnToken].CannonPosition.Z), 
+                                                      TanksInGame[TurnToken].InitialVelocityPower);
+                        bShotFired = true;
+                        shotSound.Play();
+                        this.ShotFired.Invoke(this, null);
+                    });
+
+                    if (missileFlight.State == SoundState.Playing)
+                    {
+                        missileFlight.Stop();
+                    }
+                }
+
+                HandleMovementSound();
             }
         }
 
@@ -330,6 +342,12 @@ namespace Tanks3DFPP.Tanks
             }
 
             spriteBatch.Begin();
+
+            if (pleaseWaitVisible)
+            {
+                spriteBatch.DrawString(InfoFont, String.Format("Press G to start a new battle!\nPress Enter to chicken out."), (Vector2.UnitX * GD.Viewport.Width * 0.5f) + (Vector2.UnitY * GD.Viewport.Height * 0.5f), Color.Black);
+            }
+
             if (bDisplayScores)
             {
                 for (int i = playersOrderedByScore.Count - 1; i >= 0; --i)

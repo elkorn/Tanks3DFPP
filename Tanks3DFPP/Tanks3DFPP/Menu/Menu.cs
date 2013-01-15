@@ -180,6 +180,15 @@ namespace Tanks3DFPP.Menu
             this.LoadContent();
             this.enabled = true;
         }
+
+        public void ShowLoadingPage()
+        {
+            loading = new LoadingPage(content, this.graphicsDevice);
+            this.loading.Ready += LoadingOnReady;
+            this.currentPage = loading;
+            this.GameParametersReady.Invoke(this, new GameParametersReadyEventArgs(Game1.GameParameters));
+            this.enabled = true;
+        }
     }
 }
 
