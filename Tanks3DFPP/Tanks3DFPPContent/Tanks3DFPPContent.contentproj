@@ -193,11 +193,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="menuContent\controls.tga">
-      <Name>controls</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
     <Compile Include="menuContent\fontTexture.jpg">
       <Name>fontTexture</Name>
       <Importer>TextureImporter</Importer>
@@ -466,6 +461,13 @@
   <ItemGroup>
     <Compile Include="menuContent\18627-33959.jpg">
       <Name>18627-33959</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="menuContent\controls.jpg">
+      <Name>controls</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
