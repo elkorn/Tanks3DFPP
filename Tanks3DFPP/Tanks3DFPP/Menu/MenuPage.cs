@@ -183,6 +183,13 @@ namespace Tanks3DFPP.Menu
             characters.Draw(text, scale, new Vector3(position, 0), view, projection);
         }
 
+        protected void DrawTexture(Texture2D texture, Rectangle destination)
+        {
+            spriteBatch.Begin();
+            spriteBatch.Draw(texture, destination, Color.White);
+            spriteBatch.End();
+        }
+
         protected void CreateOptions(IEnumerable<MenuOption> options)
         {
             this.options = new List<MenuOption>();

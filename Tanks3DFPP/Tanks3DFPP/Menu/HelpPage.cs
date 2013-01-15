@@ -12,6 +12,8 @@ namespace Tanks3DFPP.Menu
     {
         private Texture2D controls;
 
+        private Rectangle controlsPosition;
+
         /// <summary>
         /// Class constructor loads necessary elements.
         /// </summary>
@@ -20,6 +22,7 @@ namespace Tanks3DFPP.Menu
             base(Content,graphicsDevice, Menu.DefaultBackgroundResourceName, new MenuOption[] {})
         {
             controls = Content.Load<Texture2D>("MenuContent/controls");
+            controlsPosition = new Rectangle(10, 50, graphicsDevice.Viewport.Width - 20, graphicsDevice.Viewport.Height - 120);
         }
 
         /// <summary>
@@ -30,7 +33,9 @@ namespace Tanks3DFPP.Menu
         public override void Draw(Matrix view, Matrix projection)
         {
             base.Draw(view, projection);
-            this.DrawString("CONTROLS", 1.0f, new Vector2(-550, 350), view, projection);
+            this.DrawTexture(controls, controlsPosition);
+            //this.DrawString("CONTROLS", 1.0f, new Vector2(-550, 350), view, projection);
+
             this.DrawString("PRESS ANY KEY TO CONTINUE...", 0.4f, new Vector2(-850, -600), view, projection);
         }
 

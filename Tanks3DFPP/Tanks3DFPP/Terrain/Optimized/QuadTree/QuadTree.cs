@@ -1,12 +1,9 @@
 ﻿using System.Threading;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Tanks3DFPP.Camera.Interfaces;
 using Tanks3DFPP.Terrain.Interfaces;
 using Tanks3DFPP.Terrain.Optimization.QuadTree;
-using Tanks3DFPP.Utilities;
 
 namespace Tanks3DFPP.Terrain
 {
@@ -174,7 +171,7 @@ namespace Tanks3DFPP.Terrain
 
         private void RotateLight(float degrees = 1)
         {
-            lightDir = Vector3.TransformNormal(lightDir, Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(degrees), 0, 0));
+            lightDir = Vector3.TransformNormal(lightDir, Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(degrees * Game1.GameParameters.LightChangeSpeed), 0, 0));
             lightDir.Normalize();
             Effect.Parameters["xLightDirection"].SetValue(lightDir);
         }
