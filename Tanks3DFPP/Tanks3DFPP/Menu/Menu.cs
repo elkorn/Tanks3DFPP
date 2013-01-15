@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using Tanks3DFPP.Utilities;
 
 namespace Tanks3DFPP.Menu
 {
@@ -16,228 +13,182 @@ namespace Tanks3DFPP.Menu
     /// </summary>
     public class Menu
     {
-
-        private int timesince = 0;
-        private int timeper = 200;
-        private SpriteBatch spritebatch;
-        private bool menuON = true;
+        public const string DefaultBackgroundResourceName = "MenuContent/xnuke.jpg.pagespeed.ic.XD9-0bi6PQ",
+            AltBackgroundResourceName = "MenuContent/18627-33959";
+        private bool enabled = true;
 
         private Song music;
-        /// <summary>
-        /// list of player names , size of it is player count(menu adjusted from 2 to 4 players)
-        /// </summary>
-        List<string> playerNames;
-        int mapSize = 10,
-            roughness = 500,
-            maxHeight = 300;
 
         /// <summary>
-        /// method to get menuON.
+        /// method to get enabled.
         /// </summary>
-        /// <returns>if true then menuON is on.</returns>      
-        public bool GetmenuON() { return menuON; }
+        /// <returns>if true then enabled is on.</returns>      
+        public bool Enabled
+        {
+            get { return enabled; }
+        }
 
-        public bool quit = false;
+        private MainMenu mainMenu;
+        private HelpPage help;
+        private PlayPage play;
+        private LoadingPage loading;
 
-        /// <summary>
-        /// Method to get quit.
-        /// </summary>
-        /// <returns>If true then quit is on.</returns>      
-        public bool Getquit() { return quit; }
+        private MenuPage currentPage;
 
-        private bool mainPageON = true;
-        private bool playPageON = false;
-        private bool loadingPageON = false;
-        private bool helpPageON = false;
-
-        private MainMenu mainMenuObj;
-        private HelpPage helpPageObj;
-        private PlayPage playPageObj;
-        private LoadingPage loadingPageObj;
-
-        private GraphicsDeviceManager graphics;
-        private Matrix world;
+        private GraphicsDevice graphicsDevice;
         private Matrix view;
         private Matrix projection;
 
-        private SoundEffect menuCancel;
         private SoundEffect menuChange;
+
+        public event EventHandler<GameParametersReadyEventArgs> GameParametersReady;
+        public event EventHandler GameComponentsReady;
+
+        private ContentManager content;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Menu" /> class.
         /// </summary>
-        /// <param name="Content">content manager reference</param>
+        /// <param name="content">content manager reference</param>
         /// <param name="graph">graphiscdevice reference</param>
-        public Menu(GraphicsDeviceManager graph)
+        public Menu(Game game)
         {
-            spritebatch = new SpriteBatch(graph.GraphicsDevice);
-            graphics = graph;
-            world = Matrix.Identity;
-            view = Matrix.CreateLookAt(new Vector3(0, 0, 1500), new Vector3(0, 0, 0), Vector3.Up);
+            this.content = new ContentManager(game.Content.ServiceProvider);
+            content.RootDirectory = "Content";
+            graphicsDevice = game.GraphicsDevice;
+            view = Matrix.CreateLookAt(Vector3.UnitZ * 1500, Vector3.Zero, Vector3.Up);
             projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45),
-                graphics.GraphicsDevice.Viewport.AspectRatio, 0.1f, 1000000.0f);
+                graphicsDevice.Viewport.AspectRatio, 0.1f, 1000000.0f);
+        }
+
+        private void SwitchPageTo(MenuPage page)
+        {
+            currentPage = page;
+            menuChange.Play();
         }
 
         /// <summary>
         /// Method used to load models and create necessary objects.
         /// </summary>
-        /// <param name="Content"></param>
-        public void LoadMenu(ContentManager Content, int siz, int rough, int maxh)
+        /// <param name="content"></param>
+        public void LoadContent()
         {
-            mapSize = siz;
-            roughness = rough;
-            maxHeight = maxh;
-            
-            menuCancel = Content.Load<SoundEffect>("MenuContent/menu_cancel");
-            menuChange = Content.Load<SoundEffect>("MenuContent/menu_change");
-            mainMenuObj = new MainMenu(Content, graphics.GraphicsDevice);
-            helpPageObj = new HelpPage(Content);
-            playPageObj = new PlayPage(Content,playerNames,mapSize,roughness,maxHeight);
-            loadingPageObj = new LoadingPage(Content);
-
-            music = Content.Load<Song>("Summon the Rawk");
-            MediaPlayer.IsRepeating = true;
-            MediaPlayer.Play(music);
+            menuChange = content.Load<SoundEffect>("MenuContent/150219__killkhan__reload-4");
+            music = content.Load<Song>("MenuContent/Summon the Rawk");
+            this.LoadPages();
         }
 
-        /// <summary>
+        private void LoadingOnReady(object sender, EventArgs eventArgs)
+        {
+            MediaPlayer.Stop();
+            this.content.Unload();    // may wanna go back to the menu
+            this.GameComponentsReady.Invoke(this, null);
+            this.enabled = false;
+        }
+
+        public void AddProgress(int howMuch)
+        {
+            if (this.currentPage == this.loading)
+            {
+                this.loading.AddProgress(howMuch);
+            }
+            else
+            {
+                throw new InvalidOperationException("Cannot add progress in this state.");
+            }
+        }
+
+        /// <summary> 
         /// Method used to draw appropriate page of the menu.
         /// </summary>
-        public void showMenu()
+        public void Draw()
         {
-          //  if (timesince > timeper)
-          //  {
-                if (mainPageON)
-                {
-                    mainMenuObj.showMainMenu(view, projection, graphics.GraphicsDevice);
-                }
-                if (helpPageON)
-                {
-                    helpPageObj.showhelpPage(spritebatch, graphics.GraphicsDevice, view, projection);
-                }
-                if (playPageON)
-                {
-                    playPageObj.showPlayPage(spritebatch, graphics.GraphicsDevice, view, projection);
-                }
-                if (loadingPageON)
-                {
-                    loadingPageObj.showLoadingPage(spritebatch, view, projection, graphics.GraphicsDevice);
-                }
-          //  }
+            currentPage.Draw(view, projection);
         }
 
         /// <summary>
         /// Method used to update menu elements.
         /// </summary>
-        /// <param name="gameTime">Gametime.</param>
-        /// <param name="percent">loading terrain percent value</param>
-        /// <returns>Method returns list including: 
-        /// Menu state in int, 0-not done , 1 - play page is done , 2 - loading page is done,
-        /// Depending on the state the rest is either from play page or loading page. 
-        /// </returns>
-        public List<object> updateMenu(GameTime gameTime, int percent)
+        public void Update()
         {
-            List<object> result = new List<object>();
-            result.Add(0);
-            timesince += gameTime.ElapsedGameTime.Milliseconds;
-            if (timesince > timeper)
-            {
-                if (mainPageON)
-                {
-                    switch (mainMenuObj.updateMainMenu())
-                    {
-                        case 0:
-                            playPageON = true;
-                            mainPageON = false;
-                            menuChange.Play();
-                            timesince = 0;
-                            break;
-                        case 1:
-                            helpPageON = true;
-                            mainPageON = false;
-                            menuChange.Play();
-                            timesince = 0;
-                            break;
-                        case 2:
-                            quit = true;
-                            menuChange.Play();
-                            timesince = 0;
-                            break;
-                    }
-                }
-
-                if (helpPageON)
-                {
-                    result[0] = 0;
-                    if (helpPageObj.updatehelpPage())
-                    {
-                        mainPageON = true;
-                        helpPageON = false;
-                        menuChange.Play();
-                        timesince = 0;
-                    }
-                }
-
-                if (loadingPageON)
-                {
-                    result[0] = 2;
-                    if (loadingPageObj.updateLoadingPage(graphics.GraphicsDevice, percent))
-                    {                        
-                        result.Add(loadingPageObj.whichSideOfTheCube());
-                        MediaPlayer.Stop();
-                        menuON = false;
-                    }
-                }
-
-                if (playPageON)
-                {
-                    result[0] = 1;
-                    result.AddRange(playPageObj.updateplayPage());
-                    if ((int)result[1] == 1)
-                    {
-                        //next button pressed
-                        playPageON = false;
-                        loadingPageON = true;
-                        loadingPageObj.playernumber = result.Count - 5;
-                        menuChange.Play();
-                        timesince = 0;
-                        setVariables(result);
-                    }
-                    if ((int)result[1] == -1)
-                    {
-                        //back button pressed
-                        playPageON = false;
-                        mainPageON = true;
-                        menuChange.Play();
-                        timesince = 0;
-                    }
-                }
-
-            }
-            return result;
+            currentPage.Update();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="listWithResults"></param>
-        public void setVariables(List<object> listWithResults)
+        private void LoadPages()
         {
-                if ((int)listWithResults[1] == 1)
+            mainMenu = new MainMenu(content, graphicsDevice);
+            help = new HelpPage(content, this.graphicsDevice);
+            play = new PlayPage(content, this.graphicsDevice, Game1.GameParameters);
+            loading = new LoadingPage(content, this.graphicsDevice);
+
+            this.mainMenu.OptionChosen += (sender, e) =>
+            {
+                MainMenuPage targetPage = (MainMenuPage)e.Code;
+                switch (targetPage)
                 {
-                    //next button in play page pressed
-                    //set variables
-                    mapSize = int.Parse((string)listWithResults[2]);
-                    maxHeight = int.Parse((string)listWithResults[3]);
-                    roughness = int.Parse((string)listWithResults[4]);
-
-                    playerNames = new List<string>();
-                    for (int i = 0; i < listWithResults.Count - 5; ++i)
-                    {
-                        playerNames.Add((string)listWithResults[i + 5]);
-                    }
+                    case MainMenuPage.Play:
+                        this.SwitchPageTo(play);
+                        break;
+                    case MainMenuPage.Help:
+                        this.SwitchPageTo(help);
+                        break;
+                    case MainMenuPage.Quit:
+                        Game1.Quit();
+                        break;
                 }
+            };
 
+            this.help.OptionChosen += (sender, e) =>
+            {
+                this.SwitchPageTo(mainMenu);
+            };
+
+            this.play.OptionChosen += (sender, e) =>
+            {
+                MenuNavigationOption option = (MenuNavigationOption)e.Code;
+                switch (option)
+                {
+                    case MenuNavigationOption.Back:
+                        this.SwitchPageTo(mainMenu);
+                        break;
+                    case MenuNavigationOption.Next:
+                        this.GameParametersReady.Invoke(this, new GameParametersReadyEventArgs(play.GameParametersModel));
+                        this.SwitchPageTo(loading);
+                        break;
+                }
+            };
+
+            this.mainMenu.Cancelled += (sender, e) =>
+            {
+                Game1.Quit();
+            };
+            this.play.Cancelled += (sender, e) =>
+            {
+                this.SwitchPageTo(mainMenu);
+            };
+
+            this.loading.Ready += LoadingOnReady;
+
+            this.currentPage = mainMenu;
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Volume = .6f;
+            MediaPlayer.Play(music);
+        }
+
+        public void Reset()
+        {
+            this.LoadContent();
+            this.enabled = true;
+        }
+
+        public void ShowLoadingPage()
+        {
+            loading = new LoadingPage(content, this.graphicsDevice);
+            this.loading.Ready += LoadingOnReady;
+            this.currentPage = loading;
+            this.GameParametersReady.Invoke(this, new GameParametersReadyEventArgs(Game1.GameParameters));
+            this.enabled = true;
         }
     }
 }
+

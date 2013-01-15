@@ -1,78 +1,54 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
+using Tanks3DFPP.Utilities;
 
 namespace Tanks3DFPP.Menu
 {
     /// <summary>
     /// Class used to handle help page.
     /// </summary>
-    public class HelpPage
+    internal class HelpPage: MenuPage
     {
-
-        private bool waitOn = false;
-        private Texture2D backGround;
         private Texture2D controls;
-        private Characters characters;
+
+        private Rectangle controlsPosition;
 
         /// <summary>
         /// Class constructor loads necessary elements.
         /// </summary>
         /// <param name="Content"></param>
-        public HelpPage(ContentManager Content)
+        public HelpPage(ContentManager Content, GraphicsDevice graphicsDevice):
+            base(Content,graphicsDevice, Menu.DefaultBackgroundResourceName, new MenuOption[] {})
         {
-            characters = new Characters(Content);
-            backGround = Content.Load<Texture2D>("MenuContent/xnuke.jpg.pagespeed.ic.XD9-0bi6PQ");
             controls = Content.Load<Texture2D>("MenuContent/controls");
+            controlsPosition = new Rectangle(10, 50, graphicsDevice.Viewport.Width - 20, graphicsDevice.Viewport.Height - 120);
         }
 
         /// <summary>
         /// Method used to draw help page.
         /// </summary>
-        /// <param name="spritebatch">Spritebatch.</param>
-        /// <param name="GraphicsDevice">Graphics device.</param>
         /// <param name="view">View matrix.</param>
         /// <param name="projection">Projection matrix.</param>
-        public void showhelpPage(SpriteBatch spritebatch, GraphicsDevice GraphicsDevice, Matrix view, Matrix projection)
+        public override void Draw(Matrix view, Matrix projection)
         {
-            spritebatch.Begin();
-            spritebatch.Draw(backGround, new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height), Color.White);
-            spritebatch.Draw(controls, new Rectangle(0, GraphicsDevice.Viewport.Height / 4, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height - GraphicsDevice.Viewport.Height / 3), Color.White);
-            spritebatch.End();
+            base.Draw(view, projection);
+            this.DrawTexture(controls, controlsPosition);
+            //this.DrawString("CONTROLS", 1.0f, new Vector2(-550, 350), view, projection);
 
-            GraphicsDevice.BlendState = BlendState.Opaque;
-            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-            GraphicsDevice.SamplerStates[0] = SamplerState.LinearWrap;
-
-            characters.Draw("CONTROLS", 1.0f, new Vector3(-550, 350, 0), view, projection);
-            characters.Draw("PRESS ANY KEY TO CONTINUE...", 0.4f, new Vector3(-850, -600, 0), view, projection);
-
+            this.DrawString("PRESS ANY KEY TO CONTINUE...", 0.4f, new Vector2(-850, -600), view, projection);
         }
 
         /// <summary>
         /// Method used to update help page.
         /// </summary>
         /// <returns></returns>
-        public bool updatehelpPage()
+        public override void Update()
         {
-            bool result = false;
-            if (Keyboard.GetState().GetPressedKeys().Length == 0)
-            {
-                waitOn = true;
-            }
-            if (waitOn && Keyboard.GetState().GetPressedKeys().Length > 0)
-            {
-                waitOn = false;
-                result = true;
-            }
-            return result;
+           KeyboardHandler.AnyKey(() =>
+               {
+                   this.FireOptionChosen(this);
+               });
         }
     }
 }

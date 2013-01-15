@@ -17,7 +17,6 @@ namespace Tanks3DFPP.Camera
         private float cameraSpeed = 140.0f;
         private bool leftMousePreviouslyDown;
         private Point mouseStartPoint;
-        private KeyboardHandler keyboardHandler = new KeyboardHandler();
 
         public Microsoft.Xna.Framework.Vector3 Position { get; set; }
 
@@ -45,14 +44,14 @@ namespace Tanks3DFPP.Camera
             Vector3 viewDirection = distance;
             viewDirection.Normalize();
 
-            keyboardHandler.TurboKeyAction(Keys.W, () =>
+            KeyboardHandler.TurboKeyAction(Keys.W, () =>
             {
                 Vector3 shift = (float)gameTime.ElapsedGameTime.TotalSeconds * viewDirection * cameraSpeed;
                 this.Position -= shift;
                 this.LookAt -= shift;
             });
 
-            keyboardHandler.TurboKeyAction(Keys.S, () =>
+            KeyboardHandler.TurboKeyAction(Keys.S, () =>
             {
                 Vector3 shift = (float)gameTime.ElapsedGameTime.TotalSeconds * viewDirection * cameraSpeed;
                 this.Position += shift;

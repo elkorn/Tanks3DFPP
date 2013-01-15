@@ -1,27 +1,27 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Threading;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Tanks3DFPP.Camera.Interfaces;
+using Tanks3DFPP.Terrain.Interfaces;
 using Tanks3DFPP.Terrain.Optimization.QuadTree;
-using Tanks3DFPP.Utilities;
 
 namespace Tanks3DFPP.Terrain
 {
-    public class QuadTree : GameComponent
+    public class QuadTree : AsyncLoadingElement
     {
         public readonly int MinimumDepth = 7;
-        private readonly BufferManager buffers;
+        private BufferManager buffers;
         private readonly Effect effect;
         private readonly Texture grass;
         private readonly Vector3 position;
         private Vector3 lightDir;
         private readonly Texture rock;
-        private readonly QuadNode root;
+        private QuadNode root;
         private readonly Texture sand;
         private readonly Texture snow;
 
-        private readonly int topNodeSize;
-        private readonly TreeVertexCollection vertices;
+        private int topNodeSize;
+        private TreeVertexCollection vertices;
 
         /// <summary>
         ///     The indices to be currently used.
@@ -36,29 +36,36 @@ namespace Tanks3DFPP.Terrain
 
         private BoundingFrustum lastCameraFrustum;
 
-        public QuadTree(Game game, Vector3 position, IHeightMap heightMap, Matrix view, Matrix projection, int scale)
-            : base(game)
+        private GraphicsDevice graphicsDevice;
+
+        public QuadTree(Game game, Vector3 position, Matrix view, Matrix projection)
         {
+            this.graphicsDevice = game.GraphicsDevice;
             this.position = position;
-            topNodeSize = heightMap.Width - 1;
-
-            vertices = new TreeVertexCollection(this.position, heightMap, scale);
-            buffers = new BufferManager(vertices.Vertices, GraphicsDevice);
-
-            effect = Game.Content.Load<Effect>("Multitexture");
-            sand = Game.Content.Load<Texture>("Dirt cracked 00 seamless");
-            grass = Game.Content.Load<Texture>("grass0026_1_l2");
-            rock = Game.Content.Load<Texture>("Tileable stone texture (2)");
-            snow = Game.Content.Load<Texture>("snow");
-
+            effect = game.Content.Load<Effect>("Multitexture");
+            sand = game.Content.Load<Texture>("Dirt cracked 00 seamless");
+            grass = game.Content.Load<Texture>("grass0026_1_l2");
+            rock = game.Content.Load<Texture>("Tileable stone texture (2)");
+            snow = game.Content.Load<Texture>("snow");
 
             View = view;
             Projection = projection;
 
             InitializeEffect();
+        }
 
-            root = new QuadNode(NodeType.FullNode, topNodeSize, 1, null, this, 0);
-            Indices = new int[(heightMap.Width + 1) * (heightMap.Height + 1) * 3];
+        public void Initialize(IHeightMap heightMap)
+        {
+            Thread t = new Thread(() =>
+                {
+                    topNodeSize = heightMap.Width - 1;
+                    vertices = new TreeVertexCollection(this.position, heightMap, Game1.GameParameters.MapScale);
+                    buffers = new BufferManager(vertices.Vertices, GraphicsDevice);
+                    root = new QuadNode(NodeType.FullNode, topNodeSize, 1, null, this, 0);
+                    Indices = new int[(heightMap.Width + 1) * (heightMap.Height + 1) * 3];
+                    this.FireReady(this);
+                });
+            t.Start();
         }
 
         internal BoundingFrustum ViewFrustum
@@ -68,9 +75,9 @@ namespace Tanks3DFPP.Terrain
 
         public bool CullingEnabled { get; set; }
 
-        public GraphicsDevice GraphicsDevice
+        internal GraphicsDevice GraphicsDevice
         {
-            get { return Game.GraphicsDevice; }
+            get { return this.graphicsDevice; }
         }
 
         public int TopNodeSize
@@ -93,10 +100,9 @@ namespace Tanks3DFPP.Terrain
             get { return effect; }
         }
 
-        protected override void Dispose(bool disposing)
+        public void Dispose()
         {
             buffers.Dispose();
-            base.Dispose(disposing);
         }
 
         public void Draw(GameTime gameTime)
@@ -110,14 +116,6 @@ namespace Tanks3DFPP.Terrain
                 GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, vertices.Vertices.Length, 0,
                                                      IndexCount / 3);
             }
-        }
-
-        private void InitializeFog(float start, float end, Color color)
-        {
-            this.effect.Parameters["xFogStart"].SetValue(start);
-            this.effect.Parameters["xFogEnd"].SetValue(end);
-            this.effect.Parameters["xFogColor"].SetValue(new Vector3(color.R,color.G,color.B));
-            this.effect.Parameters["xFogEnabled"].SetValue(true);
         }
 
         private void InitializeEffect()
@@ -143,15 +141,15 @@ namespace Tanks3DFPP.Terrain
             Effect.Parameters["xAmbient"].SetValue(value);
         }
 
-        private void MoreAmbient()
-        {
-            this.SetAmbient(Effect.Parameters["xAmbient"].GetValueSingle() + .1f);
-        }
+        //private void MoreAmbient()
+        //{
+        //    this.SetAmbient(Effect.Parameters["xAmbient"].GetValueSingle() + .1f);
+        //}
 
-        private void LessAmbient()
-        {
-            this.SetAmbient(Effect.Parameters["xAmbient"].GetValueSingle() - .1f);
-        }
+        //private void LessAmbient()
+        //{
+        //    this.SetAmbient(Effect.Parameters["xAmbient"].GetValueSingle() - .1f);
+        //}
 
         public void SwitchBlending(bool? value)
         {
@@ -173,7 +171,7 @@ namespace Tanks3DFPP.Terrain
 
         private void RotateLight(float degrees = 1)
         {
-            lightDir = Vector3.TransformNormal(lightDir, Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(degrees), 0, 0));
+            lightDir = Vector3.TransformNormal(lightDir, Matrix.CreateFromYawPitchRoll(MathHelper.ToRadians(degrees * Game1.GameParameters.LightChangeSpeed), 0, 0));
             lightDir.Normalize();
             Effect.Parameters["xLightDirection"].SetValue(lightDir);
         }
@@ -183,7 +181,6 @@ namespace Tanks3DFPP.Terrain
             // Checking camera position is not enough - terrain has to update also while changing the angle.
             if (camera.Frustum != lastCameraFrustum)
             {
-
                 Effect.Parameters["xView"].SetValue(camera.View);
 
                 lastCameraFrustum = camera.Frustum;

@@ -135,8 +135,8 @@ namespace Tanks3DFPP.Tanks
         {
             KeyboardState KS = Keyboard.GetState();
 
-            PlayerInfoString = String.Format("Player: [{0}], Health {1}%",
-                TurnToken,
+            PlayerInfoString = String.Format("{0}, Health {1}%",
+                Game1.GameParameters.,
                 TanksInGame[TurnToken].Health);
             ShotInfoString = String.Format("Strength: {0} \nTurret angle: {1} \nCannon angle: {2} ",
                 TanksInGame[TurnToken].InitialVelocityPower,

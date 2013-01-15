@@ -12,7 +12,7 @@ namespace Tanks3DFPP.Entities
         private Matrix[] modelTransforms;
         private Matrix baseTransform;
         private Texture2D texture;
-        public Sky(GraphicsDevice device, ContentManager content, Matrix projection, float width)
+        public Sky(GraphicsDevice device, ContentManager content, Matrix projection, float width, int scale)
         {
             dome = content.Load<Model>("dome");
             texture = content.Load<Texture2D>("fractal_sky_by_nplmxandi-d5fo0bi");
@@ -23,7 +23,7 @@ namespace Tanks3DFPP.Entities
             effect.Projection = projection;
             dome.Meshes[0].MeshParts[0].Effect = effect;
             modelTransforms = new Matrix[dome.Bones.Count];
-            this.baseTransform = Matrix.CreateTranslation(0, -.3f, 0) * Matrix.CreateScale(width * Game1.Scale);
+            this.baseTransform = Matrix.CreateTranslation(0, -.3f, 0) * Matrix.CreateScale(width * scale);
         }
 
         public void Draw(ICamera camera)

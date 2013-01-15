@@ -158,11 +158,6 @@
       <Importer>Mp3Importer</Importer>
       <Processor>SoundEffectProcessor</Processor>
     </Compile>
-    <Compile Include="Summon the Rawk.mp3">
-      <Name>Summon the Rawk</Name>
-      <Importer>Mp3Importer</Importer>
-      <Processor>SongProcessor</Processor>
-    </Compile>
     <Compile Include="turret.mp3">
       <Name>turret</Name>
       <Importer>Mp3Importer</Importer>
@@ -198,35 +193,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="menuContent\backGround.bmp">
-      <Name>backGround</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="menuContent\controls.tga">
-      <Name>controls</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
     <Compile Include="menuContent\fontTexture.jpg">
       <Name>fontTexture</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="menuContent\menu_cancel.wav">
-      <Name>menu_cancel</Name>
-      <Importer>WavImporter</Importer>
-      <Processor>SoundEffectProcessor</Processor>
-    </Compile>
-    <Compile Include="menuContent\menu_change.wav">
-      <Name>menu_change</Name>
-      <Importer>WavImporter</Importer>
-      <Processor>SoundEffectProcessor</Processor>
-    </Compile>
-    <Compile Include="menuContent\menu_select.wav">
-      <Name>menu_select</Name>
-      <Importer>WavImporter</Importer>
-      <Processor>SoundEffectProcessor</Processor>
     </Compile>
     <Compile Include="menuContent\pawball.tga">
       <Name>pawball</Name>
@@ -477,15 +447,27 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="menuContent\TextureX steel texture shiney piece metal silver camo pattern Texture %281%29.jpg">
-      <Name>TextureX steel texture shiney piece metal silver camo pattern Texture %281%29</Name>
+    <Compile Include="menuContent\150219__killkhan__reload-4.mp3">
+      <Name>150219__killkhan__reload-4</Name>
+      <Importer>Mp3Importer</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+    </Compile>
+    <Compile Include="menuContent\150220__killkhan__reload-1.mp3">
+      <Name>150220__killkhan__reload-1</Name>
+      <Importer>Mp3Importer</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="menuContent\18627-33959.jpg">
+      <Name>18627-33959</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="menuContent\nuke_symbol_Wallpaper_lnsps.jpg">
-      <Name>nuke_symbol_Wallpaper_lnsps</Name>
+    <Compile Include="menuContent\controls.jpg">
+      <Name>controls</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>

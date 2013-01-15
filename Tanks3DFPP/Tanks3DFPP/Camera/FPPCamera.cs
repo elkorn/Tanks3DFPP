@@ -18,11 +18,11 @@ namespace Tanks3DFPP.Camera
         private float pitchAngle;
         private MouseState referenceMouseState;
 
-        private KeyboardHandler keyboardHandler = new KeyboardHandler();
-
         private Vector3 up;
         private float yawAngle;
         private bool bNeedsToResetPitchAngle;
+
+        public bool ControlledByMouse { get; set; }
 
         public FPPCamera(GraphicsDevice device, Vector3 startingPosition, float rotationSpeed, float moveSpeed,
                          Matrix projection)
@@ -84,24 +84,43 @@ namespace Tanks3DFPP.Camera
 
         public void Update(GameTime gameTime)
         {
-            Vector3 velocity = Vector3.Zero;
-            keyboardHandler.TurboKeyAction(Keys.W, () => { velocity += -Vector3.UnitZ; });
-            keyboardHandler.TurboKeyAction(Keys.S, () => { velocity += Vector3.UnitZ; });
-            keyboardHandler.TurboKeyAction(Keys.A, () => { velocity += -Vector3.UnitX; });
-            keyboardHandler.TurboKeyAction(Keys.D, () => { velocity += Vector3.UnitX; });
+            //Vector3 velocity = Vector3.Zero;
+            //KeyboardHandler.TurboKeyAction(Keys.W, () =>
+            //    {
+            //        velocity += -Vector3.UnitZ;
+            //    });
+            //KeyboardHandler.TurboKeyAction(Keys.S, () =>
+            //    {
+            //        velocity += Vector3.UnitZ;
+            //    });
+            //KeyboardHandler.TurboKeyAction(Keys.A, () =>
+            //    {
+            //        velocity += -Vector3.UnitX;
+            //    });
+            //KeyboardHandler.TurboKeyAction(Keys.D, () =>
+            //    {
+            //        velocity += Vector3.UnitX;
+            //    });
 
-            keyboardHandler.TurboKeyAction(Keys.OemPlus, () => { moveSpeed++; });
-            keyboardHandler.TurboKeyAction(Keys.OemMinus, () => { moveSpeed--; });
+            //KeyboardHandler.TurboKeyAction(Keys.OemPlus, () => { moveSpeed++; });
+            //KeyboardHandler.TurboKeyAction(Keys.OemMinus, () => { moveSpeed--; });
 
-            Move(velocity);
-            Rotate((float) (gameTime.ElapsedGameTime.TotalMilliseconds/1000));
+            //if (velocity != Vector3.Zero)
+            //{
+            //    Move(velocity);
+            //}
+
+            if (this.ControlledByMouse)
+            {
+                Rotate((float) (gameTime.ElapsedGameTime.TotalMilliseconds/1000));
+            }
         }
 
         #endregion
 
         private Vector2 GetMousePositionDifference()
         {
-            MouseState currentState = Mouse.GetState();
+            MouseState currentState = this.ControlledByMouse ? Mouse.GetState() : this.originalMouseState;
             return new Vector2(currentState.X - originalMouseState.X, currentState.Y - originalMouseState.Y);
         }
 
@@ -137,8 +156,7 @@ namespace Tanks3DFPP.Camera
             pitchAngle = -tank.PreviousCannonDirectionAngle;
             yawAngle = tank.PreviousTurretDirectionAngle;
             pitchAngle -= tank.CannonDirectionAngle - tank.PreviousCannonDirectionAngle;
-            yawAngle += tank.TurretDirectionAngle - tank.PreviousTurretDirectionAngle;
-
+            yawAngle += tank.TurretDirectionAngle - tank.PreviousTurretDirectionAngle + MathHelper.ToRadians(180);
             Position = tank.CannonPosition;
             UpdateView();
             bNeedsToResetPitchAngle = true;
@@ -151,6 +169,7 @@ namespace Tanks3DFPP.Camera
                 pitchAngle = 0;
                 bNeedsToResetPitchAngle = false;
             }
+
             this.Position = missilePos;
             LookAt = -this.up;
         }
