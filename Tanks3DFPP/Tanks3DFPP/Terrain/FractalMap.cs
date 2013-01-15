@@ -29,6 +29,8 @@ namespace Tanks3DFPP.Terrain
         }
         private bool scribeMode;
 
+        private int afterSmoothingLevel;
+
         public float[,] Data
         {
             get
@@ -62,7 +64,7 @@ namespace Tanks3DFPP.Terrain
             Vector3? result = null;
             while (result == null)
             {
-                
+
             }
 
             return null;
@@ -92,12 +94,8 @@ namespace Tanks3DFPP.Terrain
                 }
             }
 
-            //AsyncLoadingElement.Progress += (sender, e) =>
-            //    {
-            //        ++TotalProgress;
-            //    };
-
-    this.HeightOffset = (int)maxHeight;
+            this.afterSmoothingLevel = afterSmoothingLevel;
+            this.HeightOffset = (int)maxHeight;
             rand = new Random();
             this.mapDimension = (1 << size);
             this.maxHeight = maxHeight;
@@ -112,13 +110,15 @@ namespace Tanks3DFPP.Terrain
             Thread t = new Thread(() =>
                 {
                     GenerateHeightData();
+                    if (afterSmoothingLevel > 0)
+                    {
+                        this.SmoothTerrain(afterSmoothingLevel);
+                    }
+
                     this.FireReady(this);
                 });
             t.Start();
-            //if (afterSmoothingLevel > 0)
-            //{
-            //    this.SmoothTerrain(afterSmoothingLevel);
-            //}
+       
         }
 
         private void GenerateHeightData()
@@ -335,7 +335,7 @@ namespace Tanks3DFPP.Terrain
         }
 
         public static event EventHandler<ProgressEventArgs> Progressing;
-        
+
         public static int TotalProgress { get; private set; }
     }
 }

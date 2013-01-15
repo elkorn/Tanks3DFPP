@@ -22,12 +22,7 @@ namespace Tanks3DFPP
         public static FractalMap heightMap;
         public static GameParameters GameParameters = new GameParameters();
 
-        private static int mapSize = 10,
-                           roughness = 500,
-                           maxHeight = 300,
-                           scale = 1,
-            //TODO: Wire this up.
-                           lightChangeSpeed = 1;
+        private static int mapSize = 10;
 
         private readonly GraphicsDeviceManager graphics;
         private FPPCamera camera;
@@ -68,50 +63,6 @@ namespace Tanks3DFPP
             graphics = new GraphicsDeviceManager(this);
             Quitting += (sender, e) => { Exit(); };
         }
-
-        //public static int MapScale
-        //{
-        //    get { return scale; }
-
-        //    set
-        //    {
-        //        if (value > 0 && value < 16)
-        //        {
-        //            scale = value;
-        //        }
-        //    }
-        //}
-
-        //public static int MaxHeight
-        //{
-        //    get { return maxHeight; }
-
-        //    set
-        //    {
-        //        if (value >= 100 && value <= 1000)
-        //        {
-        //            maxHeight = value;
-        //        }
-        //    }
-        //}
-
-        //public static int Roughness
-        //{
-        //    get { return roughness; }
-        //    set
-        //    {
-        //        if (value >= 150 && value <= 900)
-        //        {
-        //            roughness = value;
-        //        }
-        //    }
-        //}
-
-        //public static int LightChangeSpeed
-        //{
-        //    get { return lightChangeSpeed; }
-        //    set { lightChangeSpeed = value; }
-        //}
 
         public static KeyboardState CurrentKeyboardState { get; private set; }
         public static MouseState CurrentMouseState { get; private set; }
@@ -195,7 +146,7 @@ namespace Tanks3DFPP
         /// </summary>
         protected override void Initialize()
         {
-            QuadNode.limY = (GameParameters.MapScale + 1) * maxHeight;
+            QuadNode.limY = (GameParameters.MapScale + 1) * GameParameters.MaxMapHeight;
             projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45),
                                                              GraphicsDevice.Viewport.AspectRatio,
                                                              1,
@@ -236,7 +187,7 @@ namespace Tanks3DFPP
                 heightMap.Ready += (s, ea) =>
                 {
                     camera = new FPPCamera(GraphicsDevice,
-                                           new Vector3(500, maxHeight * GameParameters.MapScale, 500),
+                                           new Vector3(500, GameParameters.MaxMapHeight * GameParameters.MapScale, 500),
                                            0.3f,
                                            2.0f,
                                            projection);
